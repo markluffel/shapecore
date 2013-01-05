@@ -1,0 +1,4 @@
+A simple library of assorted geometric functions/objects.
+
+Written in Java, depends on Jama and Processing.
+Source code includes Lee Byron's megamu.Mesh code and John E. Lloyd's QuickHull3D code.
