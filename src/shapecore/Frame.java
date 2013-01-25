@@ -5,7 +5,7 @@ import static shapecore.Geometry.*;
 
 import java.io.Serializable;
 
-
+// TODO: make a frame with scaling
 public class Frame implements Serializable {
   static final long serialVersionUID = -33l;
   public pt pos = new pt();
@@ -13,7 +13,7 @@ public class Frame implements Serializable {
   
   public static Frame make(pt pos, float angle) {
     Frame f = new Frame();
-    f.pos.set(pos);
+    f.pos = pos;
     f.angle = angle;
     return f;
   }
@@ -29,12 +29,13 @@ public class Frame implements Serializable {
   }
   
   public Frame get() {
-    return Frame.make(pos, angle);
+    return Frame.make(pos.get(), angle);
   }
 
   public void lerp(Frame goal, float amount) {
     pos.translateTowardsByRatio(amount, goal.pos);
     angle = Oplet.circular_lerp(angle, goal.angle, amount);
+    //scale = Oplet.geometricLerp(this.scale, goal.scale, amount);
   }
   public void lerp(pt _pos, float amount) {
     pos.translateTowardsByRatio(amount, _pos);
@@ -53,7 +54,7 @@ public class Frame implements Serializable {
   public Frame toLocal(Frame that) {
     return Frame.make(P(toLocal(that.pos)), Oplet.angle_diff(this.angle, that.angle));
   }
-  
+    
   public vec toLocal(pt p) {
     vec v = V(p,pos);
     v.rotateBy(-angle);
@@ -74,19 +75,16 @@ public class Frame implements Serializable {
   }
 
   public Frame translateLocal(float x, float y) {
-    pos.add(toGlobalVector(new vec(x,y)));
+    translateLocal(new vec(x,y));
+    return this;
+  }
+  public Frame translateLocal(vec v) {
+    pos.add(toGlobalVector(v));
     return this;
   }
   public Frame translateGlobal(vec v) {
     pos.add(v);
     return this;
-  }
-  // TODO: would be nice to have a point/vector equivalence with Frame, like Frame/RigidXform
-  public Frame subtract(Frame that) { // TODO: spiral interpolation between two frames
-    return Frame.make(P(V(that.pos, this.pos)), Oplet.angle_diff(that.angle, this.angle));
-  }
-  public Frame add(Frame that) {
-    return Frame.make(P(S(V(that.pos), V(this.pos))), this.angle + that.angle);
   }
   
   /** Copy data from the values array, starting at i into this frame .

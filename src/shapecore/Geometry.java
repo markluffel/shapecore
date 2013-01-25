@@ -384,10 +384,6 @@ public class Geometry {
     return constrain(t, 0, 1);
   }
   
-  public static pt projectOnto(pt here, Edge e) {
-    return closestPointOnEdge(here, e.a, e.b);
-  }
-  
   public static pt projectOnto(pt p, Circle c) {
     return T(c.center, U(c.center, p).scaleBy(c.radius));
   }

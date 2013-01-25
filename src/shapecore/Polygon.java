@@ -14,13 +14,15 @@ import java.util.List;
 import megamu.mesh.InteriorTest;
 import processing.core.PConstants;
 import shapecore.fancy.LloydRelaxation;
+import shapecore.impl.EdgeSetMethods;
+import shapecore.interfaces.EdgeSet;
 import shapecore.interfaces.PointSet;
 import shapecore.mesh.Mesh2D;
 import shapecore.mesh.MeshingSettings;
 import shapecore.mesh.TriMesh2D;
 import shapecore.tuple.Pair;
 
-public class Polygon implements PointSet {
+public class Polygon implements PointSet, EdgeSet {
   pt[] points;
   
   public Polygon() {
@@ -261,7 +263,7 @@ public class Polygon implements PointSet {
     return false;
   }
 
-  public List<Edge> edges() {
+  public List<Edge> getEdges() {
     return edges(points);
   }
   public static List<Edge> edges(pt[] pts) {
@@ -293,4 +295,7 @@ public class Polygon implements PointSet {
     }
     return true;
   }
+  
+  public pt project(pt q) { return EdgeSetMethods.project(this, q); }
+  public float dist(pt p) { return project(p).disTo(p); }
 }

@@ -49,4 +49,8 @@ public class Edge {
   public pt intersection(Edge that) {
     return Geometry.edgeIntersection(this.a, this.b, that.a, that.b);
   }
+
+  public pt projection(pt q) {
+    return closestPointOnEdge(q, a, b);
+  }
 }

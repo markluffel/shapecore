@@ -162,10 +162,11 @@ public class vec implements Vector<vec> {
     return this.x*that.x + this.y*that.y;
   }
 
-  public void rotateBy(float a) {
+  public vec rotateBy(float a) {
     float xx = x, yy = y;
     x = (float)(xx * Math.cos(a) - yy * Math.sin(a));
     y = (float)(xx * Math.sin(a) + yy * Math.cos(a));
+    return this;
   }
 
   // OUTPUT VEC

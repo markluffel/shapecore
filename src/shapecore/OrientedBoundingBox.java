@@ -69,13 +69,21 @@ public class OrientedBoundingBox implements Serializable {
    * Clockwise in screen coords
    * @return
    */
-  public List<pt> asPolygon() {
+  public List<pt> corners() {
     List<pt> polygon = new ArrayList<pt>();
     polygon.add(upperRight());
     polygon.add(lowerRight());
     polygon.add(lowerLeft());
     polygon.add(upperLeft());
     return polygon;
+  }
+  public Polygon asPolygon() {
+    return new Polygon(new pt[]{
+      upperRight(),
+      lowerRight(),
+      lowerLeft(),
+      upperLeft()
+    });
   }
   
   public pt upperRight() { return T(center, +1, U, +1, V); }
@@ -109,8 +117,8 @@ public class OrientedBoundingBox implements Serializable {
       return false;
     } else {
       // TODO: could also check the points of one against the halfspaces of the other
-      List<pt> thisPoly = this.asPolygon();
-      List<pt> thatPoly = that.asPolygon();
+      List<pt> thisPoly = this.corners();
+      List<pt> thatPoly = that.corners();
       // does one contain any of the points of the others?
       for(pt p : thisPoly) if(that.contains(p)) return true;
       for(pt p : thatPoly) if(this.contains(p)) return true;
@@ -132,5 +140,17 @@ public class OrientedBoundingBox implements Serializable {
     obb.U = U.get();
     obb.V = V.get();
     return obb;
+  }
+
+  public float dist(OrientedBoundingBox that) {
+    if(this.intersects(that)) return 0;
+    else {
+      Polygon thisPoly = new Polygon(this.corners());
+      Polygon thatPoly = new Polygon(that.corners());
+      Min<pt> min = new Min<pt>();
+      for(pt p : thisPoly.points) min.update(p, thatPoly.dist(p));
+      for(pt p : thatPoly.points) min.update(p, thisPoly.dist(p));
+      return min.getMin();
+    }
   }
 }
