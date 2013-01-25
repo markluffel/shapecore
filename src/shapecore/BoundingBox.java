@@ -4,10 +4,18 @@
 package shapecore;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class BoundingBox {
   public float minX, minY, maxX, maxY;
+  
+  public BoundingBox() {
+    minX = Float.MAX_VALUE;
+    minY = Float.MAX_VALUE;
+    maxX = -Float.MAX_VALUE;
+    maxY = -Float.MAX_VALUE;
+  }
   
   public BoundingBox(float minX, float minY, float maxX, float maxY) {
     this.minX = minX;
@@ -16,45 +24,21 @@ public class BoundingBox {
     this.maxY = maxY;
   }
   
-  public BoundingBox(List<pt>... ptsArray) {
-    minX = Float.MAX_VALUE;
-    minY = Float.MAX_VALUE;
-    maxX = -Float.MAX_VALUE;
-    maxY = -Float.MAX_VALUE;
-    
-    for(List<pt> pts : ptsArray) {
-      for(pt p : pts) {
-        float x = p.x, y = p.y;
-        if(x > maxX) { maxX = x; }
-        if(x < minX) { minX = x; }
-        if(y > maxY) { maxY = y; }
-        if(y < minY) { minY = y; }
-      }
-    }
+  public BoundingBox(List<pt> pts) {
+    this();
+    add(pts);
   }
   
   public BoundingBox(pt[]... ptsArray) {
-    minX = Float.MAX_VALUE;
-    minY = Float.MAX_VALUE;
-    maxX = -Float.MAX_VALUE;
-    maxY = -Float.MAX_VALUE;
+    this();
     
     for(pt[] pts : ptsArray) {
-      for(pt p : pts) {
-        float x = p.x, y = p.y;
-        if(x > maxX) { maxX = x; }
-        if(x < minX) { minX = x; }
-        if(y > maxY) { maxY = y; }
-        if(y < minY) { minY = y; }
-      }
+      add(Arrays.asList(pts));
     }
   }
   
   public BoundingBox(float[][]... ptsArray) {
-    minX = Float.MAX_VALUE;
-    minY = Float.MAX_VALUE;
-    maxX = -Float.MAX_VALUE;
-    maxY = -Float.MAX_VALUE;
+    this();
     
     for(float[][] pts : ptsArray) {
       for(float[] p : pts) {
@@ -67,6 +51,8 @@ public class BoundingBox {
     }
   }
 
+  @Deprecated // look at the callers of this, figure out if this is really what they want
+  // the implementation looks like nonsense
   public void intersect(float minX, float minY, float maxX, float maxY) {
     if(minX < this.minX) this.minX = minX;
     if(minY < this.minY) this.minY = minY;
@@ -128,4 +114,15 @@ public class BoundingBox {
   public pt center() {
     return new pt((maxX+minX)/2, (maxY+minY)/2);
   }
+
+  public void add(List<pt> points) {
+    for(pt p : points) {
+      float x = p.x, y = p.y;
+      if(x > maxX) { maxX = x; }
+      if(x < minX) { minX = x; }
+      if(y > maxY) { maxY = y; }
+      if(y < minY) { minY = y; }
+    }
+  }
+  
 }

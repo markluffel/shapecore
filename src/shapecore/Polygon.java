@@ -3,23 +3,22 @@
  */
 package shapecore;
 
+import static processing.core.PApplet.*;
 import static shapecore.Geometry.*;
 import static shapecore.Oplet.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
-
+import megamu.mesh.InteriorTest;
 import processing.core.PConstants;
 import shapecore.fancy.LloydRelaxation;
 import shapecore.interfaces.PointSet;
 import shapecore.mesh.Mesh2D;
 import shapecore.mesh.MeshingSettings;
 import shapecore.mesh.TriMesh2D;
-
-import megamu.mesh.InteriorTest;
+import shapecore.tuple.Pair;
 
 public class Polygon implements PointSet {
   pt[] points;
@@ -260,5 +259,38 @@ public class Polygon implements PointSet {
       
     }
     return false;
+  }
+
+  public List<Edge> edges() {
+    return edges(points);
+  }
+  public static List<Edge> edges(pt[] pts) {
+    return edges(Arrays.asList(pts));
+  }
+  public static List<Edge> edges(List<pt> pts) {
+    List<Edge> result = new ArrayList<Edge>();
+    for(int pi = pts.size()-1, i = 0; i < pts.size(); pi = i, i++) {
+      result.add(new Edge(pts.get(pi), pts.get(i)));
+    }
+    return result;
+  }
+
+  public static List<Float> angles(List<pt> pts) {
+    List<Float> result = new ArrayList<Float>();
+    for(Edge e : edges(pts)) {
+      result.add(e.dir().angle());
+    }
+    return result;
+  }
+  
+  @Deprecated // TODO: optimize this, write tests for it 
+  public static boolean isConvex(List<pt> pts) {
+    int sgn = 0;
+    for(Pair<Float,Float> pair : pairs(angles(pts))) {
+      float diff = angle_diff(pair.fst, pair.snd);
+      if(sgn == 0) sgn = (int) sgn(diff);
+      if(sgn != sgn(diff)) return false;
+    }
+    return true;
   }
 }

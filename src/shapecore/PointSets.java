@@ -133,4 +133,91 @@ public class PointSets {
     float angle = atan2(s/areaSum, c/areaSum); // this area 
     rotate(src, -angle, thatCentroid);
   }
+  
+  /**
+   * Basically a brute force search for the minimum area bounding rectangle.
+   * Constructs the convex hull, then for each face of the hull,
+   * computes the area of a rectangle using that as one side.
+   * This is O(n^2) in the number of faces of the convex hull. 
+   * @return
+   */
+  public static OrientedBoundingBox calcBoundsConvexMin(List<pt> points) {
+    pt[] hull;
+    int numPoints = points.size();
+    // special cases
+    if(numPoints == 0) {
+      return null; // really, what can we do here?
+    }
+    if(numPoints == 1) {
+      return new OrientedBoundingBox(new vec(0,1), points);
+    }
+    if(numPoints == 2) {
+      pt a = points.get(0), b = points.get(1);
+      return new OrientedBoundingBox(V(a,b), points);
+    }
+    
+    if(numPoints == 3) { //  || Polygon.isConvex(points) // TODO: add this clause after the code is tested/optimized
+      hull = points.toArray(new pt[0]);
+    } else {
+      // common case
+      hull = convexHull(points);
+    }
+    
+    List<pt> hullList = Arrays.asList(hull);
+    float minArea = Float.MAX_VALUE;
+    vec bestDir = V(0,1);
+    for(Edge edge : Polygon.edges(hull)) {
+      vec dir = U(edge.dir());
+      if(dir.isNull()) continue;
+      float area = area(hullList, dir);
+      if(area < minArea) {
+        minArea = area;
+        bestDir = dir;
+      }
+    }
+    return new OrientedBoundingBox(mostVertical(bestDir), points); // could pass hull here
+  }
+  
+  static pt[] convexHull(List<pt> points) {
+    return new GrahamScan(points.toArray(new pt[0])).getPoints();
+  }
+  
+  static vec mostVertical(vec v) {
+    vec goal = new vec(0,-1);
+    float max = -1;
+    vec best = v;
+    // try the four possible configurations
+    for(int i = 0; i < 4; i++) {
+      // take the one most like our goal
+      float d = v.dot(goal);
+      if(d > max) {
+        max = d;
+        best = v;
+      }
+      v = R(v); // rotate 90
+    }
+    return best;
+  }
+  
+  /**
+   * Calculate the area of an oriented bounding box with one axis in the direction dir 
+   * @param pts
+   * @param dir
+   * @return
+   */
+  static float area(List<pt> pts, vec dir) {
+    vec side = R(dir);
+    float minDir = Float.MAX_VALUE, maxDir = -Float.MAX_VALUE;
+    float minSide = Float.MAX_VALUE, maxSide = -Float.MAX_VALUE;
+    for(int i = 0; i < pts.size(); i++) {
+      vec off = V(pts.get(i));
+      float dd = dot(off, dir);
+        if(dd < minDir) minDir = dd;
+        if(dd > maxDir) maxDir = dd;
+      float ds = dot(off, side);
+        if(ds < minSide) minSide = ds;
+        if(ds > maxSide) maxSide = ds;
+    }
+    return (maxSide-minSide)*(maxDir-minDir);
+  }
 }

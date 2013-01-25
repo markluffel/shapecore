@@ -42,4 +42,11 @@ public class Edge {
     pt N = T(G,u,R(E0.b,t*a,G));  
     return E(M,N);
   }
+  
+  public boolean intersects(Edge that) {
+    return intersection(that) != null;
+  }
+  public pt intersection(Edge that) {
+    return Geometry.edgeIntersection(this.a, this.b, that.a, that.b);
+  }
 }

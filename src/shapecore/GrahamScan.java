@@ -19,6 +19,8 @@ public class GrahamScan {
   int N;
   
   public GrahamScan(pt[] _pts) {
+    // TODO: test if we can run successfully with 1, 2, 3 points
+    if(_pts.length < 4) throw new IllegalArgumentException();
     done = false;
     N = _pts.length;
     items = new Item[_pts.length+1];
@@ -31,7 +33,7 @@ public class GrahamScan {
       pt p = _pts[i];
       if(p.y < minY) {
         minY = p.y;
-        minYi = i;
+        minYi = i+1; // an index into items, not points
       }
       items[i+1] = new Item(p);
     }

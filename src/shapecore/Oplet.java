@@ -16,8 +16,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.ObjectStreamClass;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -32,6 +34,8 @@ import java.util.Map;
 import java.util.RandomAccess;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import javax.media.opengl.GL;
 import javax.media.opengl.glu.GLU;
@@ -197,7 +201,7 @@ public class Oplet extends PApplet {
   
 
   // FIXME: dist is define in PApplet,
-  // so anyone subclassing PApplet and "import static core.Geometry" can't see core.Geometry's definition
+  // so anyone subclassing PApplet and "import static shapecore.Geometry" can't see core.Geometry's definition
   public static float dist(pt P, pt Q) {
     return PApplet.dist(P.x, P.y, Q.x, Q.y);
   } // ||AB||
@@ -1691,6 +1695,10 @@ public class Oplet extends PApplet {
   protected BoundingBox boundingBox(List<pt> pts) {
     return new BoundingBox(pts);
   }
+  public void rect(BoundingBox bb) {
+    rectMode(CORNER);
+    rect(bb.minX, bb.minY, bb.width(), bb.height());
+  }
   
   public static float sgn(float x) {
     if(x < 0) return -1;
@@ -1947,8 +1955,14 @@ public class Oplet extends PApplet {
   public static int closestPointIndex(List<? extends pt> pts, pt q) {
     return closestPointIndex(pts, q.x, q.y);
   }
+  public static int closestPointIndex(List<? extends pt> pts, pt q, float maxDistSq) {
+    return closestPointIndex2(pts, q.x, q.y, maxDistSq);
+  }
   public static int closestPointIndex(List<? extends pt> pts, float x, float y) {
-    float closestDist = Float.MAX_VALUE;
+    return closestPointIndex2(pts, x, y, Float.MAX_VALUE);
+  }
+  public static int closestPointIndex2(List<? extends pt> pts, float x, float y, float maxDistSq) {
+    float closestDist = maxDistSq;
     int closestIndex = -1;
     for(int i = 0; i < pts.size(); i++) {
       float d = pts.get(i).sqDisTo(x,y);
@@ -1964,8 +1978,14 @@ public class Oplet extends PApplet {
   public static int closestPointIndex(List<pt3> pts, pt3 p) {
     return closestPointIndex(pts, p.x, p.y, p.z);
   }
+  public static int closestPointIndex(List<pt3> pts, pt3 p, float maxDistSq) {
+    return closestPointIndex3(pts, p.x, p.y, p.z, maxDistSq);
+  }
   public static int closestPointIndex(List<pt3> pts, float x, float y, float z) {
-    float closestDist = Float.MAX_VALUE;
+    return closestPointIndex3(pts, x, y, z, Float.MAX_VALUE);
+  }
+  public static int closestPointIndex3(List<pt3> pts, float x, float y, float z, float maxDistSq) {
+    float closestDist = maxDistSq;
     int closestIndex = -1;
     for(int i = 0; i < pts.size(); i++) {
       float d = pts.get(i).sqDisTo(x,y,z);
@@ -3376,6 +3396,30 @@ public class Oplet extends PApplet {
   public static Object load(File f) {
     try {
       ObjectInputStream in = new ObjectInputStream(new FileInputStream(f));
+      Object result = in.readObject();
+      in.close();
+      return result;
+    } catch (IOException e) {
+      e.printStackTrace();
+    } catch (ClassNotFoundException e) {
+      e.printStackTrace();
+    }
+    return null;
+  }
+  
+  public static void saveZipped(File f, Object obj) {
+    try {
+      ObjectOutputStream out = new ObjectOutputStream(new GZIPOutputStream(new FileOutputStream(f)));
+      out.writeObject(obj);
+      out.close();
+    } catch(IOException e) {
+      e.printStackTrace();
+    }
+  }
+      
+  public static Object loadZipped(File f) {
+    try {
+      ObjectInputStream in = new ObjectInputStream(new GZIPInputStream(new FileInputStream(f)));
       Object result = in.readObject();
       in.close();
       return result;
