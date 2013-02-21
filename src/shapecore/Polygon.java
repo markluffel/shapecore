@@ -23,16 +23,19 @@ import shapecore.mesh.TriMesh2D;
 import shapecore.tuple.Pair;
 
 public class Polygon implements PointSet, EdgeSet {
-  pt[] points;
+  List<pt> points;
   
   public Polygon() {
-    this.points = new pt[0];
+    this.points = new ArrayList<pt>();
   }
   
-  public Polygon(pt[] points) {
-    if(points == null) throw new IllegalArgumentException();
-    for(pt p : points) if(p == null) throw new IllegalArgumentException();
-    this.points = points;
+  public Polygon(pt[] _points) {
+    this();
+    if(_points == null) throw new IllegalArgumentException();
+    for(pt p : _points) {
+      if(p == null) throw new IllegalArgumentException();
+      points.add(p);
+    }
   }
   
   public Polygon(List<pt> points) {
@@ -48,37 +51,40 @@ public class Polygon implements PointSet, EdgeSet {
   }
 
   public List<pt> getPoints() {
-    return Arrays.asList(points);
-  }
-  
-  public pt[] getPointsArray() {
     return points;
   }
   
+  public pt[] getPointsArray() {
+    pt[] pts = new pt[numPoints()];
+    for(int i = 0; i < pts.length; i++) {
+      pts[i] = points.get(i);
+    }
+    return pts;
+  }
+  
   public int numPoints() {
-    return points.length;
+    return points.size();
   }
 
   public void copyFrom(Polygon that) {
-    this.points = new pt[that.points.length];
-    for (int i = 0; i < this.points.length; i++) {
-      this.points[i] = new pt(that.points[i]);
+    points.clear();
+    for(pt p : that.points) {
+      points.add(p.get());
     }
   }
   
   public void refine(float s) {
-    pt[] Q = refine(this.points, s);
-    this.points = Q;
+    points = refine(points, s);
   }
 
-  public static pt[] refine(pt[] P, float s) {
-    int n = P.length;
-    pt[] Q = new pt[2 * n];
+  public static List<pt> refine(List<pt> P, float s) {
+    int n = P.size();
+    List<pt> result = new ArrayList<pt>(2 * n);
     for (int i = 0; i < n; i++) {
-      Q[2 * i] = b(next(P, i), P[i], next(P, i), s);
-      Q[2 * i + 1] = f(prev(P, i), P[i], next(P, i), next(P, nextI(P, i)), s);
+      result.add(b(next(P, i), P.get(i), next(P, i), s));
+      result.add(f(prev(P, i), P.get(i), next(P, i), next(P, nextI(P, i)), s));
     }
-    return Q;
+    return result;
   }
   
   // helpers on top of helpers
@@ -91,8 +97,8 @@ public class Polygon implements PointSet, EdgeSet {
   // register the polygon points via edge midpoints onto end
   // weighted by edge length
   public void registerMidpointsTo(Polygon that) {
-    pt[] ps = this.points;
-    pt[] qs = that.points;
+    pt[] ps = this.getPointsArray(); // FIXME: replace with lists
+    pt[] qs = that.getPointsArray();
     
     pt thisCenter = centerE(ps, false);
     pt thatCenter = centerE(qs, false);
@@ -128,9 +134,7 @@ public class Polygon implements PointSet, EdgeSet {
   }
 
   public Polygon copy() {
-    Polygon result = new Polygon();
-    result.points = clonePoints(this.points);
-    return result;
+    return new Polygon(PointSets.clonePoints(points));
   }
 
   public InteriorTest interiorTest() {
@@ -142,14 +146,15 @@ public class Polygon implements PointSet, EdgeSet {
   }
   
   public void clear() {
-    points = new pt[0];
+    points.clear();
+  }
+  
+  public void add(pt p) {
+    points.add(p);
   }
   
   public void add(float x, float y) {
-    pt[] newPoints = new pt[points.length+1];
-    System.arraycopy(points, 0, newPoints, 0, points.length);
-    newPoints[points.length] = new pt(x,y);
-    points = newPoints;
+    add(new pt(x,y));
   }
   
   public Mesh2D mesh() {
@@ -157,7 +162,7 @@ public class Polygon implements PointSet, EdgeSet {
   }
   
   public TriMesh2D mesh(MeshingSettings settings) {
-    List<pt> resampled = Oplet.clonePoints(Arrays.asList(points));
+    List<pt> resampled = PointSets.clonePoints(points);
     if(settings.processBoundary) {
       //resampled = resampleLoopLazy(resampled, settings.minBoundaryEdgeLength, settings.maxBoundaryEdgeLength);
       resampled = resamplePolylineToList(resampled, (int)(arclengthOfLoop(resampled)/settings.minBoundaryEdgeLength));
@@ -194,7 +199,7 @@ public class Polygon implements PointSet, EdgeSet {
     InteriorTest pip = new InteriorTest(toPackedArray(points));
     BoundingBox bb = pip.getBoundingBox();
     
-    int numSamples = (int) (area(Arrays.asList(points))/(Math.PI*sq(approxRadius)));
+    int numSamples = (int) (area(points)/(Math.PI*sq(approxRadius)));
     List<pt> result = new ArrayList<pt>();
     for(int i = 0; i < numSamples; i++) {
       pt pt;
@@ -239,9 +244,9 @@ public class Polygon implements PointSet, EdgeSet {
   }
   
   public vec[] edgeNormals() {
-    vec[] result = new vec[points.length];
-    for(int i = 0, pi = points.length-1; i < points.length; pi = i, i++) {
-      result[i] = normal(points[pi],points[i]);
+    vec[] result = new vec[points.size()];
+    for(int i = 0, pi = points.size()-1; i < points.size(); pi = i, i++) {
+      result[i] = normal(points.get(pi),points.get(i));
     }
     return result;
   }
@@ -298,4 +303,8 @@ public class Polygon implements PointSet, EdgeSet {
   
   public pt project(pt q) { return EdgeSetMethods.project(this, q); }
   public float dist(pt p) { return project(p).disTo(p); }
+
+  public pt get(int i) {
+    return points.get(i);
+  }
 }

@@ -1,7 +1,6 @@
 package shapecore;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import shapecore.impl.EdgeSetMethods;
@@ -10,10 +9,22 @@ import shapecore.interfaces.PointSet;
 
 // TODO: make this feature comparible with Polygon 
 public class Polyline implements PointSet, EdgeSet {
-  pt[] points;
+  List<pt> points = new ArrayList<pt>();
 
   public List<pt> getPoints() {
-    return Arrays.asList(points);
+    return points;
+  }
+  
+  public void add(pt p) {
+    points.add(p);
+  }
+  
+  public int size() {
+    return points.size();
+  }
+  
+  public pt get(int i) {
+    return points.get(i);
   }
   
   public List<Edge> getEdges() { return getEdges(getPoints()); }

@@ -16,7 +16,7 @@ public class ButterflyMesh {
   
   public ButterflyMesh(CornerTable table, int numVerts, int depth) {
     this.numInputVerts = numVerts;
-    this.table = table.clone();
+    this.table = table.get();
     cachedMasks = new int[0][0];
 
     while(depth > 0) {

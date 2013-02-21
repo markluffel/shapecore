@@ -11,6 +11,7 @@ import java.util.Map;
 import processing.core.PGraphics;
 import processing.core.PImage;
 import shapecore.Oplet;
+import shapecore.PointSets;
 import shapecore.pt;
 import shapecore.vec;
 
@@ -62,9 +63,9 @@ public class TriMesh2D extends Mesh2D {
       pt c = G[corner.V[corner.n(rb)]];
       
       
-      vec L = R(b,a).normalize();
-      vec R = R(b,c).normalize(); R.back();
-      return S(L,R).normalize();
+      vec l = R(b,a).normalize();
+      vec r = R(b,c).normalize(); r.back();
+      return S(l,r).normalize();
       /*
       vec L = R(a,b);
       vec R = R(b,c);
@@ -82,7 +83,7 @@ public class TriMesh2D extends Mesh2D {
   // eventually I'll just have to remove hidden stuff
   public void smoothInterior(float t, boolean[] mask) {
     if(C == null || C.length != corner.numVerts) C = corner.inverseV();
-    int[] V = corner.V;
+    int[] v = corner.V;
     pt[] L = new pt[G.length];
 
     for(int i = 0; i < G.length; i++) {
@@ -90,7 +91,7 @@ public class TriMesh2D extends Mesh2D {
         pt l = new pt();
         int count = 0;
         for(int c : corner.vertexCorners(C[i])) {
-          pt p = G[V[corner.p(c)]];
+          pt p = G[v[corner.p(c)]];
           l.add(p.x,p.y);
           count++;
         }
@@ -107,14 +108,14 @@ public class TriMesh2D extends Mesh2D {
   
   public void smoothField(float[] F, float t) {
     if(C == null || C.length != corner.numVerts) C = corner.inverseV();
-    int[] V = corner.V;
+    int[] v = corner.V;
     float[] F_ = new float[F.length];
     assert(G.length == F.length);
     for(int i = 0; i < G.length; i++) {
       float sum = 0;
       int count = 0;
       for(int c : corner.vertexCorners(C[i])) {
-        int otherV = V[corner.p(c)];
+        int otherV = v[corner.p(c)];
         sum += F[otherV]; // TODO: cotan
         count++;
       }
@@ -221,7 +222,7 @@ public class TriMesh2D extends Mesh2D {
   
   @Override
   public TriMesh2D clone() {
-    return new TriMesh2D(clonePoints(G), corner.clone());
+    return new TriMesh2D(PointSets.clonePoints(G), corner.get());
   }
   
   @Override

@@ -202,7 +202,7 @@ public class CornerTable {
   }
   
   CornerTable flip() {
-    CornerTable result = clone();
+    CornerTable result = get();
     for(int t = 0; t < result.numFaces(); t++) {
       int c = t*3;
       result.V[c+1] = V[c+2];
@@ -546,7 +546,7 @@ public class CornerTable {
   }
   
   public void drawButterfly(Oplet p, pt[] geom, int depth) {
-    CornerTable that = this.clone();
+    CornerTable that = get();
     while(depth > 0) {
       geom = that.butterfly(geom);
       depth--;
@@ -554,50 +554,50 @@ public class CornerTable {
     that.draw(p, geom);
   }
   
-  public pt[] subdivide(pt[] G) {
+  public pt[] subdivide(pt[] g) {
     // a mapping from old
     int[] W = new int[O.length];
     
-    G = splitEdges(W, G);
+    g = splitEdges(W, g);
     splitTriangles(W);
-    computeO(G.length);
+    computeO(g.length);
     
-    return G;
+    return g;
   }
   
-  public pt3[] subdivide(pt3[] G) {
+  public pt3[] subdivide(pt3[] g) {
     // a mapping from old
     int[] W = new int[O.length];
     
-    G = splitEdges(W, G);
+    g = splitEdges(W, g);
     splitTriangles(W);
-    computeO(G.length);
+    computeO(g.length);
     
-    return G;
+    return g;
   }
   
-  public pt[] butterfly(pt[] G) {
+  public pt[] butterfly(pt[] g) {
     // a mapping from old
     int[] W = new int[O.length];
     
-    G = splitEdges(W, G);
-    butterflyBulge(W, G);
+    g = splitEdges(W, g);
+    butterflyBulge(W, g);
     splitTriangles(W);
-    computeO(G.length);
+    computeO(g.length);
     
-    return G;
+    return g;
   }
   
-  public pt3[] butterfly(pt3[] G) {
+  public pt3[] butterfly(pt3[] g) {
     // a mapping from old
     int[] W = new int[O.length];
     
-    G = splitEdges(W, G);
-    butterflyBulge(W, G);
+    g = splitEdges(W, g);
+    butterflyBulge(W, g);
     splitTriangles(W);
-    computeO(G.length);
+    computeO(g.length);
     
-    return G;
+    return g;
   }
 
   
@@ -619,28 +619,28 @@ public class CornerTable {
     return cachedMasks;
   }
   
-  public pt[] modifiedButterfly(pt[] G) {
+  public pt[] modifiedButterfly(pt[] g) {
     // a mapping from old
     int[] W = new int[O.length];
     
-    G = splitEdges(W, G);
-    modifiedButterflyBulge(W, G);
+    g = splitEdges(W, g);
+    modifiedButterflyBulge(W, g);
     splitTriangles(W);
-    computeO(G.length);
+    computeO(g.length);
     
-    return G;
+    return g;
   }
   
-  public pt3[] modifiedButterfly(pt3[] G) {
+  public pt3[] modifiedButterfly(pt3[] g) {
     // a mapping from old
     int[] W = new int[O.length];
     
-    G = splitEdges(W, G);
-    modifiedButterflyBulge(W, G);
+    g = splitEdges(W, g);
+    modifiedButterflyBulge(W, g);
     splitTriangles(W);
-    computeO(G.length);
+    computeO(g.length);
     
-    return G;
+    return g;
   }
   
   public int[] inverseV() {
@@ -737,14 +737,14 @@ public class CornerTable {
    * Uses the temporary W mapping to construct the butterfly mask for new points
    * Mutates the G array
    */
-  private void butterflyBulge(int[] W, pt[] G) {
+  private void butterflyBulge(int[] W, pt[] g) {
     int nt = O.length/3;
     // tweaks the new mid-edge vertices according to the Butterfly mask
     for(int i = 0; i < 3*nt; i++) {
       // i < o(i) means: only tweak one of the half edges, arbitrarily the lower ordered one
       if(!b(i) && i < o(i)) {    // no tweak for mid-vertices of border edges
         if (!b(p(i))&&!b(n(i))&&!b(p(o(i)))&&!b(n(o(i)))) { // check that
-          G[V[W[i]]].add(0.25f,A(A(G[V[l(i)]],G[V[r(i)]]),A(G[V[l(o(i))]],G[V[r(o(i))]])).vecTo(A(G[V[i]],G[V[o(i)]])));
+          g[V[W[i]]].add(0.25f,A(A(g[V[l(i)]],g[V[r(i)]]),A(g[V[l(o(i))]],g[V[r(o(i))]])).vecTo(A(g[V[i]],g[V[o(i)]])));
         }
       }
     }
@@ -779,40 +779,40 @@ public class CornerTable {
     return masks;
   }
   
-  private void butterflyBulge(int[] W, pt3[] G) {
+  private void butterflyBulge(int[] W, pt3[] g) {
     int nt = O.length/3;
     // tweaks the new mid-edge vertices according to the Butterfly mask
     for(int i = 0; i < 3*nt; i++) {
       // i < o(i) means: only tweak one of the half edges, arbitrarily the lower ordered one
       if(!b(i) && i < o(i)) {    // no tweak for mid-vertices of border edges
         if (!b(p(i))&&!b(n(i))&&!b(p(o(i)))&&!b(n(o(i)))) { // check that
-          G[V[W[i]]].add(0.25f,A(A(G[V[l(i)]],G[V[r(i)]]),A(G[V[l(o(i))]],G[V[r(o(i))]])).makeVecTo(A(G[V[i]],G[V[o(i)]])));
+          g[V[W[i]]].add(0.25f,A(A(g[V[l(i)]],g[V[r(i)]]),A(g[V[l(o(i))]],g[V[r(o(i))]])).makeVecTo(A(g[V[i]],g[V[o(i)]])));
         }
       }
     }
   }
 
-  private void modifiedButterflyBulge(int[] W, pt[] G) {
+  private void modifiedButterflyBulge(int[] W, pt[] g) {
     int nt = O.length/3;
     // tweaks the new mid-edge vertices according to the Butterfly mask
     for(int i = 0; i < 3*nt; i++) {
       // i < o(i) means: only tweak one of the half edges, arbitrarily the lower ordered one
       if(!b(i) && i < o(i)) {    // no tweak for mid-vertices of border edges
         if (!b(p(i))&&!b(n(i))&&!b(p(o(i)))&&!b(n(o(i)))) { // check that
-          G[V[W[i]]].add(0.25f,A(A(G[V[l(i)]],G[V[r(i)]]),A(G[V[l(o(i))]],G[V[r(o(i))]])).vecTo(A(G[V[i]],G[V[o(i)]])));
+          g[V[W[i]]].add(0.25f,A(A(g[V[l(i)]],g[V[r(i)]]),A(g[V[l(o(i))]],g[V[r(o(i))]])).vecTo(A(g[V[i]],g[V[o(i)]])));
         }
       }
     }
   }
   
-  private void modifiedButterflyBulge(int[] W, pt3[] G) {
+  private void modifiedButterflyBulge(int[] W, pt3[] g) {
     int nt = O.length/3;
     // tweaks the new mid-edge vertices according to the Butterfly mask
     for(int i = 0; i < 3*nt; i++) {
       // i < o(i) means: only tweak one of the half edges, arbitrarily the lower ordered one
       if(!b(i) && i < o(i)) {    // no tweak for mid-vertices of border edges
         if (!b(p(i))&&!b(n(i))&&!b(p(o(i)))&&!b(n(o(i)))) { // check that
-          G[V[W[i]]].add(0.25f,A(A(G[V[l(i)]],G[V[r(i)]]),A(G[V[l(o(i))]],G[V[r(o(i))]])).makeVecTo(A(G[V[i]],G[V[o(i)]])));
+          g[V[W[i]]].add(0.25f,A(A(g[V[l(i)]],g[V[r(i)]]),A(g[V[l(o(i))]],g[V[r(o(i))]])).makeVecTo(A(g[V[i]],g[V[o(i)]])));
         }
       }
     }
@@ -883,8 +883,7 @@ public class CornerTable {
     }
   }
 
-  
-  public CornerTable clone() {
+  public CornerTable get() {
     CornerTable cloned = new CornerTable();
     cloned.O = O.clone();
     cloned.V = V.clone();

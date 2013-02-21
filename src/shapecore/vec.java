@@ -71,19 +71,22 @@ public class vec implements Vector<vec> {
     return new vec(-x,-y);
   }
 
-  public void mul(float f) {
+  public vec mul(float f) {
     x *= f;
     y *= f;
+    return this;
   }
 
-  public void div(float f) {
+  public vec div(float f) {
     x /= f;
     y /= f;
+    return this;
   }
 
-  public void scaleBy(float u, float v) {
+  public vec scaleBy(float u, float v) {
     x *= u;
     y *= v;
+    return this;
   }
 
   public vec normalize() {

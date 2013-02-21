@@ -4,6 +4,7 @@ import static processing.core.PApplet.*;
 import static shapecore.Geometry.*;
 import static shapecore.Oplet.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -219,5 +220,43 @@ public class PointSets {
         if(ds > maxSide) maxSide = ds;
     }
     return (maxSide-minSide)*(maxDir-minDir);
+  }
+  
+
+  // it would be nice if java's type system smiled upon generalization
+  // but as it is, we'll have to settle for some code duplication
+  public static pt[] clonePoints(pt[] items) {
+    pt[] cloned = items.clone();
+    for(int i = 0; i < items.length; i++) {
+      cloned[i] = items[i].clone();
+    }
+    return cloned;
+  }
+  
+  /**
+   * Inplace clone, for when the original array was created in a unique way, but the points are aliased
+   * @param items
+   */
+  public static void _clonePoints(pt[] items) {
+    for(int i = 0; i < items.length; i++) {
+      items[i] = items[i].clone();
+    }
+  }
+  
+  public static List<pt> clonePoints(List<pt> items) {
+    try {
+      List<pt> cloned;
+      try {
+        cloned = items.getClass().newInstance();
+      } catch (InstantiationException e) {
+        cloned = new ArrayList<pt>();
+      }
+      for(pt p : items) {
+        cloned.add(p.clone());
+      }
+    return cloned;
+    } catch (IllegalAccessException e) {
+      throw new IllegalStateException(e);
+    }
   }
 }

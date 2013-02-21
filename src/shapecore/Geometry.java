@@ -387,6 +387,11 @@ public class Geometry {
   public static pt projectOnto(pt p, Circle c) {
     return T(c.center, U(c.center, p).scaleBy(c.radius));
   }
+  
+  public static pt projectOnto(pt here, Edge edge) {
+    return projectOnto(here, edge.a, edge.b);
+  }
+
 
   public static pt3 projectOnto(pt3 here, Edge3 edge) {
     return projectOnto(here, edge.start, edge.end);
@@ -403,6 +408,14 @@ public class Geometry {
   public static pt3 projectOnto(pt3 here, pt3 start, pt3 end) {
     vec3 edge = V(start,end);
     vec3 toHere = V(start,here);
+    float t = dot(toHere, edge) / dot(edge, edge);
+    t = constrain(t, 0, 1);
+    return T(start, t, edge);
+  }
+  
+  public static pt projectOnto(pt here, pt start, pt end) {
+    vec edge = V(start,end);
+    vec toHere = V(start,here);
     float t = dot(toHere, edge) / dot(edge, edge);
     t = constrain(t, 0, 1);
     return T(start, t, edge);

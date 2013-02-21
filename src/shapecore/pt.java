@@ -378,4 +378,8 @@ public class pt implements Ring<pt>, Serializable {
   public boolean leftOf(Edge e) {
     return R(e.a, e.b).dot(V(e.a, this)) > 0;
   }
+
+  public vec to(pt that) {
+    return new vec(this,that);
+  }
 }

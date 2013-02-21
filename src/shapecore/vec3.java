@@ -1,12 +1,10 @@
 package shapecore;
 
 import static processing.core.PApplet.*;
-import static processing.core.PConstants.*;
-import Jama.Matrix;
 import processing.core.PApplet;
 import processing.core.PVector;
-import shapecore.interfaces.Ring;
 import shapecore.interfaces.Vector;
+import Jama.Matrix;
 
 public class vec3 implements Vector<vec3> {
   public float x, y, z;

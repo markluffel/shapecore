@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import shapecore.Oplet;
+import shapecore.PointSets;
 import shapecore.pt;
 import shapecore.vec;
 import shapecore.interfaces.PointAnimator;
@@ -103,7 +104,7 @@ public class Spiral extends Field implements PointAnimator, PointPairAnimator {
   }
   
   public List<pt> apply(List<pt> P, float t) {
-    if(center == null) return clonePoints(P); 
+    if(center == null) return PointSets.clonePoints(P); 
     List<pt> result = new ArrayList<pt>();
     /*
     float a = t * angle;
@@ -118,7 +119,7 @@ public class Spiral extends Field implements PointAnimator, PointPairAnimator {
   }
   
   public pt[] apply(pt[] P, float t) {
-    if(center == null) return clonePoints(P); 
+    if(center == null) return PointSets.clonePoints(P); 
     
     pt[] result = new pt[P.length];
     // FIXME: uncomment this code, to improve the performance

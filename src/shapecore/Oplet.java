@@ -4,12 +4,17 @@ import static shapecore.Geometry.*;
 
 
 import java.applet.AppletContext;
+import java.awt.Dimension;
 import java.awt.FileDialog;
+import java.awt.Frame;
+import java.awt.Insets;
 import java.awt.Menu;
 import java.awt.MenuBar;
 import java.awt.MenuItem;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -627,6 +632,7 @@ public class Oplet extends PApplet {
     smoothPolyline(pts, (float)t);
   }
   
+  // TODO: move this to Polyline
   public static void smoothPolyline(List<? extends pt> pts, float t) {
     // this needs to be optimized in all kinds of ways
     t /= 2;
@@ -939,6 +945,9 @@ public class Oplet extends PApplet {
     for (int i = 0; i < P.length; i++)
       P[i] = spiralPt(P[i], G, s, a, t);
   }
+  public static void spiral(List<pt> P, pt G, float s, float a, float t) {
+    for(pt p : P) p.set(spiralPt(p, G, s, a, t));
+  }
   
   /**
    * Move P by a fracion of t along a spiral from A to B
@@ -949,11 +958,11 @@ public class Oplet extends PApplet {
    * @param B
    */
   public static void spiral(Polygon P, Polygon A, float t, Polygon B) {
-    float a = spiralAngle(A.points[0], A.points[A.points.length - 1],
-        B.points[0], B.points[B.points.length - 1]);
-    float s = spiralScale(A.points[0], A.points[A.points.length - 1],
-        B.points[0], B.points[B.points.length - 1]);
-    pt G = spiralCenter(a, s, A.points[0], B.points[0]);
+    float a = spiralAngle(A.get(0), A.get(A.points.size() - 1),
+        B.get(0), B.get(B.points.size() - 1));
+    float s = spiralScale(A.get(0), A.get(A.points.size() - 1),
+        B.get(0), B.get(B.points.size() - 1));
+    pt G = spiralCenter(a, s, A.get(0), B.get(0));
     spiral(P.points, G, s, a, t);
   }
 
@@ -1284,12 +1293,7 @@ public class Oplet extends PApplet {
     
     pt start = new pt(0, 0), end = new pt(100, 0);
     List<pt> pts = localToGlobal(aLocals, start, end);
-    Polygon p = new Polygon();
-    p.points = new pt[pts.size()];
-    for(int i = 0; i < pts.size(); i++) {
-      p.points[i] = pts.get(i);
-    }
-    return p;
+    return new Polygon(pts);
   }
   
   public static float[] blend(float[] a, float[] b, float t) {
@@ -1327,10 +1331,34 @@ public class Oplet extends PApplet {
       }
 
   protected static <T> int nextI(T[] P, int i) {
-    if (i == P.length-1) {
+    if(i == P.length-1) {
       return 0;
     } else {
       return i+1;
+    }
+  }
+  
+  protected static <T> int nextI(List<T> P, int i) {
+    if(i == P.size()-1) {
+      return 0;
+    } else {
+      return i+1;
+    }
+  }
+
+  protected static <T> int prevI(List<T> P, int i) {
+    if(i == 0) {
+      return P.size()-1;
+    } else {
+      return i-1;
+    }
+  }
+  
+  protected static <T> int prevI(T[] P, int i) {
+    if(i == 0) {
+      return P.length-1;
+    } else {
+      return i-1;
     }
   }
 
@@ -1339,11 +1367,18 @@ public class Oplet extends PApplet {
   }
 
   protected static <T> T prev(T[] P, int i) {
-    if (i == 0) {
+    if(i == 0) {
       return P[P.length-1];
     }  else {
       return P[i-1];
     }
+  }
+  
+  protected static <T> T next(List<T> P, int i) {
+    return P.get(nextI(P, i));
+  }
+  protected static <T> T prev(List<T> P, int i) {
+    return P.get(prevI(P, i));
   }
 
   public static double lerp(double a, double b, double t) {
@@ -1411,23 +1446,23 @@ public class Oplet extends PApplet {
     Polygon P = new Polygon();
     P.copyFrom(end);
     int fail = 0;
-    pt[] ps = P.points;
-    ps[1] = T(ps[0], pow(d(start.points[0], start.points[1])
-        / d(end.points[0], end.points[1]), t), V(end.points[0], end.points[1]));
-    int n = min(end.points.length, start.points.length);
+    List<pt> ps = P.points;
+    ps.set(1, T(ps.get(0), pow(d(start.points.get(0), start.points.get(1))
+        / d(end.points.get(0), end.points.get(1)), t), V(end.points.get(0), end.points.get(1))));
+    int n = min(end.points.size(), start.points.size());
     
     for (int i = 2; i < n; i++) {
       /// get the angles and edge lengths of the inputs 
-      float aLen = d(end.points[i - 1], end.points[i]);
-      float bLen = d(start.points[i - 1], start.points[i]);
+      float aLen = d(end.points.get(i - 1), end.points.get(i));
+      float bLen = d(start.points.get(i - 1), start.points.get(i));
       
       float angleA = angle(
-          V(end.points[i - 2], end.points[i - 1]),
-          V(end.points[i - 1], end.points[i])
+          V(end.points.get(i - 2), end.points.get(i - 1)),
+          V(end.points.get(i - 1), end.points.get(i))
       );
       float angleB = angle(
-          V(start.points[i - 2], start.points[i - 1]),
-          V(start.points[i - 1], start.points[i])
+          V(start.points.get(i - 2), start.points.get(i - 1)),
+          V(start.points.get(i - 1), start.points.get(i))
       );
       
       // blend the angle and edge length
@@ -1436,16 +1471,16 @@ public class Oplet extends PApplet {
       
       // get the direction of the previous edge,
       // our interpolated angle is relative to this
-      vec diff = U(V(ps[i - 2], ps[i - 1]));
+      vec diff = U(V(ps.get(i - 2), ps.get(i - 1)));
       if(diff == null) {
         // this is for dealing with coincident verticies i think
         // there's a better way to do this,
         // having to do with expanding the neighborhood
-        ps[i] = L(ps[i - 1], 0.5f, ps[i - 2]); // lame but...
+        ps.set(i, L(ps.get(i - 1), 0.5f, ps.get(i - 2))); // lame but...
         fail++;
       } else {
         // move the previous point in the new angle, by the interpolated edge length
-        ps[i] = T(ps[i - 1], S(resultLength, R(diff, resultAngle)));
+        ps.set(i, T(ps.get(i - 1), S(resultLength, R(diff, resultAngle))));
       }
     }
     
@@ -1453,10 +1488,10 @@ public class Oplet extends PApplet {
   }
 
   public static Polygon linearMorph(Polygon A, float t, Polygon B) {
-    int n = min(A.points.length, B.points.length);
+    int n = min(A.points.size(), B.points.size());
     pt[] points = new pt[n];
     for (int i = 0; i < points.length; i++) {
-      points[i] = L(A.points[i], t, B.points[i]);
+      points[i] = L(A.points.get(i), t, B.points.get(i));
     }
     return new Polygon(points);
   }
@@ -2192,39 +2227,124 @@ public class Oplet extends PApplet {
     return abs(sum / 12f);   
   }
 
-  protected static void main(String[] args, Class<? extends PApplet> klass) {    
-    try {
-      
-      JFrame frame = new JFrame();
-      final PApplet sketch = klass.newInstance();
-  
-      frame.addWindowListener(new WindowAdapter() {
-        public void windowClosing(WindowEvent e) {
-          sketch.exit();
-        }
-      });
-      
-      frame.add(sketch);
-      sketch.frame = frame;
-      sketch.init();
-      try {
-        while(sketch.defaultSize) {
-            Thread.sleep(20);
-        }
-      } catch (InterruptedException e1) {
-        e1.printStackTrace();
+  protected static <T extends PApplet> T main(String[] args, final T sketch) {
+    JFrame frame = new JFrame();
+    
+    frame.addWindowListener(new WindowAdapter() {
+      public void windowClosing(WindowEvent e) {
+        sketch.exit();
       }
-      
-      frame.pack();
-      frame.setResizable(false); // would need to have some logic to resize the additional buffer
-      frame.setVisible(true);
-      sketch.requestFocus();
-      
+    });
+    
+    frame.setLayout(null);
+    frame.add(sketch);
+    sketch.frame = frame;
+    sketch.init();
+    try {
+      while(sketch.defaultSize) {
+        Thread.sleep(20);
+      }
+    } catch (InterruptedException e1) {
+      e1.printStackTrace();
+    }
+    
+    frame.pack();
+    //frame.setResizable(false); // would need to have some logic to resize the additional buffer
+    frame.setVisible(true);
+    sketch.requestFocus();
+    return sketch;
+  }
+  
+  protected static <T extends PApplet> T main(String[] args, Class<T> klass) {
+    try {
+      return main(args, klass.newInstance());
     } catch (InstantiationException e) {
       e.printStackTrace();
     } catch (IllegalAccessException e) {
       e.printStackTrace();
     }
+    return null;
+  }
+  
+  // this was originally part of surgem,
+  // I don't know how important the insets calc is here,
+  // but the componentResize listener is important
+  protected static <T extends Oplet> T megaMain(String[] args, final T sketch) {
+    System.setProperty("apple.laf.useScreenMenuBar", "true");
+    JFrame jframe = new JFrame();
+
+    sketch.frame = jframe;
+    
+    jframe.setLayout(null);
+    jframe.add(sketch);
+    jframe.pack();
+    sketch.init();
+    
+    try {
+      while(sketch.defaultSize) {
+        Thread.sleep(20);
+      }
+    } catch (InterruptedException e1) {
+      e1.printStackTrace();
+    }
+    
+    // from processing
+    Insets insets = jframe.getInsets();
+    int windowW = Math.max(sketch.width, MIN_WINDOW_WIDTH) +
+      insets.left + insets.right;
+    int windowH = Math.max(sketch.height, MIN_WINDOW_HEIGHT) +
+      insets.top + insets.bottom;
+    
+    if(isMac()) windowH += 1; // so weird... this prevents the issue where mouse input would be "corrupted" (mouseY += insets.top)
+
+    jframe.setSize(windowW, windowH);
+    sketch.setBounds(0, 0, sketch.width, sketch.height);
+    
+    // also from processing, with insets removed
+    jframe.addComponentListener(new ComponentAdapter() {
+      public void componentResized(ComponentEvent e) {
+        sketch.componentResized(e);
+      }
+    });
+    
+    jframe.addWindowListener(new WindowAdapter() {
+      public void windowClosing(WindowEvent e) {
+        sketch.exit();
+        System.exit(0);
+      }
+    });
+    
+    jframe.setVisible(true);
+    sketch.requestFocus();
+    return sketch;
+  }
+  
+  public void componentResized(ComponentEvent e) {
+    // Ignore bad resize events fired during setup to fix
+    // http://dev.processing.org/bugs/show_bug.cgi?id=341
+    // This should also fix the blank screen on Linux bug
+    // http://dev.processing.org/bugs/show_bug.cgi?id=282
+    if (frame.isResizable()) {
+      // might be multiple resize calls before visible (i.e. first
+      // when pack() is called, then when it's resized for use).
+      // ignore them because it's not the user resizing things.
+      Frame farm = (Frame) e.getComponent();
+      if (farm.isVisible()) {
+        Insets insets = farm.getInsets();
+        Dimension windowSize = farm.getSize();
+        int usableW = windowSize.width - insets.left - insets.right;
+        int usableH = windowSize.height - insets.top - insets.bottom;
+        // this case is different from the setBounds above, because it doesn't attempt to change the window size,
+        // it merely adapts the applet to the window
+        if(isMac()) insets.top = 0; ///********************************************* here's the change
+        // the ComponentListener in PApplet will handle calling size()
+        setBounds(insets.left, insets.top, usableW, usableH);
+      }
+    }
+  }
+  
+  static public boolean isMac() {
+    return System.getProperty("os.name").toLowerCase().startsWith("mac");
   }
 
   public static String lpad(int value, char pad, int width) {
@@ -2336,42 +2456,6 @@ public class Oplet extends PApplet {
   }
   public void line(vec3 a, vec3 b) {
     line(a.x, a.y, a.z, b.x, b.y, b.z);
-  }
-  // it would be nice if java's type system smiled upon generalization
-  // but as it is, we'll have to settle for some code duplication
-  public static pt[] clonePoints(pt[] items) {
-    pt[] cloned = items.clone();
-    for(int i = 0; i < items.length; i++) {
-      cloned[i] = items[i].clone();
-    }
-    return cloned;
-  }
-  
-  /**
-   * Inplace clone, for when the original array was created in a unique way, but the points are aliased
-   * @param items
-   */
-  public static void _clonePoints(pt[] items) {
-    for(int i = 0; i < items.length; i++) {
-      items[i] = items[i].clone();
-    }
-  }
-  
-  public static List<pt> clonePoints(List<pt> items) {
-    try {
-      List<pt> cloned;
-      try {
-        cloned = items.getClass().newInstance();
-      } catch (InstantiationException e) {
-        cloned = new ArrayList<pt>();
-      }
-      for(pt p : items) {
-        cloned.add(p.clone());
-      }
-    return cloned;
-    } catch (IllegalAccessException e) {
-      throw new IllegalStateException(e);
-    }
   }
   
   public static <T> T firstCommonElement(List<T> A, List<T> B) {
