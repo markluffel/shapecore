@@ -24,6 +24,15 @@ public class BoundingBox {
     this.maxY = maxY;
   }
   
+  public static BoundingBox fromCenter(pt center, float width, float height) {
+    BoundingBox b = new BoundingBox();
+    b.minX = center.x-width/2;
+    b.maxX = center.x+width/2;
+    b.minY = center.y-height/2;
+    b.maxY = center.y+height/2;    
+    return b;
+  }
+  
   public BoundingBox(List<pt> pts) {
     this();
     add(pts);

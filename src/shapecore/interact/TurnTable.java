@@ -72,6 +72,9 @@ public class TurnTable extends ArcBall {
     updateView();
   }
   
+  public float getAngle() { return angle; }
+  public float getAzimuth() { return azimuth; }
+  
   public String toString() {
     return "angle "+angle+" azimuth "+azimuth+" distance "+zoomDistance;
   }

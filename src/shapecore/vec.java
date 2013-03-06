@@ -2,11 +2,14 @@ package shapecore;
 
 import static shapecore.Geometry.*;
 import static shapecore.Oplet.*;
+
+import java.io.Serializable;
+
 import shapecore.interfaces.Ring;
 import shapecore.interfaces.Vector;
 import Jama.Matrix;
 
-public class vec implements Vector<vec> {
+public class vec implements Vector<vec>, Serializable {
   public float x = 0, y = 0;
   static final long serialVersionUID = -33l;
 

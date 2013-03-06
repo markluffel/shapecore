@@ -2,7 +2,6 @@ package shapecore;
 
 import static shapecore.Geometry.*;
 
-
 import java.applet.AppletContext;
 import java.awt.Dimension;
 import java.awt.FileDialog;
@@ -21,10 +20,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.ObjectStreamClass;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -44,15 +41,11 @@ import java.util.zip.GZIPOutputStream;
 
 import javax.media.opengl.GL;
 import javax.media.opengl.glu.GLU;
-
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-
-import Jama.Matrix;
-
 
 import megamu.mesh.Delaunay;
 import megamu.mesh.InteriorTest;
@@ -70,6 +63,7 @@ import shapecore.motion.Spiral;
 import shapecore.motion.Trajectory;
 import shapecore.tuple.Pair;
 import sun.applet.AppletViewer;
+import Jama.Matrix;
 
 public class Oplet extends PApplet {
   // for access to static methods with less typing
@@ -3513,5 +3507,26 @@ public class Oplet extends PApplet {
       e.printStackTrace();
     }
     return null;
+  }
+  
+  public void saveZippedNumbered(String dirName, String fileExt, Object obj) {
+    if(!fileExt.startsWith(".")) fileExt = "."+fileExt;
+    File dir = sketchFile(dirName);
+    int maxNum = getMaxFileNumber(dir, fileExt);
+    String fname = String.format("%1$04d", maxNum+1)+fileExt;
+    saveZipped(new File(dir,fname), obj);
+  }
+
+  public int getMaxFileNumber(File dir, String fileExt) {
+    String[] fileNames = dir.list();
+    int maxNum = 0;
+    for(int i = 0; i < fileNames.length; i++) {
+      String fname = fileNames[i];
+      if(fname.endsWith(fileExt)) {
+        int num = parseInt(fname.substring(0, 4));
+        if(num > maxNum) maxNum = num;
+      }
+    }
+    return maxNum;
   }
 }
