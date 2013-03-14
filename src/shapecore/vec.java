@@ -1,13 +1,11 @@
 package shapecore;
 
+import static processing.core.PApplet.*;
 import static shapecore.Geometry.*;
-import static shapecore.Oplet.*;
 
 import java.io.Serializable;
 
-import shapecore.interfaces.Ring;
 import shapecore.interfaces.Vector;
-import Jama.Matrix;
 
 public class vec implements Vector<vec>, Serializable {
   public float x = 0, y = 0;
@@ -241,7 +239,7 @@ public class vec implements Vector<vec>, Serializable {
   public vec make() { return get(); }
   public vec clone() { return get(); }
   public vec get() { return new vec(x,y); }
-  public void addScaled(float s, vec V) {x += s*V.x; y += s*V.y;}
+  public vec addScaled(float s, vec v) {x += s*v.x; y += s*v.y; return this;}
 
   // this is weird, what are you trying to do here?
   public vec parallel(vec axis) {
