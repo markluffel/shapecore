@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import shapecore.Frame;
 import shapecore.Oplet;
 import shapecore.PointSets;
 import shapecore.pt;
@@ -133,11 +134,19 @@ public class Spiral extends Field implements PointAnimator, PointPairAnimator {
     return result; 
   }
   
+  public Frame apply(Frame f, float t) {
+    Frame result = new Frame();
+    result.pos = apply(f.pos, t);
+    result.angle = f.angle + angle;
+    return result;
+  }
+
+  
   public static enum Centering {
     POINT_CLOUD, CONVEX_CENTROID
   }
   
-  public static Spiral registering(pt[] P, pt[] Q) {
+  public static Spiral.Trajectory registering(pt[] P, pt[] Q) {
     return registering(Arrays.asList(P), Arrays.asList(Q), Centering.POINT_CLOUD);
   }
   
@@ -149,11 +158,11 @@ public class Spiral extends Field implements PointAnimator, PointPairAnimator {
     return registering(Arrays.asList(P), Arrays.asList(Q), pCenter, qCenter, weights);
   }
   
-  public static Spiral registering(List<pt> P, List<pt> Q) {
+  public static Spiral.Trajectory registering(List<pt> P, List<pt> Q) {
     return registering(P,Q,Centering.POINT_CLOUD);
   }
   
-  public static Spiral registering(List<pt> P, List<pt> Q, Centering centering) {
+  public static Spiral.Trajectory registering(List<pt> P, List<pt> Q, Centering centering) {
     pt pCenter = null, qCenter = null;
     switch(centering) {
     case POINT_CLOUD:
@@ -179,7 +188,7 @@ public class Spiral extends Field implements PointAnimator, PointPairAnimator {
     }
     scale = pow(scale, 1f/(min));
     float angle = atan2(s, c);
-    return new Spiral(pCenter, qCenter, -angle, scale);
+    return new Spiral(pCenter, qCenter, -angle, scale).trajectory(pCenter);
   }
   
   public static Spiral registering(List<pt> P, List<pt> Q, float[] weights) {
@@ -278,26 +287,42 @@ public class Spiral extends Field implements PointAnimator, PointPairAnimator {
   }
   
   public Trajectory trajectory(pt start) {
-    Trajectory t = new Trajectory();
-    t.start = start;
-    return t;
+    return new Trajectory(this, start);
   }
   
   // this is sketchy naming
-  public class Trajectory implements shapecore.motion.Trajectory {
+  public static class Trajectory implements shapecore.motion.Trajectory {
+    Spiral spiral;
     pt start;
     
+    Trajectory(Spiral spiral, pt start) {
+      this.spiral = spiral;
+      this.start = start;
+    }
+    
     public pt at(float t) {
-      return apply(start,t);
+      return spiral.apply(start,t);
     }
     
     public void draw(Oplet p) {
-      p.draw(Spiral.this, start);
+      p.draw(spiral, start);
     }
 
-    public Trajectory compose(float angle, float scale, pt center) {
-      // TODO Auto-generated method stub
-      return null;
+    public float arclength() {
+      float sum = 0;
+      int numSteps = 20;
+      float stepSize = 1f/numSteps;
+      pt last = at(0);
+      for(int i = 1; i <= numSteps; i++) {
+        pt cur = at(i*stepSize);
+        sum += last.disTo(cur);
+        last.set(cur);
+      }
+      return sum;
+    }
+
+    public Spiral getSpiral() {
+      return spiral;
     }
   }
 

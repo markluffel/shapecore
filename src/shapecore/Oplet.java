@@ -67,8 +67,8 @@ import Jama.Matrix;
 
 public class Oplet extends PApplet {
   // for access to static methods with less typing
-  Geometry Geo = new Geometry();
-  MatrixUtils Mat = new MatrixUtils();
+  protected Geometry Geo = new Geometry();
+  protected MatrixUtils Mat = new MatrixUtils();
 
   public void init() {
     super.init();
@@ -753,6 +753,29 @@ public class Oplet extends PApplet {
     }
   }
   
+  public static void smoothAngles(float[] values, float t) {
+    // we can get rid of the changes array and keep a single extra value around 
+    if(values.length < 3) return;
+    t /= 2;
+    int endex = values.length-1;
+    float[] change = new float[values.length];
+    change[0] = 0;
+    for(int i = 1; i < endex; i++) {
+      float
+      va = values[i-1],
+      vb = values[i],
+      vc = values[i+1];
+      float BA = angle_diff(vb, va), BC = angle_diff(vb, vc);
+      //float BA = A-B, BC = C-B;
+      change[i] = t * (BA + BC);
+    }
+    change[change.length-1] = 0;
+    
+    for(int i = 0; i < values.length; i++) {
+      values[i] += change[i];
+    }
+  }
+  
   
   public static void center(List<pt> pts, int width, int height) {
     float minX = Float.MAX_VALUE, maxX = -Float.MAX_VALUE, minY = Float.MAX_VALUE, maxY = -Float.MAX_VALUE;
@@ -1099,6 +1122,7 @@ public class Oplet extends PApplet {
   }
   
   public static float arclength(List<pt> pts) {
+    if(pts.isEmpty()) return 0;
     float arcLen = 0;
     pt prev = pts.get(0);
     for(int i = 1; i < pts.size(); i++) {
@@ -2226,7 +2250,11 @@ public class Oplet extends PApplet {
     
     frame.addWindowListener(new WindowAdapter() {
       public void windowClosing(WindowEvent e) {
-        sketch.exit();
+        // if there are two sketches running in the same process,
+        // this will call System.exit and kill both
+        //sketch.exit();
+        // better to dispose of the graphics and quietly fade away
+        sketch.dispose();
       }
     });
     
@@ -2960,19 +2988,37 @@ public class Oplet extends PApplet {
     return (float)(v/sqrt(1-v*v));
   }
   
-  public static float[] normalize(float[] values) {
-    float[] result = new float[values.length];
-    float sum = sum(values);
+  public static void normalizeDistribution(float[] values) {
+    divide(values, sum(values));
+  }
+  
+  public static void divide(float[] values, float scalar) {
+    float invScale = 1f/scalar;
     for(int i = 0; i < values.length; i++) {
-      result[i] = values[i]/sum;
+      values[i] *= invScale;
     }
-    return result;
+  }
+  
+  public static void normalize(float[] vec) {
+    divide(vec, sqrt(dot_(vec,vec)));
   }
   
   public static float sum(float[] values) {
     float sum = 0;
-    for(int i = 0; i < values.length; i++) {
-      sum += values[i];
+    for(float f : values) sum += f;
+    return sum;
+  }
+  
+  public static float sum(List<Float> values) {
+    float sum = 0;
+    for(float f : values) sum += f;
+    return sum;
+  }
+  
+  public static float dot_(float[] a, float[] b) {
+    float sum = 0;
+    for(int i = 0; i < a.length; i++) {
+      sum += a[i]*b[i];
     }
     return sum;
   }
@@ -3528,5 +3574,9 @@ public class Oplet extends PApplet {
       }
     }
     return maxNum;
+  }
+  
+  public <T> T last(List<T> items) {
+    return items.get(items.size()-1);
   }
 }

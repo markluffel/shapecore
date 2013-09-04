@@ -235,8 +235,6 @@ public class Geometry {
   
   public static vec3 w(vec3... vecs) { return S(new vec3(), Arrays.asList(vecs)); }
   public static vec3 Sv3(List<vec3> vecs) { return S(new vec3(), vecs); }
-  public static pt3 S(pt3... pts) { return S(new pt3(), Arrays.asList(pts)); }
-  public static pt3 Sp3(List<pt3> pts) { return S(new pt3(), pts); }
   
   public static vec A(vec... vecs) { return A(new vec(), Arrays.asList(vecs)); }
   public static vec Av(List<vec> vecs) { return A(new vec(), vecs); }

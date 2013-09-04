@@ -51,10 +51,12 @@ public class Frame implements Serializable {
     return R(v, angle);
   }
   
+  /** Returns the given frame in this Frame's local coordinate system. */ 
   public Frame toLocal(Frame that) {
     return Frame.make(P(toLocal(that.pos)), Oplet.angle_diff(this.angle, that.angle));
   }
-    
+  
+  /** Returns the given point in this Frame's local coordinate system. */
   public vec toLocal(pt p) {
     vec v = V(p,pos);
     v.rotateBy(-angle);
