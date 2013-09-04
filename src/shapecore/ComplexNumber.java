@@ -1,7 +1,6 @@
 package shapecore;
 
 
-import java.lang.Math.*;
 
 /**
  * Class representing a complex number.

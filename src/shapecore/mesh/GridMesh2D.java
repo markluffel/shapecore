@@ -117,8 +117,8 @@ public class GridMesh2D extends Mesh2D {
   public void draw(Oplet p) {
     int colSpan = numCols+1;
     int vert = 0; // upperleft vertex of current face
-    int face = 0; // current face
-    p.beginShape(p.QUADS);
+    //int face = 0; // current face
+    p.beginShape(Oplet.QUADS);
     for(int y = 0; y < numRows; y++) {
       for(int x = 0; x < numCols; x++) {
         p.vertex(G[vert]);
@@ -126,7 +126,7 @@ public class GridMesh2D extends Mesh2D {
         p.vertex(G[vert+1+colSpan]);
         p.vertex(G[vert+colSpan]);
         vert++;
-        face++;
+        //face++;
       }
       vert++; // skip the vertex at the end of each row
     }
@@ -165,8 +165,8 @@ public class GridMesh2D extends Mesh2D {
   public void drawEdges(Oplet p) {
     int colSpan = numCols+1;
     int vert = 0; // upperleft vertex of current face
-    int face = 0; // current face
-    p.beginShape(p.LINES);
+    //int face = 0; // current face
+    p.beginShape(Oplet.LINES);
     for(int y = 0; y < numRows; y++) {
       for(int x = 0; x < numCols; x++) {
         p.vertex(G[vert]);
@@ -175,7 +175,7 @@ public class GridMesh2D extends Mesh2D {
         p.vertex(G[vert+1+colSpan]);
         // TODO: handle the last row and column
         vert++;
-        face++;
+        //face++;
       }
       vert++; // skip the vertex at the end of each row
     }

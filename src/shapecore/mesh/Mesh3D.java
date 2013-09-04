@@ -79,6 +79,7 @@ public class Mesh3D {
       } else if(name.endsWith(".ply")) {
         return loadPly(reader);
       } else {
+        reader.close();
         throw new IllegalArgumentException("unknown format");
       }
       
@@ -106,6 +107,7 @@ public class Mesh3D {
         seenO = true;
       }
     }
+    reader.close();
     return new Mesh3D(points, faceIndices);
   }
   
@@ -276,15 +278,15 @@ public class Mesh3D {
   // unnormalized, perhaps ironically
   public vec3 vertexNormal(int v) {
     vec3 normal = new vec3();
-    pt3 A = G[v];
+    pt3 a = G[v];
     // TODO: change the naming scheme, aroundVerts, aroundVertsAtCorner, aroundCornersAtVert
     for(int crnr : corner.vertexCorners(cornerForVertex(v))) {
       int bv = corner.V[corner.n(crnr)];
-      pt3 B = G[bv];
+      pt3 b = G[bv];
       int cv = corner.V[corner.p(crnr)];
-      pt3 C = G[cv];
+      pt3 c = G[cv];
       
-      normal.add(V(A,B).cross(V(A,C)));
+      normal.add(a.to(b).cross(a.to(c)));
     }
     return normal;
   }
@@ -301,7 +303,7 @@ public class Mesh3D {
   }
   
   public pt3 faceCenter(int t) {
-    return A(
+    return average(
       G[corner.V[t*3+0]],
       G[corner.V[t*3+1]],
       G[corner.V[t*3+2]]);
@@ -334,7 +336,7 @@ public class Mesh3D {
   public float[] curvatures() {
     float[] result = new float[G.length];
     for(int i = 0; i < G.length; i++) {
-      result[i] = curvature(i).mag();
+      result[i] = curvature(i).norm();
     }
     return result;
   }
@@ -350,15 +352,15 @@ public class Mesh3D {
     
     float normalizer = 0;
     float contrib;
-    pt3 C = G[v];
+    pt3 pc = G[v];
     for(int c : vertexCorners(v)) {
-      pt3 A = G[corner.V[p(c)]], B = G[corner.V[n(c)]];
+      pt3 pa = G[corner.V[p(c)]], pb = G[corner.V[n(c)]];
       // cotan angle at A, vector to B
-      contrib = cotAlpha(C,A,B); normalizer += contrib;
-      sum.add(contrib, V(C,B));
+      contrib = cotAlpha(pc,pa,pb); normalizer += contrib;
+      sum.add(contrib, V(pc,pb));
       // cotan angle at B, vector to A
-      contrib = cotAlpha(C,B,A); normalizer += contrib;
-      sum.add(contrib, V(C,A));
+      contrib = cotAlpha(pc,pb,pa); normalizer += contrib;
+      sum.add(contrib, V(pc,pa));
     }
     
     sum.mul(1f/normalizer);

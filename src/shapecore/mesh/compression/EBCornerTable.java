@@ -100,8 +100,8 @@ public class EBCornerTable {
   // void writeCorners () {for (int c=0; c<nc; c++) {println("T["+c+"]="+t(c)+",
   // visible="+visible[t(c)]+", v="+v(c)+", o="+o(c));};}
 
-  pt3 cg(int c) {pt3 cPt = A(g(c),A(g(c),triCenter(t(c))));  return(cPt); };   // computes point at corner
-  pt3 corner(int c) {return A(g(c),triCenter(t(c)));   };   // returns corner point
+  pt3 cg(int c) {pt3 cPt = average(g(c),average(g(c),triCenter(t(c))));  return(cPt); };   // computes point at corner
+  pt3 corner(int c) {return average(g(c),triCenter(t(c)));   };   // returns corner point
   //void showCorner(int c, int r) {pt3 cPt = A(g(c),A(g(c),corner(c)));  cPt.show(r); };   // renders corner c as small ball
 
   // ============================================= O TABLE CONSTRUCTION
@@ -141,8 +141,8 @@ public class EBCornerTable {
       Lbox.x=min(Lbox.x,G[i].x); Lbox.y=min(Lbox.y,G[i].y); Lbox.z=min(Lbox.z,G[i].z);
       Hbox.x=max(Hbox.x,G[i].x); Hbox.y=max(Hbox.y,G[i].y); Hbox.z=max(Hbox.z,G[i].z); 
     };
-    Cbox.setTo(A(Lbox,Hbox));
-    Rbox = Cbox.disTo(Hbox);
+    Cbox.setTo(average(Lbox,Hbox));
+    Rbox = Cbox.dist(Hbox);
   }
   
   /*
@@ -181,7 +181,7 @@ public class EBCornerTable {
   
   void addTriangle(int i, int j, int k) {V[nc++]=i; V[nc++]=j; V[nc++]=k; visible[nt++]=true;}
   
-  pt3 triCenter(int i) {return A( G[V[3*i]], G[V[3*i+1]], G[V[3*i+2]]); } // computes center of triangle t(i)
+  pt3 triCenter(int i) {return average( G[V[3*i]], G[V[3*i+1]], G[V[3*i+2]]); } // computes center of triangle t(i)
   //pt3 triCenter() {return triCenter(t());}
   void writeTri (int i) {println("T"+i+": V = ("+V[3*i]+":"+v(o(3*i))+","+V[3*i+1]+":"+v(o(3*i+1))+","+V[3*i+2]+":"+v(o(3*i+2))+")"); };
   /*
@@ -276,7 +276,7 @@ public class EBCornerTable {
   // ============================================================
   void computeLaplaceVectors() {  // computes the vertex normals as sums of the normal vectors of incident tirangles scaled by area/2
     computeValenceAndResetNormals();
-    for (int i=0; i<3*nt; i++) {Nv[v(p(i))].add(g(p(i)).makeVecTo(g(n(i))));}
+    for (int i=0; i<3*nt; i++) {Nv[v(p(i))].add(g(p(i)).to(g(n(i))));}
     for (int i=0; i<nv; i++) {
       Nv[i].div(Valence[i]);
     }
@@ -304,11 +304,11 @@ public class EBCornerTable {
     // creates a new vertex for each edge and stores its ID in the W of the corner (and of its opposite if any)
     for (int i=0; i<3*nt; i++) {  // for each corner i
       if(b(i)) {
-        G[nv]=A(g(n(i)),g(p(i)));
+        G[nv]=average(g(n(i)),g(p(i)));
         W[i]=nv++;
       } else {
         if(i<o(i)) {
-          G[nv]=A(g(n(i)),g(p(i)));
+          G[nv]=average(g(n(i)),g(p(i)));
           W[o(i)]=nv;
           W[i]=nv++;
         }
@@ -323,7 +323,7 @@ public class EBCornerTable {
       // i < o(i) means: only tweak one of the half edges, arbitrarily the lower ordered one
       if(!b(i) && i < o(i)) {    // no tweak for mid-vertices of border edges
         if (!b(p(i))&&!b(n(i))&&!b(p(o(i)))&&!b(n(o(i)))) { // check that
-          G[W[i]].add(0.25f,A(A(g(l(i)),g(r(i))),A(g(l(o(i))),g(r(o(i))))).makeVecTo(A(g(i),g(o(i)))));
+          G[W[i]].add(0.25f,average(average(g(l(i)),g(r(i))),average(g(l(o(i))),g(r(o(i))))).to(average(g(i),g(o(i)))));
         }
       }
     }

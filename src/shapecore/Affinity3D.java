@@ -1,7 +1,6 @@
 package shapecore;
 
 import static shapecore.Fitting.*;
-import static shapecore.Geometry.*;
 import static shapecore.Oplet.*;
 
 import java.util.Arrays;
@@ -44,8 +43,8 @@ public class Affinity3D {
   public static Affinity3D fit(List<pt3> src, List<pt3> dst, float[] weights) {
     pt3 srcCenter,dstCenter;
     if(weights == null) {
-      srcCenter = averagep3(src);
-      dstCenter = averagep3(dst);
+      srcCenter = pt3.average(src);
+      dstCenter = pt3.average(dst);
     } else {
       srcCenter = weightedCenter3(src, weights);
       dstCenter = weightedCenter3(dst, weights);      
@@ -59,10 +58,10 @@ public class Affinity3D {
     vec3[] pHat = relativeTo(srcCenter, src);
     vec3[] qHat = relativeTo(dstCenter, dst);
     
-    Matrix A = weightedOuterProductSum(pHat, pHat, weights).inverse();
-    Matrix B = weightedOuterProductSum(pHat, qHat, weights);
+    Matrix a = weightedOuterProductSum(pHat, pHat, weights).inverse();
+    Matrix b = weightedOuterProductSum(pHat, qHat, weights);
 
-    Matrix L = A.times(B).transpose();
+    Matrix L = a.times(b).transpose();
     return makeAffinity(L, srcCenter, dstCenter);
   }
 

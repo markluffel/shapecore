@@ -112,7 +112,7 @@ public class OrientedBoundingBox implements Serializable {
   float radius() { return sqrt(sqradius()); }
 
   public boolean intersects(OrientedBoundingBox that) {
-    float d = this.center.disTo(that.center);
+    float d = this.center.dist(that.center);
     if(d > this.radius()+that.radius()) {
       return false;
     } else {

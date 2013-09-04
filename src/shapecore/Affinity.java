@@ -47,8 +47,8 @@ public class Affinity {
   public static Affinity fit(List<pt> src, List<pt> dst, float[] weights) {
     pt srcCenter,dstCenter;
     if(weights == null) {
-      srcCenter = averagep(src);
-      dstCenter = averagep(dst);
+      srcCenter = pt.average(src);
+      dstCenter = pt.average(dst);
       weights = new float[src.size()];
       Arrays.fill(weights, 1);
     } else {
@@ -64,10 +64,10 @@ public class Affinity {
     vec[] pHat = relativeTo(srcCenter, src);
     vec[] qHat = relativeTo(dstCenter, dst);
     
-    Matrix A = weightedOuterProductSum(pHat, pHat, weights).inverse();
-    Matrix B = weightedOuterProductSum(pHat, qHat, weights);
+    Matrix a = weightedOuterProductSum(pHat, pHat, weights).inverse();
+    Matrix b = weightedOuterProductSum(pHat, qHat, weights);
 
-    Matrix L = A.times(B).transpose();
+    Matrix L = a.times(b).transpose();
     return makeAffinity(L, srcCenter, dstCenter);
   }
 
@@ -96,11 +96,11 @@ public class Affinity {
     return Oplet.local(v, I, J);
   }
 
-  public Affinity composeInverse(Affinity A) {
+  public Affinity composeInverse(Affinity a) {
     return new Affinity(
-        A.local(O),
-        A.local(I),
-        A.local(J)
+      a.local(O),
+      a.local(I),
+      a.local(J)
     );
   }
 }

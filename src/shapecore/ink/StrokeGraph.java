@@ -155,7 +155,7 @@ public class StrokeGraph {
       float diff = leftDist-rightDist;
       float t = 0.5f - diff/splitSeg;
       
-      return L(disks.get(left), t, disks.get(left+1));
+      return lerp(disks.get(left), disks.get(left+1), t);
     }
     
     private float arclength(int i) {

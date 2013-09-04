@@ -12,8 +12,7 @@
   */
 package quickhull3d;
 
-import java.util.*;
-import java.io.*;
+import java.util.Random;
 
 /**
  * Testing class for QuickHull3D. Running the command
@@ -447,9 +446,7 @@ public class QuickHull3DTest
 	   double m12 = sroll * spitch * cyaw - croll * syaw;
 	   double m22 = cpitch * cyaw;
 
-	   double x, y, z;
-
-	   for (int i=0; i<xyz.length-2; i+=3)
+ 	   for (int i=0; i<xyz.length-2; i+=3)
 	    {
 	      res[i+0] = m00*xyz[i+0] + m01*xyz[i+1] + m02*xyz[i+2];
 	      res[i+1] = m10*xyz[i+0] + m11*xyz[i+1] + m12*xyz[i+2];

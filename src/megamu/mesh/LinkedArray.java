@@ -1,6 +1,5 @@
 package megamu.mesh;
 
-import java.util.List;
 
 public class LinkedArray {
 

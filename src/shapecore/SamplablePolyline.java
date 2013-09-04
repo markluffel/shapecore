@@ -58,7 +58,7 @@ public class SamplablePolyline {
     distances = new float[points.length];
     distances[0] = 0;
     for(int i = 1; i < distances.length; i++) {
-      distances[i] = distances[i-1] + points[i].disTo(points[i-1]);
+      distances[i] = distances[i-1] + points[i].dist(points[i-1]);
     }
   }
   
@@ -80,7 +80,7 @@ public class SamplablePolyline {
   
   // TODO: we can make this lookup faster with some other kind of acceleration structure
   // it's about time that i implemented a nice spatial tree
-  public pt localCoord(pt A) {
+  public pt localCoord(pt a) {
     float minDist = Float.MAX_VALUE;
     float perp = 0;
     float bestLenSum = 0; // the arclength at the closest point to A on the polyline
@@ -88,12 +88,12 @@ public class SamplablePolyline {
     for(int i = 1; i < points.length; i++) {
       pt p = points[i-1];
       pt q = points[i];
-      pt closest = closestPointOnEdge(A, p, q);
+      pt closest = closestPointOnEdge(a, p, q);
       vec axis = R(V(p,q)); axis.normalize();
       // V(closest, A) should be close to parallel to axis
       // this tells us which side, and how far
-      float proj = V(closest,A).dot(axis);
-      float d = d2(closest,A);
+      float proj = V(closest,a).dot(axis);
+      float d = d2(closest,a);
       if(d < minDist) {
         minDist = d;
         perp = proj;
@@ -115,14 +115,14 @@ public class SamplablePolyline {
         // endcap at head
         vec base = V(points[0],points[1]);
         base.turnRight();
-        vec offset = V(points[0],A);
+        vec offset = V(points[0],a);
         float theta = acos(base.dot(offset)/(base.norm()*offset.norm()));
         y = theta-PI;
       } else if(y > 0.99999) {
         // endcap at tail
         vec base = V(points[points.length-1],points[points.length-2]);
         base.turnRight();
-        vec offset = V(points[points.length-1],A);
+        vec offset = V(points[points.length-1],a);
         float theta = acos(base.dot(offset)/(base.norm()*offset.norm()));
         y = theta+1;
       } else {
@@ -136,8 +136,8 @@ public class SamplablePolyline {
     return null;
   }
   
-  public pt globalCoord(pt A) {
-    return globalCoord(A.x, A.y);
+  public pt globalCoord(pt a) {
+    return globalCoord(a.x, a.y);
   }
   
   // this is a bit uncomfortably complex

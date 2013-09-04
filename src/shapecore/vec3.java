@@ -1,6 +1,9 @@
 package shapecore;
 
 import static processing.core.PApplet.*;
+
+import java.util.Collection;
+
 import processing.core.PApplet;
 import processing.core.PVector;
 import shapecore.interfaces.Vector;
@@ -95,18 +98,19 @@ public class vec3 implements Vector<vec3> {
   }
 
   public vec3 div(float f) {
-    x /= f;
-    y /= f;
-    z /= f;
+    float inv = 1f/f;
+    x *= inv;
+    y *= inv;
+    z *= inv;
     return this;
   }
-
+  
   public vec3 normalize() {
-    float n = mag();
-    if (n > 0.000001) {
-      x /= n;
-      y /= n;
-      z /= n;
+    float n = norm();
+    if(n == 0) {
+      setTo(0, 0, 0);
+    } else {
+      div(n);
     }
     return this;
   }
@@ -116,16 +120,12 @@ public class vec3 implements Vector<vec3> {
   }
   
   public vec3 toLength(float len) {
-    float n = (float) norm();
-    if (n > 0.000001) {
-      float scale = len/n;
-      x *= scale;
-      y *= scale;
-      z *= scale;
+    float n = norm();
+    if(n != 0) {
+      mul(len/n);
     }
     return this;  
   }
-
 
   public vec3 add(vec3 v) {
     x += v.x;
@@ -141,24 +141,24 @@ public class vec3 implements Vector<vec3> {
     return this;
   }
   
-  public vec3 addScaledBy(float s, vec3 V) {
-    x += s * V.x;
-    y += s * V.y;
-    z += s * V.z;
+  public vec3 addScaledBy(float s, vec3 v) {
+    x += s * v.x;
+    y += s * v.y;
+    z += s * v.z;
     return this;
   }
   
-  public vec3 add(float s, vec3 V) {
-    x += s * V.x;
-    y += s * V.y;
-    z += s * V.z;
+  public vec3 add(float s, vec3 v) {
+    x += s * v.x;
+    y += s * v.y;
+    z += s * v.z;
     return this;
   }
 
-  public vec3 add(double s, vec3 V) {
-    x += s * V.x;
-    y += s * V.y;
-    z += s * V.z;
+  public vec3 add(double s, vec3 v) {
+    x += s * v.x;
+    y += s * v.y;
+    z += s * v.z;
     return this;
   }
 
@@ -177,8 +177,8 @@ public class vec3 implements Vector<vec3> {
     return this;
   }
 
-  public static float dot(vec3 U, vec3 V) {
-    return U.dot(V);
+  public static float dot(vec3 u, vec3 v) {
+    return u.dot(v);
   }
 
   public float dot(vec3 that) {
@@ -187,16 +187,13 @@ public class vec3 implements Vector<vec3> {
 
   // OUTPUT TEST MEASURE
 
-  public float mag() {
-    return sqrt(sq(x) + sq(y) + sq(z));
-  }
   public float norm() {
-    return sqrt(sq(x) + sq(y) + sq(z));
+    return sqrt(sqnorm());
   }
   public float sqnorm() {
    return sq(x) + sq(y) + sq(z);
   }
-  public vec3 zero() {
+  public vec3 zero() { // non-static because of awkward parameterized Ring type
     return new vec3(0,0,0);
   }
   public boolean isNull() {
@@ -254,5 +251,15 @@ public class vec3 implements Vector<vec3> {
     float z = p.random(-1,1);
     float r = PApplet.sqrt(1-z*z);
     return new vec3(Math.cos(theta)*r,Math.sin(theta)*r,z);
+  }
+  
+  public static vec3 sum(Collection<vec3> vs) {
+    vec3 sum = new vec3();
+    for(vec3 v : vs) sum.add(v);
+    return sum;
+  }
+  
+  public static vec3 average(Collection<vec3> vs) {
+    return sum(vs).scaleBy(1f/vs.size());
   }
 }

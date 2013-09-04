@@ -29,7 +29,7 @@ public class Pair<S,T> {
   
   public boolean equals(Object that) {
     if(that instanceof Pair) {
-      Pair other = (Pair)that;
+      Pair<?,?> other = (Pair<?,?>)that;
       return other.fst.equals(this.fst) && other.snd.equals(this.snd);
     } else {
       return false;

@@ -355,7 +355,7 @@ public class CornerTable {
       
       pt
       a = geom[V[i+0]], b = geom[V[i+1]], c = geom[V[i+2]],
-      ab = A(a,b), bc = A(b,c), ca = A(c,a);
+      ab = average(a,b), bc = average(b,c), ca = average(c,a);
       
       if(!b(i+2)) {
         p.stroke(colors[i+2]);
@@ -472,7 +472,7 @@ public class CornerTable {
     p.beginShape(PConstants.TRIANGLES);
     for(int i = 0; i < O.length; i+=3) {
       pt a = geom[V[i]], b = geom[V[i+1]], c = geom[V[i+2]];
-      pt center = A(a,b,c);
+      pt center = average(a,b,c);
       
       p.vertex(a.get().translateTowardsBy(distance, center));
       p.vertex(b.get().translateTowardsBy(distance, center));
@@ -606,10 +606,9 @@ public class CornerTable {
    * instead, record the indicies of verticies that would contribute to the butterfly mask for a given point.
    */
   // 
-  public int[][] butterfly(int numVerts) {
+  public int[][] butterfly(int numOldVerts) {
     int[] W = new int[O.length];
     
-    int numOldVerts = numVerts;
     int numNewVerts = computeW(W, numOldVerts);
     
     int[][] cachedMasks = butterflyBulgeMask(W, numOldVerts, numNewVerts);
@@ -696,10 +695,10 @@ public class CornerTable {
     int j = numOldVerts;
     for(int i = 0; i < O.length; i++) {
       if(b(i)) {
-        geom[j] = A(geom[V[n(i)]],geom[V[p(i)]]);
+        geom[j] = average(geom[V[n(i)]],geom[V[p(i)]]);
         j++;
       } else if(i < o(i)) { // only do once per edge
-        geom[j] = A(geom[V[n(i)]],geom[V[p(i)]]);
+        geom[j] = average(geom[V[n(i)]],geom[V[p(i)]]);
         j++;
       }
     }
@@ -722,10 +721,10 @@ public class CornerTable {
     int j = numOldVerts;
     for(int i = 0; i < O.length; i++) {
       if(b(i)) {
-        geom[j] = A(geom[V[n(i)]],geom[V[p(i)]]);
+        geom[j] = average(geom[V[n(i)]],geom[V[p(i)]]);
         j++;
       } else if(i < o(i)) { // only do once per edge
-        geom[j] = A(geom[V[n(i)]],geom[V[p(i)]]);
+        geom[j] = average(geom[V[n(i)]],geom[V[p(i)]]);
         j++;
       }
     }
@@ -744,7 +743,7 @@ public class CornerTable {
       // i < o(i) means: only tweak one of the half edges, arbitrarily the lower ordered one
       if(!b(i) && i < o(i)) {    // no tweak for mid-vertices of border edges
         if (!b(p(i))&&!b(n(i))&&!b(p(o(i)))&&!b(n(o(i)))) { // check that
-          g[V[W[i]]].add(0.25f,A(A(g[V[l(i)]],g[V[r(i)]]),A(g[V[l(o(i))]],g[V[r(o(i))]])).vecTo(A(g[V[i]],g[V[o(i)]])));
+          g[V[W[i]]].add(0.25f,average(average(g[V[l(i)]],g[V[r(i)]]),average(g[V[l(o(i))]],g[V[r(o(i))]])).to(average(g[V[i]],g[V[o(i)]])));
         }
       }
     }
@@ -786,7 +785,7 @@ public class CornerTable {
       // i < o(i) means: only tweak one of the half edges, arbitrarily the lower ordered one
       if(!b(i) && i < o(i)) {    // no tweak for mid-vertices of border edges
         if (!b(p(i))&&!b(n(i))&&!b(p(o(i)))&&!b(n(o(i)))) { // check that
-          g[V[W[i]]].add(0.25f,A(A(g[V[l(i)]],g[V[r(i)]]),A(g[V[l(o(i))]],g[V[r(o(i))]])).makeVecTo(A(g[V[i]],g[V[o(i)]])));
+          g[V[W[i]]].add(0.25f,average(average(g[V[l(i)]],g[V[r(i)]]),average(g[V[l(o(i))]],g[V[r(o(i))]])).to(average(g[V[i]],g[V[o(i)]])));
         }
       }
     }
@@ -799,7 +798,7 @@ public class CornerTable {
       // i < o(i) means: only tweak one of the half edges, arbitrarily the lower ordered one
       if(!b(i) && i < o(i)) {    // no tweak for mid-vertices of border edges
         if (!b(p(i))&&!b(n(i))&&!b(p(o(i)))&&!b(n(o(i)))) { // check that
-          g[V[W[i]]].add(0.25f,A(A(g[V[l(i)]],g[V[r(i)]]),A(g[V[l(o(i))]],g[V[r(o(i))]])).vecTo(A(g[V[i]],g[V[o(i)]])));
+          g[V[W[i]]].add(0.25f,average(average(g[V[l(i)]],g[V[r(i)]]),average(g[V[l(o(i))]],g[V[r(o(i))]])).to(average(g[V[i]],g[V[o(i)]])));
         }
       }
     }
@@ -812,7 +811,7 @@ public class CornerTable {
       // i < o(i) means: only tweak one of the half edges, arbitrarily the lower ordered one
       if(!b(i) && i < o(i)) {    // no tweak for mid-vertices of border edges
         if (!b(p(i))&&!b(n(i))&&!b(p(o(i)))&&!b(n(o(i)))) { // check that
-          g[V[W[i]]].add(0.25f,A(A(g[V[l(i)]],g[V[r(i)]]),A(g[V[l(o(i))]],g[V[r(o(i))]])).makeVecTo(A(g[V[i]],g[V[o(i)]])));
+          g[V[W[i]]].add(0.25f,average(average(g[V[l(i)]],g[V[r(i)]]),average(g[V[l(o(i))]],g[V[r(o(i))]])).to(average(g[V[i]],g[V[o(i)]])));
         }
       }
     }
@@ -1266,17 +1265,17 @@ public class CornerTable {
     copo = O[cop],
     cono = O[con],
     
-    A = V[c],
-    B = V[O[c]],
-    C = V[n(c)],
-    D = V[p(c)];
+    va = V[c],
+    vb = V[O[c]],
+    vc = V[n(c)],
+    vd = V[p(c)];
     
-    V[c] = C;
-    V[co] = D;
-    V[cn] = B;
-    V[cop] = B;
-    V[cp] = A;
-    V[con] = A;
+    V[c] = vc;
+    V[co] = vd;
+    V[cn] = vb;
+    V[cop] = vb;
+    V[cp] = va;
+    V[con] = va;
     
     
     if(cpo >= 0) O[cpo] = cn;

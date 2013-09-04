@@ -17,7 +17,7 @@ public class EdgeSetMethods {
     pt best = q;
     for(Edge e : es.getEdges()) {
       pt p = e.projection(q);
-      float sqdist = p.sqDisTo(q);
+      float sqdist = p.sqdist(q);
       if(sqdist < minSqDist) {
         minSqDist = sqdist;
         best = p;
@@ -27,7 +27,7 @@ public class EdgeSetMethods {
   }
   
   public static float dist(EdgeSet es, pt q) {
-    return project(es, q).disTo(q);
+    return project(es, q).dist(q);
   }
   
   /** Assumes that edges are are connected and provided */

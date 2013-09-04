@@ -14,7 +14,6 @@
 
 package quickhull3d;
 
-import java.util.*;
 
 /**
  * Basic triangular face used to form the hull.

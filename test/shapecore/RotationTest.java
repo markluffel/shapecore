@@ -66,11 +66,11 @@ public class RotationTest extends TestCase {
   
   public void testCombine() {
     vec3 v = randomUnitVector();
-    Rotation A = Rotation.axisAngle(randomUnitVector(), Math.random()*TWO_PI);
-    Rotation B = Rotation.axisAngle(randomUnitVector(), Math.random()*TWO_PI);
-    vec3 v1 = A.transform(B.transform(v));
-    A.combine(B);
-    vec3 v2 = A.transform(v);
+    Rotation a = Rotation.axisAngle(randomUnitVector(), Math.random()*TWO_PI);
+    Rotation b = Rotation.axisAngle(randomUnitVector(), Math.random()*TWO_PI);
+    vec3 v1 = a.transform(b.transform(v));
+    a.combine(b);
+    vec3 v2 = a.transform(v);
     assertNearlyEqual(v1,v2);
   }
   

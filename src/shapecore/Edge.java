@@ -16,21 +16,35 @@ public class Edge {
   public vec left() { return dir().turnLeft(); }
   public float lengthSq() { return dot(dir(),dir()); }
   public float length() { return d(a,b); }
-  public pt midpoint() { return A(a,b); }
+  public pt midpoint() { return average(a,b); }
   
   public pt put(pt C) {
     return T(this.a, C.x,dir(), C.y,R(dir())); 
   }
 
-  // For the spirals:
-  public static pt spiralCenter(pt A, pt B, pt C, pt D) {         // new spiral center
-    float m=d(C,D)/d(A,B); float n=d(C,D)*d(A,B);
-    vec AB=V(A,B);   vec CD=V(C,D); vec AC=V(A,C);
-    float c=dot(AB,CD)/n;  float s=dot(R(AB),CD)/n;
-    float AB2 = dot(AB,AB);  float a=dot(AB,AC)/AB2;  float b=dot(R(AB),AC)/AB2;
-    float x=(a-m*( a*c+b*s)); float y=(b-m*(-a*s+b*c));
-    float d=1+m*(m-2*c);  if((c!=1)&&(m!=1)) { x/=d; y/=d; };
-    return T(T(A,x,AB),y,R(AB));
+  /** new spiral center */
+  public static pt spiralCenter(pt p0, pt q0, pt p1, pt q1) {
+    vec ab = V(p0,q0),
+        cd = V(p1,q1),
+        ac = V(p0,p1);
+    
+    float
+      m = d(p1,q1)/d(p0,q0),
+      n = d(p1,q1)*d(p0,q0),
+      c = dot(ab,cd)/n,
+      s = dot(R(ab),cd)/n,
+      abab = dot(ab,ab),
+      angle = dot(ab,ac) / abab,
+      b = dot(R(ab), ac) / abab,
+      x = (angle - m*(angle*c + b*s)),
+      y = (b-m*(-angle*s+b*c)),
+      d = 1+m*(m-2*c);
+    
+    if(c != 1 && m != 1) {
+      x /= d;
+      y /= d;
+    }
+    return T(T(p0,x,ab),y,R(ab));
   }
 
   public static Edge Sspiral(Edge E0, float t, Edge E1) {

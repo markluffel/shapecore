@@ -22,7 +22,7 @@ public abstract class ZoomApplet extends Oplet {
     // TODO, use apple zoom style behavior,
     // keep track of ... something else ... like a center that gets moved by dmouseX
     if(!mousePressed) {
-      zoomCenter = L(zoomCenter, 0.1f, new pt(mouseX, mouseY));
+      zoomCenter = lerp(zoomCenter, new pt(mouseX, mouseY), 0.1f);
       zoomScale = lerp(zoomScale, zoomScaleGoal, 0.2f);
     }
     translate(zoomCenter.x,zoomCenter.y);

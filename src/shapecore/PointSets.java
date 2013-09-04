@@ -121,8 +121,8 @@ public class PointSets {
     for (int i = 0, pi = min-1; i < min; pi = i, i++) {
       pt s1 = src.get(pi), s2 = src.get(i);
       pt d1 = dst.get(pi), d2 = dst.get(i);
-      pt srcMid = A(s1,s2);
-      pt dstMid = A(dst.get(pi), dst.get(i));
+      pt srcMid = average(s1,s2);
+      pt dstMid = average(dst.get(pi), dst.get(i));
       vec srcV = V(thisCentroid, srcMid), dstV = V(thatCentroid, dstMid);
       float area = trapezoidArea(s1,s2)+trapezoidArea(d1,d2);
       s += dot(srcV, R(dstV))*area;

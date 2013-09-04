@@ -14,7 +14,7 @@ public class Linear extends Field implements Trajectory, PointAnimator, PointPai
   }
 
   public pt at(float t) {
-    return L(start, t, end);
+    return lerp(start, end, t);
   }
 
   public pt apply(pt p, float time) {
@@ -22,7 +22,7 @@ public class Linear extends Field implements Trajectory, PointAnimator, PointPai
   }
 
   public pt apply(pt pStart, pt pEnd, float time) {
-    return L(pStart, time, pEnd); // totally ignores the contents of the class ... whatever FIXME
+    return lerp(pStart, pEnd, time); // totally ignores the contents of the class ... whatever FIXME
   }
   
   public Trajectory compose(Trajectory t1, Trajectory t2) {
@@ -38,7 +38,7 @@ public class Linear extends Field implements Trajectory, PointAnimator, PointPai
     }
 
     public pt at(float t) {
-      return L(t1.at(t), t, t2.at(t));
+      return lerp(t1.at(t), t2.at(t), t);
     }    
   }
 

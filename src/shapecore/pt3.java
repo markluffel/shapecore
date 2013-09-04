@@ -2,6 +2,10 @@ package shapecore;
 
 import static processing.core.PApplet.*;
 import static shapecore.Geometry.*;
+
+import java.util.Arrays;
+import java.util.List;
+
 import shapecore.interfaces.Ring;
 
 public final class pt3 implements Ring<pt3> {
@@ -44,6 +48,12 @@ public final class pt3 implements Ring<pt3> {
     x = A.x + s * (B.x - A.x);
     y = A.y + s * (B.y - A.y);
     z = A.z + s * (B.z - A.z);
+  }
+
+  public pt3(float[] coords) {
+    if(coords.length > 0) x = coords[0];
+    if(coords.length > 1) y = coords[1];
+    if(coords.length > 2) z = coords[2];
   }
 
   // MODIFY
@@ -155,41 +165,9 @@ public final class pt3 implements Ring<pt3> {
   }
   
   public pt3 translateTowardsBy(float s, pt3 P) {
-    return translateBy(s, makeVecTo(P).normalize());
-  }
-
-  /*
-  public pt3 makeProjectionOnLine(pt3 P, pt3 Q) {
-    float a = dot(P.makeVecTo(this), P.makeVecTo(Q)), b = dot(P.makeVecTo(Q),
-        P.makeVecTo(Q));
-    return (P.get().translateTowards(a / b, Q));
-  }
-  */
-
-  public vec3 makeVecTo(pt3 P) {
-    return new vec3(P.x - x, P.y - y, P.z - z);
+    return translateBy(s, to(P).normalize());
   }
   
-  public vec3 makeVecToAverage(pt3 P, pt3 Q) {
-    return new vec3(
-        (P.x + Q.x) / 2f - x,
-        (P.y + Q.y) / 2f - y,
-        (P.z + Q.z) / 2f - z
-    );
-  }
-
-  public vec3 makeVecToAverage(pt3 P, pt3 Q, pt3 r) {
-    return new vec3(
-        (P.x + Q.x + r.x) / 3f - x,
-        (P.y + Q.y + r.x) / 3f - y,
-        (P.z + Q.z + r.z) / 3f - y
-    );
-  }
-  
-  // OUTPUT TEST OR MEASURE
-  public float disTo(pt3 P) {
-    return sqrt(sq(P.x - x) + sq(P.y - y) + sq(P.z - z));
-  }
   public float dist(pt3 P) {
     return sqrt(sq(P.x - x) + sq(P.y - y) + sq(P.z - z));
   }
@@ -198,14 +176,14 @@ public final class pt3 implements Ring<pt3> {
     return sq(P.x - x) + sq(P.y - y) + sq(P.z - z);
   }
   
-  public float sqDisTo(float _x, float _y, float _z) {
+  public float sqdist(float _x, float _y, float _z) {
     return sq(_x - x) + sq(_y - y) + sq(_z - z);
   }
   
   public boolean projectsBetween(pt3 P, pt3 Q) {
     float
-    a = dot(P.makeVecTo(this), P.makeVecTo(Q)),
-    b = dot(P.makeVecTo(Q), P.makeVecTo(Q));
+    a = dot(P.to(this), P.to(Q)),
+    b = dot(P.to(Q), P.to(Q));
     return 0 < a && a < b;
   }
 
@@ -252,11 +230,19 @@ public final class pt3 implements Ring<pt3> {
     return sqrt(_sqnorm());
   }
   
+  public vec3 to(pt3 that) {
+    return new vec3(that.x-x, that.y-y, that.z-z);
+  }
+  
   public pt3 zero() {
     return new pt3(0,0,0);
   }
 
   public String flatString() {
     return x+" "+y+" "+z;
+  }
+  
+  public static pt3 average(List<pt3> p) {
+    return Geometry.average(new pt3(), p);
   }
 }

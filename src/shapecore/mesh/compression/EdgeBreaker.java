@@ -46,16 +46,16 @@ class EdgeBreaker {
   }
   
   // delegate traversal to table
-  final int t(int c) {return table.t(c);}
-  final int n(int c) {return table.n(c);}
-  final int p(int c) {return table.p(c);}
-  final int v(int c) {return table.v(c);}
-  final pt3 g(int c) {return table.g(c);}
-  final boolean b(int c) {return table.b(c);}
-  final int o(int c) {return table.o(c);}
-  final int l(int c) {return table.l(c);}
-  final int r(int c) {return table.r(c);}
-  final int s(int c) {return table.s(c);}
+  final int t(int _c) {return table.t(_c);}
+  final int n(int _c) {return table.n(_c);}
+  final int p(int _c) {return table.p(_c);}
+  final int v(int _c) {return table.v(_c);}
+  final pt3 g(int _c) {return table.g(_c);}
+  final boolean b(int _c) {return table.b(_c);}
+  final int o(int _c) {return table.o(_c);}
+  final int l(int _c) {return table.l(_c);}
+  final int r(int _c) {return table.r(_c);}
+  final int s(int _c) {return table.s(_c);}
   
 
   void init() {

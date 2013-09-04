@@ -1,17 +1,16 @@
 package shapecore.ink;
 
+import static shapecore.Geometry.*;
+import static shapecore.Oplet.*;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
-import shapecore.*;
-
-
-import static shapecore.Geometry.*;
-import static shapecore.Oplet.*;
+import shapecore.Oplet;
+import shapecore.pt;
 
 /**
  * A planar multigraph. 
@@ -148,7 +147,7 @@ public class WingedStrokeGraph {
     s.points = new ArrayList<pt>();
     float stepSize = 0.25f;
     for(float t = 0; t < 1+stepSize; t += stepSize) {
-      s.points.add(L(a,t,b));
+      s.points.add(lerp(a,b,t));
     }
     return s;
   }

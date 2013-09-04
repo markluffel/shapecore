@@ -66,7 +66,7 @@ public class Caplet {
     
     coneCenter1 = T(center1, d1, offset);
     coneCenter2 = T(center2, d2, offset);
-    midpoint = A(coneCenter1, coneCenter2);
+    midpoint = average(coneCenter1, coneCenter2);
     midpointRadius = lerp(h1,h2,0.5f);
   }
   
@@ -74,12 +74,12 @@ public class Caplet {
     pt here = new pt(x,y);
     pt start = coneCenter1.as2D(), end = coneCenter2.as2D();
     float t = closestArcLengthOnEdge(here, start, end);
-    pt p = L(start, t, end);
+    pt p = lerp(start, end, t);
     float perpDist = lerp(h1,h2,t); // width of the cone at this point
     
-    return p.disTo(here) < perpDist 
-    || center1.as2D().disTo(here) < radius1
-    || center2.as2D().disTo(here) < radius2;
+    return p.dist(here) < perpDist 
+    || center1.as2D().dist(here) < radius1
+    || center2.as2D().dist(here) < radius2;
   }
   
   /**
@@ -99,7 +99,7 @@ public class Caplet {
       return new vec3(x-center2.x, y-center2.y, sqrt(sq(radius2)+dsq)).normalize();
       
     } else {
-      pt3 closest = L(coneCenter1, t, coneCenter1);
+      pt3 closest = lerp(coneCenter1, coneCenter1, t);
       float perpDist = lerp(h1,h2,t); // width of the cone at this point
       pt3 normalCenter = T(closest, -(d1*perpDist/h1), offset);
       return null;

@@ -28,6 +28,7 @@ public class Rigid extends Field implements PointAnimator, PointPairAnimator {
     return new Trajectory(p);
   }
   
+  // TODO: fixed point motion
   public pt apply(pt p, float t) {
     vec v = V(srcCenter, p);
     pt c = lerp(srcCenter, dstCenter, t);

@@ -63,7 +63,7 @@ public class Fitting {
   }
   
   public static float weight(pt control, pt query) {
-    return 1/control.sqDisTo(query); // can change the power here
+    return 1/control.sqdist(query); // can change the power here
   }
   
   public static pt weightedCenter(pt[] pts, float[] weights) {

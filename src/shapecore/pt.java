@@ -4,6 +4,7 @@ import static shapecore.Geometry.*;
 import static shapecore.Oplet.*;
 
 import java.io.Serializable;
+import java.util.List;
 
 import shapecore.interfaces.Ring;
 
@@ -153,7 +154,7 @@ public class pt implements Ring<pt>, Serializable {
   }
 
   public pt translateTowardsBy(float s, pt P) {
-    translateBy(s, makeVecTo(P).normalize());
+    translateBy(s, to(P).normalize());
     return this;
   }
 
@@ -217,26 +218,16 @@ public class pt implements Ring<pt>, Serializable {
     return new pt(x, y);
   }
 
-  /*
-   * public pt makeRotatedBy(float a, pt P) { float dx = x - P.x, dy = y - P.y,
-   * c = (float) Math.cos(a), s = (float) Math.sin(a); return new pt(P.x + c *
-   * dx - s * dy, P.y + s * dx + c * dy); }
-   * 
-   * public pt makeRotatedBy(float a) { float dx = x, dy = y, c = (float)
-   * Math.cos(a), s = (float) Math.sin(a); return new pt(c * dx - s * dy, s * dx
-   * + c * dy); }
-   */
-
   public pt makeProjectionOnLine(pt P, pt Q) {
-    float a = dot(P.makeVecTo(this), P.makeVecTo(Q)), b = dot(P.makeVecTo(Q),
-        P.makeVecTo(Q));
+    float a = dot(P.to(this), P.to(Q)), b = dot(P.to(Q),
+        P.to(Q));
     return P.get().translateTowardsByRatio(a / b, Q);
   }
 
   public pt makeOffset(pt P, pt Q, float dist) {
-    float a = Oplet.angle(vecTo(P), vecTo(Q)) / 2;
+    float a = Geometry.angle(to(P), to(Q)) / 2;
     float h = (float) (dist / Math.tan(a));
-    vec T = vecTo(P);
+    vec T = to(P);
     T.normalize();
     vec N = T.get().turnLeft();
     pt r = new pt(x, y);
@@ -245,63 +236,29 @@ public class pt implements Ring<pt>, Serializable {
     return r;
   }
 
-  // OUTPUT VEC
-  public vec vecTo(pt P) {
-    return new vec(P.x - x, P.y - y);
-  }
-
-  public vec makeVecTo(pt P) {
-    return new vec(P.x - x, P.y - y);
-  }
-
-  public vec makeVecToAverage(pt P, pt Q) {
-    return new vec((P.x + Q.x) / 2f - x, (P.y + Q.y) / 2f - y);
-  }
-
-  public vec makeVecToAverage(pt P, pt Q, pt r) {
-    return new vec((P.x + Q.x + r.x) / 3f - x, (P.y + Q.y + r.x) / 3f - y);
-  }
-
-  /*
-   * vec makeVecToBisectProjection(pt start, pt end) { float a = disTo(start), b
-   * = disTo(end); return makeVecTo(L(start, a / (a + b), end)); }
-   * 
-   * 
-   * vec makeVecToNormalProjection(pt start, pt end) { float a = dot(V(start,
-   * this), V(start, end)), b = d2(start, end); return V(this, L(start, a / b,
-   * end)); }
-   */
-
-  // vec makeVecTowards(pt startCurve, float d) {vec V = makeVecTo(startCurve);
-  // float n =
-  // V.norm(); V.normalize(); V.scaleBy(d-n); return V; }
-
-  // OUTPUT TEST OR MEASURE
-  public float disTo(pt P) {
+  public float dist(pt P) {
     return (float) Math.sqrt(sq(P.x - x) + sq(P.y - y));
   }
 
-  public float disTo(float px, float py) {
+  public float dist(float px, float py) {
     return (float) Math.sqrt(sq(x - px) + sq(y - py));
   }
 
-  public float sqDisTo(float px, float py) {
+  public float sqdist(float px, float py) {
     return sq(x - px) + sq(y - py);
   }
 
-  public float sqDisTo(pt that) {
+  public float sqdist(pt that) {
     return sq(this.x - that.x) + sq(this.y - that.y);
   }
 
   public boolean projectsBetween(pt P, pt Q) {
-    float a = dot(P.makeVecTo(this), P.makeVecTo(Q)), b = dot(P.makeVecTo(Q),
-        P.makeVecTo(Q));
+    float a = dot(P.to(this), P.to(Q)), b = dot(P.to(Q),P.to(Q));
     return (0 < a) && (a < b);
   }
 
   public float ratioOfProjectionBetween(pt P, pt Q) {
-    float a = dot(P.makeVecTo(this), P.makeVecTo(Q)), b = dot(P.makeVecTo(Q),
-        P.makeVecTo(Q));
+    float a = dot(P.to(this), P.to(Q)), b = dot(P.to(Q), P.to(Q));
     return a / b;
   }
 
@@ -322,11 +279,11 @@ public class pt implements Ring<pt>, Serializable {
   }
 
   public boolean isLeftOf(pt P, pt Q) {
-    return dot(P.makeVecTo(this), P.makeVecTo(Q).turnLeft()) > 0;
+    return dot(P.to(this), P.to(Q).turnLeft()) > 0;
   }
 
   public boolean isLeftOf(pt P, pt Q, float e) {
-    return dot(P.makeVecTo(this), P.makeVecTo(Q).turnLeft()) > e;
+    return dot(P.to(this), P.to(Q).turnLeft()) > e;
   }
 
   public pt3 as3D() {
@@ -382,4 +339,6 @@ public class pt implements Ring<pt>, Serializable {
   public vec to(pt that) {
     return new vec(this,that);
   }
+  
+  public static pt average(List<pt> pts) { return Geometry.average(new pt(), pts); }
 }

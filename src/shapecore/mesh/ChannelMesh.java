@@ -5,6 +5,10 @@ import static shapecore.Geometry.*;
 import static shapecore.Oplet.*;
 import shapecore.pt3;
 
+/**
+ * A class for storing quantities on the edges and vertices of a mesh.
+ * 
+ */
 public class ChannelMesh extends Mesh3D {
   
   // a light coating of type safety
@@ -61,13 +65,13 @@ public class ChannelMesh extends Mesh3D {
     for(int c : vertexCorners(v)) {
       // TODO: have mathematica create a more efficient version of this
       pt3
-      A = G[corner.V[v]],
-      B = G[corner.V[n(v)]],
-      C = G[corner.V[p(v)]],
-      D = A(A,B,C),
-      E = A(A,B),
-      F = A(A,C);
-      sum += triangleArea(A,E,D)+triangleArea(A,D,F);
+      pa = G[corner.V[c]],
+      pb = G[corner.V[n(c)]],
+      pc = G[corner.V[p(c)]],
+      pd = average(pa,pb,pc),
+      pe = average(pa,pb),
+      pf = average(pa,pc);
+      sum += triangleArea(pa,pe,pd)+triangleArea(pa,pd,pf);
     }
     return sum;
   }
@@ -359,11 +363,11 @@ public class ChannelMesh extends Mesh3D {
     int[] V = corner.V;
     for(int c = 0; c < O.length; c++) {
       if(c > O[c]) {
-        pt3 A = G[V[p(c)]], B = G[V[c]], C = G[V[n(c)]];
-        float value = S(1/6f,A, 1/6f,C, -1/3f, B)._norm();
+        pt3 pa = G[V[p(c)]], pb = G[V[c]], pc = G[V[n(c)]];
+        float value = S(1/6f,pa, 1/6f, pc, -1/3f, pb)._norm();
         if(O[c] >= 0) {
           pt3 D = G[V[O[c]]];
-          value += S(1/6f,A, 1/6f,C, -1/3f, D)._norm();
+          value += S(1/6f,pa, 1/6f, pc, -1/3f, D)._norm();
           weights[O[c]] = value;
         }
         weights[c] = value;
@@ -374,7 +378,7 @@ public class ChannelMesh extends Mesh3D {
   public void computeCurvatures(VertexEnum curvatureChan) {
     float[] curv = VQ(curvatureChan);
     for(int v = 0; v < numPoints(); v++) {
-      curv[v] = curvature(v).mag();
+      curv[v] = curvature(v).norm();
     }
   }
 

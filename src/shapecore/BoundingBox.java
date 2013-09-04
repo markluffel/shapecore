@@ -60,13 +60,13 @@ public class BoundingBox {
     }
   }
 
-  @Deprecated // look at the callers of this, figure out if this is really what they want
-  // the implementation looks like nonsense
-  public void intersect(float minX, float minY, float maxX, float maxY) {
-    if(minX < this.minX) this.minX = minX;
-    if(minY < this.minY) this.minY = minY;
-    if(maxX < this.maxX) this.maxX = maxX;
-    if(maxY < this.maxY) this.maxY = maxY;
+  public void intersect(float _minX, float _minY, float _maxX, float _maxY) {
+    if(_minX > this.minX) this.minX = _minX;
+    if(_minY > this.minY) this.minY = _minY;
+    if(_maxX < this.maxX) this.maxX = _maxX;
+    if(_maxY < this.maxY) this.maxY = _maxY;
+    
+    if(height() < 0 || width() < 0) setNull(); // non-intersecting
   }
   
   public void pad(float padding) {
@@ -132,6 +132,10 @@ public class BoundingBox {
       if(y > maxY) { maxY = y; }
       if(y < minY) { minY = y; }
     }
+  }
+  
+  public void setNull() {
+    minX = maxX = minY = maxY = 0;
   }
   
 }

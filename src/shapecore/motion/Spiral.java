@@ -3,6 +3,7 @@
  */
 package shapecore.motion;
 
+import static processing.core.PApplet.*;
 import static shapecore.Fitting.*;
 import static shapecore.Geometry.*;
 import static shapecore.Oplet.*;
@@ -19,8 +20,6 @@ import shapecore.vec;
 import shapecore.interfaces.PointAnimator;
 import shapecore.interfaces.PointPairAnimator;
 
-import Jama.Matrix;
-
 
 
 public class Spiral extends Field implements PointAnimator, PointPairAnimator {
@@ -36,7 +35,7 @@ public class Spiral extends Field implements PointAnimator, PointPairAnimator {
   
   public Spiral(pt start, pt end, pt center) {
     this.angle = angle(V(center, start), V(center, end));
-    this.scale = center.disTo(end) / center.disTo(start);
+    this.scale = center.dist(end) / center.dist(start);
     this.center = center;
   }
   
@@ -201,17 +200,17 @@ public class Spiral extends Field implements PointAnimator, PointPairAnimator {
   public static Spiral registering(List<pt> P, List<pt> Q, pt pCenter, pt qCenter, float[] weights) {
     float angle,scale;
     
-    if(false) { // MLS-derived registration (seemingly less stable)
-      vec[] pHat = relativeTo(pCenter, P);
-      vec[] qHat = relativeTo(qCenter, Q);
-      
-      Matrix L = weightedPerpProductSum(pHat, qHat, weights);
-      L.timesEquals(1/similarityMu(pHat, qHat, weights));
-  
-      angle = asin((float)L.get(0, 1));
-      scale = (float)L.get(0, 0)/cos(angle);
+//    // MLS-derived registration (seemingly less stable)
+//      vec[] pHat = relativeTo(pCenter, P);
+//      vec[] qHat = relativeTo(qCenter, Q);
+//      
+//      Matrix L = weightedPerpProductSum(pHat, qHat, weights);
+//      L.timesEquals(1/similarityMu(pHat, qHat, weights));
+//  
+//      angle = asin((float)L.get(0, 1));
+//      scale = (float)L.get(0, 0)/cos(angle);
     
-    } else {
+    {
       float s = 0, c = 0;
       scale = 0;
       int min = min(P.size(), Q.size());
@@ -315,7 +314,7 @@ public class Spiral extends Field implements PointAnimator, PointPairAnimator {
       pt last = at(0);
       for(int i = 1; i <= numSteps; i++) {
         pt cur = at(i*stepSize);
-        sum += last.disTo(cur);
+        sum += last.dist(cur);
         last.set(cur);
       }
       return sum;
@@ -350,7 +349,7 @@ public class Spiral extends Field implements PointAnimator, PointPairAnimator {
         Spiral composed = new Spiral(startPoint, endPoint, warp.angle, warp.scale);
         return composed.apply(startPoint, t);
       } else {
-        return L(startPoint, t, endPoint);
+        return lerp(startPoint, endPoint, t);
       }
     }
 

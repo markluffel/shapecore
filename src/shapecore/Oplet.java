@@ -30,12 +30,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.RandomAccess;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -90,17 +90,17 @@ public class Oplet extends PApplet {
       line(lerp(a,b,t), lerp(a,b,t+step));
     }
   }
-  public void line(pt A, pt B) {
-    line(A.x, A.y, B.x, B.y);
+  public void line(pt a, pt b) {
+    line(a.x, a.y, b.x, b.y);
   }
-  public void line(pt3 A, pt3 B) {
-    line(A.x, A.y, A.z, B.x, B.y, B.z);
+  public void line(pt3 a, pt3 b) {
+    line(a.x, a.y, a.z, b.x, b.y, b.z);
   }
   public void line(pt p, vec v) {
-    line(p,T(p,v));
+    line(p, T(p,v));
   }
   public void line(pt3 p, vec3 v) {
-    line(p,T(p,v));
+    line(p, T(p,v));
   }
   
   // *************************************************************
@@ -108,11 +108,11 @@ public class Oplet extends PApplet {
   // **** REVISED October 3, 2008 *****
   // *************************************************************
 
-  public void translate(vec V) { translate(V.x, V.y); }
-  public void translate(pt P) { translate(P.x, P.y); }
-  public void untranslate(pt P) { translate(-P.x, -P.y); }
-  public void translate(vec3 V) { translate(V.x, V.y, V.z); }
-  public void translate(pt3 P) { translate(P.x, P.y, P.z); }
+  public void translate(vec v) { translate(v.x, v.y); }
+  public void translate(pt p) { translate(p.x, p.y); }
+  public void untranslate(pt p) { translate(-p.x, -p.y); }
+  public void translate(vec3 v) { translate(v.x, v.y, v.z); }
+  public void translate(pt3 p) { translate(p.x, p.y, p.z); }
   
 
   public void rotate(float a, pt P) {
@@ -210,80 +210,80 @@ public class Oplet extends PApplet {
   } // ||AB||                                          
   
   // display
-
-  void v(pt P) {
-    vertex(P.x, P.y);
-  } // next point when drawing polygons between beginShape(); and endShape();
-
-  void showCross(pt P, float r) {
-    line(P.x - r, P.y, P.x + r, P.y);
-    line(P.x, P.y - r, P.x, P.y + r);
-  } // shows startCurve as cross of length rotation
-
-  void showCross(pt P) {
-    showCross(P, 2);
-  } // shows startCurve as small cross
-
-  void show(pt P, float r) {
-    ellipse(P.x, P.y, 2 * r, 2 * r);
-  } // draws circle of center rotation around point
-
-  void show(pt P) {
-    ellipse(P.x, P.y, 4, 4);
-  } // draws small circle around point
-
-  void show(pt P, pt Q) {
-    line(P.x, P.y, Q.x, Q.y);
-  } // draws edge (startCurve,end)
-
-  void show(pt P, vec V) {
-    line(P.x, P.y, P.x + V.x, P.y + V.y);
-  } // show line from startCurve along V
-
-  void show(pt P, float s, vec V) {
-    show(P, S(s, V));
-  } // show line from startCurve along sV
+//
+//  void v(pt P) {
+//    vertex(P.x, P.y);
+//  } // next point when drawing polygons between beginShape(); and endShape();
+//
+//  void showCross(pt P, float r) {
+//    line(P.x - r, P.y, P.x + r, P.y);
+//    line(P.x, P.y - r, P.x, P.y + r);
+//  } // shows startCurve as cross of length rotation
+//
+//  void showCross(pt P) {
+//    showCross(P, 2);
+//  } // shows startCurve as small cross
+//
+//  void show(pt P, float r) {
+//    ellipse(P.x, P.y, 2 * r, 2 * r);
+//  } // draws circle of center rotation around point
+//
+//  void show(pt P) {
+//    ellipse(P.x, P.y, 4, 4);
+//  } // draws small circle around point
+//
+//  void show(pt P, pt Q) {
+//    line(P.x, P.y, Q.x, Q.y);
+//  } // draws edge (startCurve,end)
+//
+//  void show(pt P, vec V) {
+//    line(P.x, P.y, P.x + V.x, P.y + V.y);
+//  } // show line from startCurve along V
+//
+//  void show(pt P, float s, vec V) {
+//    show(P, S(s, V));
+//  } // show line from startCurve along sV
 
   public void arrow(pt P, pt Q) { arrow(P, V(P, Q)); }
 
-  public void arrow(pt P, float s, vec V) {
-    arrow(P, S(s, V));
+  public void arrow(pt p, float s, vec v) {
+    arrow(p, S(s, v));
   } // show arrow from startCurve along sV
 
-  public void arrow(pt P, vec V) {
-    show(P, V);
-    float n = V.norm();
+  public void arrow(pt p, vec v) {
+    line(p, v);
+    float n = v.norm();
     float s = max(min(0.2f, 20f / n), 6f / n); // show arrow from startCurve along V
-    pt Q = T(P, V);
-    vec U = S(-s, V);
-    vec W = R(S(0.3f, U));
+    pt Q = T(p, v);
+    vec u = S(-s, v);
+    vec w = R(S(0.3f, u));
     beginShape();
-    v(T(T(Q, U), W));
-    v(Q);
-    v(T(T(Q, U), -1, W));
+    vertex(T(T(Q, u), w));
+    vertex(Q);
+    vertex(T(T(Q, u), -1, w));
     endShape(CLOSE);
   }
   
   
-  public void arrow(pt3 P, float s, vec3 V) {
-    V = V.get().scaleBy(s);
-    pt3 head = T(P,V);
-    pt3 neck = T(P, 0.9f, V);
-    line(P, head);
+  public void arrow(pt3 p, float s, vec3 v) {
+    v = v.get().scaleBy(s);
+    pt3 head = T(p,v);
+    pt3 neck = T(p, 0.9f, v);
+    line(p, head);
     //vec3 O = new vec3(1,1,(V.x+V.y)/-V.z);
     vec3 O = new vec3(random(-1,1),random(-1,1),random(-1,1));
     O.normalize();
-    vec3 Vn = V.normalized();
-    vec3 U = O.cross(Vn);
-    vec3 W = U.cross(Vn);
-    float r = V.mag()/10;
+    vec3 Vn = v.normalized();
+    vec3 u = O.cross(Vn);
+    vec3 w = u.cross(Vn);
+    float r = v.norm()/10;
     int numSteps = 5;
     float step = TWO_PI/numSteps;
-    pt3 here,next = T(neck, r*cos(0), U, r*sin(0), W);
+    pt3 here,next = T(neck, r*cos(0), u, r*sin(0), w);
     for(float i = 0; i < numSteps+1; i++) {
       float theta = i*numSteps;
       here = next;
-      next = T(neck, r*cos(theta+step), U, r*sin(theta+step), W);
+      next = T(neck, r*cos(theta+step), u, r*sin(theta+step), w);
       
       line(neck, here);
       line(here, head);
@@ -303,21 +303,7 @@ public class Oplet extends PApplet {
   // ************************************************************************
   // **** ANGLES
   // ************************************************************************
-  public static float angle(vec V) {
-    return atan2(V.y, V.x);
-  }
-
-  public static float angle(vec U, vec V) {
-    return atan2(dot(R(U), V), dot(U, V));
-  }
   
-  public static float angle(pt a, pt b) {
-    return angle(V(a,b));
-  }
-  
-  public static float angle(pt a, pt b, pt c) {
-    return angle(V(a,b),V(b,c));
-  }
 
   static float mPItoPIangle(float a) {
     if (a > PI)
@@ -339,66 +325,23 @@ public class Oplet extends PApplet {
   // **** VECTORS
   // ************************************************************************
 
-  // fitting
-    vec vecToCubic(pt A, pt B, pt C, pt D, pt E) {
-    return V((-A.x + 4 * B.x - 6 * C.x + 4 * D.x - E.x) / 6, (-A.y + 4 * B.y
-        - 6 * C.y + 4 * D.y - E.y) / 6);
-  }
-//---- biLaplace fit
-  vec fitVec (pt B, pt C, pt D) { return A(V(C,B),V(C,D)); }
-  pt fitPt (pt B, pt C, pt D) {return A(B,D);};  
-  pt fitPt (pt B, pt C, pt D, float s) {return T(C,s,fitVec(B,C,D));};  
-  pt fitPt(pt A, pt B, pt C, pt D, pt E, float s) {pt PB = fitPt(A,B,C,s); pt PC = fitPt(B,C,D,s);  pt PD = fitPt(C,D,E,s); return fitPt(PB,PC,PD,-s);}
-  pt fitPt(pt A, pt B, pt C, pt D, pt E) {float s=sqrt(2f/3f); pt PB = fitPt(A,B,C,s); pt PC = fitPt(B,C,D,s);  pt PD = fitPt(C,D,E,s); return fitPt(PB,PC,PD,-s);}
-  
-  //---- proportional biLaplace fit
-  vec proVec (pt B, pt C, pt D) { return L(V(C,B), d(C,B)/(d(C,B)+d(C,D)),V(C,D)); }
-  pt proPt (pt B, pt C, pt D) {return T(B,d(C,B)/(d(C,B)+d(C,D)),V(B,D));};  
-  pt proPt (pt B, pt C, pt D, float s) {return T(C,s,proVec(B,C,D));};  
-  pt proPt(pt A, pt B, pt C, pt D, pt E, float s) {pt PB = proPt(A,B,C,s); pt PC = proPt(B,C,D,s);  pt PD = proPt(C,D,E,s); return proPt(PB,PC,PD,-s);}
-  pt proPt(pt A, pt B, pt C, pt D, pt E) {float s=sqrt(2f/3f); pt PB = proPt(A,B,C,s); pt PC = proPt(B,C,D,s);  pt PD = proPt(C,D,E,s); return proPt(PB,PC,PD,-s);}
-
-
-  // CURVES
-  void drawCubicBezier(pt A, pt B, pt C, pt D) {
-    bezier(A.x, A.y, B.x, B.y, C.x, C.y, D.x, D.y);
-  }
-
-  //returns a tucked B towards its neighbors
-  static pt B(pt A, pt B, pt C, float s) {
-    return (L(L(B, s / 4f, A), 0.5f, L(B, s / 4f, C)));
-  }
-
-  //returns a bulged mid-edge point
-  static pt F(pt A, pt B, pt C, pt D, float s) {
-    return (L(L(A, 1f + (1f - s) / 8f, B), 0.5f, L(D, 1f + (1f - s) / 8f, C)));
-  }
-
-  static pt limit(pt A, pt B, pt C, pt D, pt E, float s, int r) {
-    if (r == 0)
-      return C.clone();
-    else
-      return limit(B(A, B, C, s), F(A, B, C, D, s), B(B, C, D, s), F(B, C, D,
-          E, s), B(C, D, E, s), s, r - 1);
-  }
-
-  void scribe(String S) {
-    fill(JarekUtils.black);
-    text(S, 20, 20);
-    noFill();
-  }
-
-  void scribe(String S, int i) {
-    fill(JarekUtils.black);
-    text(S, 20, 20 + i * 20);
-    noFill();
-  }
-
-  void scribe(String S, int i, int j) {
-    fill(JarekUtils.black);
-    text(S, width - 10 * j, 20 + i * 20);
-    noFill();
-  }
+//  void scribe(String S) {
+//    fill(JarekUtils.black);
+//    text(S, 20, 20);
+//    noFill();
+//  }
+//
+//  void scribe(String S, int i) {
+//    fill(JarekUtils.black);
+//    text(S, 20, 20 + i * 20);
+//    noFill();
+//  }
+//
+//  void scribe(String S, int i, int j) {
+//    fill(JarekUtils.black);
+//    text(S, width - 10 * j, 20 + i * 20);
+//    noFill();
+//  }
   
   public void vertex(pt p) {
     vertex(p.x, p.y);
@@ -415,23 +358,25 @@ public class Oplet extends PApplet {
   public void vertex2(pt3 p) {
     vertex(p.x, p.y);
   }
-  
   public void normal(vec3 p) {
     normal(p.x, p.y, p.z);
   }
-
-  public static pt lerp(pt A, pt B, float t) {
-    return new pt(lerp(A.x, B.x, t), lerp(A.y, B.y, t));
+  public static vec lerp(vec u, vec v, float s) {
+    return V(u.x + s * (v.x - u.x), u.y + s * (v.y - u.y));
   }
   
-  public static pt3 lerp(pt3 A, pt3 B, float t) {
-    return new pt3(lerp(A.x, B.x, t), lerp(A.y, B.y, t), lerp(A.z, B.z, t));
+  public static pt lerp(pt a, pt b, float t) {
+    return new pt(lerp(a.x, b.x, t), lerp(a.y, b.y, t));
+  }
+  
+  public static pt3 lerp(pt3 a, pt3 b, float t) {
+    return new pt3(lerp(a.x, b.x, t), lerp(a.y, b.y, t), lerp(a.z, b.z, t));
   }
   
   public static float geometricLerp(float a, float b, float t) {
     return exp(lerp(log(a), log(b), t));
   }
-  
+
   //from the processing core.jar
   public static float _bezierPoint(float a, float b, float c, float d, float t) {
     float t1 = 1.0f - t;
@@ -594,6 +539,13 @@ public class Oplet extends PApplet {
     return result;
   }
   
+  public static void smoothPolyline(List<? extends pt> pts, double t) {
+    Polyline.smooth(pts, (float)t);
+  }
+  public static void smoothPolyline(pt[] pts, double t) {
+    Polyline.smooth(pts, (float)t);
+  }
+  
   public static void smoothPolygon(List<? extends pt> pts, float t) {
     // TODO: make this a single pass, with a small buffer with relative indexes
     t /= 2;
@@ -603,10 +555,10 @@ public class Oplet extends PApplet {
     int i = pts.size()-1, j = 0, k = 1;
     do {
       pt
-      A = pts.get(i),
-      B = pts.get(j),
-      C = pts.get(k);
-      vec BA = V(B,A), BC = V(B,C);
+      a = pts.get(i),
+      b = pts.get(j),
+      c = pts.get(k);
+      vec BA = V(b,a), BC = V(b,c);
       updated.add(S(t, S(BA, BC)));
       
       i = j; j = k; k = (k+1)%pts.size();
@@ -621,115 +573,6 @@ public class Oplet extends PApplet {
   public static void smoothPolygon(pt[] pts, float t) {
     smoothPolygon(Arrays.asList(pts), t);
   }
-
-  public static void smoothPolyline(List<? extends pt> pts, double t) {
-    smoothPolyline(pts, (float)t);
-  }
-  
-  // TODO: move this to Polyline
-  public static void smoothPolyline(List<? extends pt> pts, float t) {
-    // this needs to be optimized in all kinds of ways
-    t /= 2;
-    int endex = pts.size()-1;
-    List<vec> change = new ArrayList<vec>();
-    change.add(new vec(0,0));
-    for(int i = 1; i < endex; i++) {
-      pt
-      A = pts.get(i-1),
-      B = pts.get(i),
-      C = pts.get(i+1);
-      vec BA = V(B,A), BC = V(B,C);
-      change.add(S(t, S(BA, BC)));
-    }
-    change.add(new vec(0,0));
-    
-    for(int i = 0; i < pts.size(); i++) {
-      pts.get(i).add(change.get(i));
-    }
-  }
-  
-  public static void smoothPolyline(pt[] pts, float t) {
-    // this needs to be optimized in all kinds of ways
-    if(pts.length < 3) return;
-    t /= 2;
-    int endex = pts.length-1;
-    ArrayList<vec> change = new ArrayList<vec>();
-    change.add(new vec(0,0));
-    for(int i = 1; i < endex; i++) {
-      pt
-      A = pts[i-1],
-      B = pts[i],
-      C = pts[i+1];
-      vec BA = V(B,A), BC = V(B,C);
-      change.add(S(t, S(BA, BC)));
-    }
-    change.add(new vec(0,0));
-    
-    for(int i = 0; i < pts.length; i++) {
-      pts[i].add(change.get(i));
-    }
-  }
-  
-  /**
-   * smoothing subject to a data term (as in s.thrun's smoothing)
-   */
-  public static void smoothing(List<pt> pts, float dataWeight, int iterations) {
-    List<pt> original = new ArrayList<pt>();
-    for(pt p : pts) original.add(p.get());
-    
-    for(int k = 0; k < iterations; k++) {
-      float t = 0.5f;
-      int endex = pts.size()-1;
-      List<vec> change = new ArrayList<vec>();
-      change.add(new vec(0,0));
-      for(int i = 1; i < endex; i++) {
-        pt
-        A = pts.get(i-1),
-        B = pts.get(i),
-        C = pts.get(i+1);
-        vec BA = V(B,A), BC = V(B,C);
-        change.add(S(t, S(BA, BC)));
-      }
-      change.add(new vec(0,0));
-      
-      for(int j = 0; j < pts.size(); j++) {
-        pts.get(j).add(change.get(j));
-        pts.get(j).translateTowardsByRatio(dataWeight, original.get(j));
-      }
-    }
-  }
-
-  /**
-   * smoothing subject to a data term (as in s.thrun's smoothing)
-   * pinned is a list of indices to which the data term should be applied, others are skipped
-   */
-  public static void smoothing(List<pt> pts, List<Integer> pinned, float dataWeight, int iterations) {
-    List<pt> original = new ArrayList<pt>();
-    for(pt p : pts) original.add(p.get());
-    
-    for(int k = 0; k < iterations; k++) {
-      float t = 0.5f;
-      int endex = pts.size()-1;
-      List<vec> change = new ArrayList<vec>();
-      change.add(new vec(0,0));
-      for(int i = 1; i < endex; i++) {
-        pt
-        A = pts.get(i-1),
-        B = pts.get(i),
-        C = pts.get(i+1);
-        vec BA = V(B,A), BC = V(B,C);
-        change.add(S(t, S(BA, BC)));
-      }
-      change.add(new vec(0,0));
-      
-      for(int j = 0; j < pts.size(); j++) {
-        pts.get(j).add(change.get(j));
-      }
-      for(int j : pinned) {
-        pts.get(j).translateTowardsByRatio(dataWeight, original.get(j));
-      }
-    }
-  }
   
   public static void smooth(float[] values, float t) {
     // we can get rid of the changes array and keep a single extra value around 
@@ -740,10 +583,10 @@ public class Oplet extends PApplet {
     change[0] = 0;
     for(int i = 1; i < endex; i++) {
       float
-      A = values[i-1],
-      B = values[i],
-      C = values[i+1];
-      float BA = A-B, BC = C-B;
+      a = values[i-1],
+      b = values[i],
+      c = values[i+1];
+      float BA = a-b, BC = c-b;
       change[i] = t * (BA + BC);
     }
     change[change.length-1] = 0;
@@ -799,7 +642,7 @@ public class Oplet extends PApplet {
   }
 
   public static pt spiralPt(pt p, pt center, float scale, float angle) {
-    return L(center, scale, R(p, angle, center));
+    return lerp(center, R(p, angle, center), scale);
   }
 
   public static pt spiralPt(pt p, pt center, float scale, float angle, float t) {
@@ -807,16 +650,13 @@ public class Oplet extends PApplet {
       return new pt(p);
     } else {
       // here's the concise version
-      if(true) {
-        return L(center, pow(scale, t), R(p, t * angle, center));
-      } else {
-        // and here's the unrolled version
-        float a = t * angle;
-        float z = pow(scale, t);
-        float cos = cos(a), sin = sin(a);
-        
-        return spiralPt(p, center, a, z, cos, sin);
-      }
+      return lerp(center, R(p, t * angle, center), pow(scale, t));
+//        // and here's the unrolled version
+//        float a = t * angle;
+//        float z = pow(scale, t);
+//        float cos = cos(a), sin = sin(a);
+//        
+//        return spiralPt(p, center, a, z, cos, sin);
     }
   }
   
@@ -832,20 +672,20 @@ public class Oplet extends PApplet {
     );
   }
 
-  public static pt spiralCenter(pt A, pt B, pt C, pt D) { 
+  public static pt spiralCenter(pt a, pt b, pt c, pt d) { 
     // computes center of spiral that
     // takes A to C and B to D
-    float a = spiralAngle(A, B, C, D);
-    float z = spiralScale(A, B, C, D);
-    return spiralCenter(a, z, A, C);
+    float angle = spiralAngle(a, b, c, d);
+    float z = spiralScale(a, b, c, d);
+    return spiralCenter(angle, z, a, c);
   }
 
-  public static float spiralAngle(pt A, pt B, pt C, pt D) {
-    return angle(V(A, B), V(C, D));
+  public static float spiralAngle(pt a, pt b, pt c, pt d) {
+    return angle(V(a, b), V(c, d));
   }
 
-  public static float spiralScale(pt A, pt B, pt C, pt D) {
-    return d(C, D) / d(A, B);
+  public static float spiralScale(pt a, pt b, pt c, pt d) {
+    return d(c, d) / d(a, b);
   }
 
   public static pt spiralCenter(float a, float z, pt start, pt end) {
@@ -918,7 +758,7 @@ public class Oplet extends PApplet {
     if(P.size() == 1) {
       return P.get(0).clone();
     } else if(P.size() == 2) {
-      return A(P.get(0), P.get(1));
+      return average(P.get(0), P.get(1));
     }
     
     CornerTable del = CornerTable.delaunay(P);
@@ -928,11 +768,11 @@ public class Oplet extends PApplet {
     float totalArea = 0;
     for(int c = 0; c < del.V.length; c += 3) {
       pt
-      A = P.get(del.V[c]),
-      B = P.get(del.V[c+1]),
-      C = P.get(del.V[c+2]); 
-      pt triCenter = A(A,B,C);
-      float area = triangleArea(A,B,C);
+        pa = P.get(del.V[c]),
+        pb = P.get(del.V[c+1]),
+        pc = P.get(del.V[c+2]); 
+      pt triCenter = average(pa,pb,pc);
+      float area = triangleArea(pa,pb,pc);
       totalArea += area;
       triCenter.scaleBy(area);
       center.addPt(triCenter);
@@ -941,46 +781,49 @@ public class Oplet extends PApplet {
   }
 
   
-  public static pt centerE(pt[] P, boolean closed) {
-    int n = P.length;
-    pt G = P();
+  public static pt centerE(pt[] p, boolean closed) {
+    int n = p.length;
+    pt g = P();
     float D = 0;
     for (int i = 0; i < n - 1; i++) {
-      float d = d(P[i], P[i + 1]);
+      float d = p[i].dist(p[i + 1]);
       D += d;
-      G.addPt(S(d, A(P[i], P[i + 1])));
+      g.addPt(S(d, average(p[i], p[i + 1])));
     }
     if (closed) {
-      float d = d(P[n - 1], P[0]);
+      float d = p[n - 1].dist(p[0]);
       D += d;
-      G.addPt(S(d, A(P[n - 1], P[0])));
+      g.addPt(S(d, average(p[n - 1], p[0])));
     }
-    return S(1f / D, G);
+    return S(1f / D, g);
   }
 
-  public static void spiral(pt[] P, pt G, float s, float a, float t) {
-    for (int i = 0; i < P.length; i++)
-      P[i] = spiralPt(P[i], G, s, a, t);
+  public static void spiral(pt[] p, pt g, float s, float a, float t) {
+    for (int i = 0; i < p.length; i++) {
+      p[i] = spiralPt(p[i], g, s, a, t);
+    }
   }
-  public static void spiral(List<pt> P, pt G, float s, float a, float t) {
-    for(pt p : P) p.set(spiralPt(p, G, s, a, t));
+  public static void spiral(List<pt> pts, pt g, float s, float a, float t) {
+    for(pt p : pts) {
+      p.set(spiralPt(p, g, s, a, t));
+    }
   }
   
   /**
    * Move P by a fracion of t along a spiral from A to B
    * 
-   * @param P
-   * @param A
+   * @param p
+   * @param a
    * @param t
-   * @param B
+   * @param b
    */
-  public static void spiral(Polygon P, Polygon A, float t, Polygon B) {
-    float a = spiralAngle(A.get(0), A.get(A.points.size() - 1),
-        B.get(0), B.get(B.points.size() - 1));
-    float s = spiralScale(A.get(0), A.get(A.points.size() - 1),
-        B.get(0), B.get(B.points.size() - 1));
-    pt G = spiralCenter(a, s, A.get(0), B.get(0));
-    spiral(P.points, G, s, a, t);
+  public static void spiral(Polygon p, Polygon a, float t, Polygon b) {
+    float angle = spiralAngle(a.get(0), a.get(a.points.size() - 1),
+        b.get(0), b.get(b.points.size() - 1));
+    float s = spiralScale(a.get(0), a.get(a.points.size() - 1),
+        b.get(0), b.get(b.points.size() - 1));
+    pt g = spiralCenter(angle, s, a.get(0), b.get(0));
+    spiral(p.points, g, s, angle, t);
   }
 
   public static pt[] resamplePolyline(List<pt> pts, int numPts) {
@@ -990,7 +833,7 @@ public class Oplet extends PApplet {
     pt prev = pts.get(0);
     for(int i = 1; i < pts.size(); i++) {
       pt cur = pts.get(i);
-      arcLen += cur.disTo(prev);
+      arcLen += cur.dist(prev);
       prev = cur;
     }
     float segLen = arcLen/(numPts-1); // minus one because we preserve both endpoints
@@ -1007,7 +850,7 @@ public class Oplet extends PApplet {
       pt cur = pts.get(i);
       
       while(true) {
-        float dist = cur.disTo(prev);
+        float dist = cur.dist(prev);
         if(curSegLen+dist > segLen) {
           // update prev
           prev = lerp(prev, cur, (segLen-curSegLen)/dist);
@@ -1045,7 +888,7 @@ public class Oplet extends PApplet {
       pt cur = pts.get(i);
       
       while(true) {
-        float dist = cur.disTo(prev);
+        float dist = cur.dist(prev);
         if(curSegLen+dist > segLen) {
           // update prev
           prev = lerp(prev, cur, (segLen-curSegLen)/dist);
@@ -1077,7 +920,7 @@ public class Oplet extends PApplet {
     pt lastSeen = lastAdded;
     float dist = 0;
     for(pt p : polyloop) {
-      dist += p.disTo(lastSeen);
+      dist += p.dist(lastSeen);
       if(dist > maxEdgeLength) {
         int numSteps = ceil(dist/maxEdgeLength);
         float stepSize = 1f/numSteps;
@@ -1111,14 +954,7 @@ public class Oplet extends PApplet {
   }
   
   public static float arclengthOfLoop(List<pt> pts) {
-    float arcLen = 0;
-    pt prev = pts.get(pts.size()-1);
-    for(int i = 0; i < pts.size(); i++) {
-      pt cur = pts.get(i);
-      arcLen += cur.disTo(prev);
-      prev = cur;
-    }
-    return arcLen;
+    return Polygon.arclength(pts);
   }
   
   public static float arclength(List<pt> pts) {
@@ -1127,7 +963,7 @@ public class Oplet extends PApplet {
     pt prev = pts.get(0);
     for(int i = 1; i < pts.size(); i++) {
       pt cur = pts.get(i);
-      arcLen += cur.disTo(prev);
+      arcLen += cur.dist(prev);
       prev = cur;
     }
     return arcLen;
@@ -1136,47 +972,47 @@ public class Oplet extends PApplet {
   public static List<pt> localToGlobal(List<vec> locals, Map<Integer,pt> pinned) {
 
     int n = (locals.size()+2)*2;
-    Matrix A = new Matrix(n, n);
+    Matrix a = new Matrix(n, n);
     Matrix b = new Matrix(n, 1);
     vec lc;
     
-    int len = locals.size(); // the first and last are special cases
-    for(int i = 1; i <= locals.size(); i++) {
+    int len = locals.size()-1; // the first and last are special cases
+    for(int i = 1; i < len; i++) {
       int j = i*2;
       pt pin = pinned.get(i);
       
       lc = locals.get(i-1);
       
-      A.set(j, j-2, lc.x-1);
-      A.set(j, j-1, lc.y);
-      A.set(j, j+2, -lc.x);
-      A.set(j, j+3, -lc.y);
+      a.set(j, j-2, lc.x-1);
+      a.set(j, j-1, lc.y);
+      a.set(j, j+2, -lc.x);
+      a.set(j, j+3, -lc.y);
   
-      A.set(j+1, j-2, -lc.y);
-      A.set(j+1, j-1, lc.x-1);
-      A.set(j+1, j+2, lc.y);
-      A.set(j+1, j+3, -lc.x);
+      a.set(j+1, j-2, -lc.y);
+      a.set(j+1, j-1, lc.x-1);
+      a.set(j+1, j+2, lc.y);
+      a.set(j+1, j+3, -lc.x);
 
       if(pin != null) {
         b.set(j, 0, -pin.x);
         b.set(j+1, 0, -pin.y);
       } else {
-        A.set(j, j, 1);
-        A.set(j+1, j+1, 1);
+        a.set(j, j, 1);
+        a.set(j+1, j+1, 1);
       }
     }
     
     pt start = pinned.get(0);
     
-    A.set(0, 0, 1);
-    A.set(1, 1, 1);
+    a.set(0, 0, 1);
+    a.set(1, 1, 1);
     b.set(0, 0, start.x);
     b.set(1, 0, start.y);
 
     pt end = pinned.get(locals.size()+1);
     
-    A.set(n-2, n-2, 1);
-    A.set(n-1, n-1, 1);
+    a.set(n-2, n-2, 1);
+    a.set(n-1, n-1, 1);
     b.set(n-2, 0, end.x);    
     b.set(n-1, 0, end.y);
     
@@ -1184,7 +1020,7 @@ public class Oplet extends PApplet {
     Matrix pts = null;
     // both LU and QR decompose/solve work, LU is 2x to 10x faster
     try {
-      pts = A.lu().solve(b);
+      pts = a.lu().solve(b);
     } catch(RuntimeException e) {
       e.printStackTrace();
       return new ArrayList<pt>(); // no solution, lame
@@ -1216,7 +1052,7 @@ public class Oplet extends PApplet {
     if(numResultingPoints < 1) throw new IllegalArgumentException();
     
     int n = numResultingPoints*dim;
-    Matrix A = new Matrix(n, n);
+    Matrix a = new Matrix(n, n);
     Matrix b = new Matrix(n, 1);
     vec lc;
         
@@ -1231,8 +1067,8 @@ public class Oplet extends PApplet {
         pt pin = pinned.get(i);
     
         if(pin != null) {
-          A.set(j, j, 1);
-          A.set(j+1, j+1, 1);
+          a.set(j, j, 1);
+          a.set(j+1, j+1, 1);
           b.set(j, 0, pin.x);
           b.set(j+1, 0, pin.y);
           
@@ -1240,33 +1076,33 @@ public class Oplet extends PApplet {
           float weight = 1f/sq(span);
           lc = locals.get(i-span);
           
-          A.set(j, j-s2, (lc.x-1)*weight);
-          A.set(j, j-s2+1, lc.y*weight);
-          A.set(j, j+s2, -lc.x*weight);
-          A.set(j, j+s2+1, -lc.y*weight);
+          a.set(j, j-s2, (lc.x-1)*weight);
+          a.set(j, j-s2+1, lc.y*weight);
+          a.set(j, j+s2, -lc.x*weight);
+          a.set(j, j+s2+1, -lc.y*weight);
       
-          A.set(j+1, j-s2, -lc.y*weight);
-          A.set(j+1, j-s2+1, (lc.x-1)*weight);
-          A.set(j+1, j+s2, lc.y*weight);
-          A.set(j+1, j+s2+1, -lc.x*weight);
+          a.set(j+1, j-s2, -lc.y*weight);
+          a.set(j+1, j-s2+1, (lc.x-1)*weight);
+          a.set(j+1, j+s2, lc.y*weight);
+          a.set(j+1, j+s2+1, -lc.x*weight);
           
-          A.set(j, j, A.get(j,j)+weight);
-          A.set(j+1, j+1, A.get(j+1,j+1)+weight);
+          a.set(j, j, a.get(j,j)+weight);
+          a.set(j+1, j+1, a.get(j+1,j+1)+weight);
         }
       }
     }
     
     pt start = pinned.get(0);
     
-    A.set(0, 0, 1);
-    A.set(1, 1, 1);
+    a.set(0, 0, 1);
+    a.set(1, 1, 1);
     b.set(0, 0, start.x);
     b.set(1, 0, start.y);
 
     pt end = pinned.get(numResultingPoints-1);
     
-    A.set(n-2, n-2, 1);
-    A.set(n-1, n-1, 1);
+    a.set(n-2, n-2, 1);
+    a.set(n-1, n-1, 1);
     b.set(n-2, 0, end.x);    
     b.set(n-1, 0, end.y);
     
@@ -1274,7 +1110,7 @@ public class Oplet extends PApplet {
     Matrix pts = null;
     // both LU and QR decompose/solve work, LU is 2x to 10x faster
     try {
-      pts = A.lu().solve(b);
+      pts = a.lu().solve(b);
     } catch(RuntimeException e) {
       e.printStackTrace();
       return new ArrayList<pt>(); // no solution, lame
@@ -1323,30 +1159,17 @@ public class Oplet extends PApplet {
     return result;
   }
 
-  public static vec localLaplace(pt A, pt B, pt C) {
+  public static vec localLaplace(pt a, pt b, pt c) {
     vec
-    AB = V(A,B),
-    AC = V(A,C),
-    AC_perp = new vec(AC.y, -AC.x);
-    float norm = 1/n2(AC); 
+    ab = V(a,b),
+    ac = V(a,c),
+    AC_perp = new vec(ac.y, -ac.x);
+    float norm = 1/n2(ac); 
     return new vec(
-        dot(AB, AC)*norm,
-        dot(AB, AC_perp)*norm
+        dot(ab, ac)*norm,
+        dot(ab, AC_perp)*norm
     );
   }
-
-  static pt s(pt A, float s, pt B) {
-    return (new pt(A.x + s * (B.x - A.x), A.y + s * (B.y - A.y)));
-  }
-
-  protected static pt b(pt A, pt B, pt C, float s) {
-    return (s(s(B, s / 4f, A), 0.5f, s(B, s / 4f, C)));
-  }
-
-  protected static pt f(pt A, pt B, pt C,
-      pt D, float s) {
-        return (s(s(A, 1f + (1f - s) / 8f, B), 0.5f, s(D, 1f + (1f - s) / 8f, C)));
-      }
 
   protected static <T> int nextI(T[] P, int i) {
     if(i == P.length-1) {
@@ -1463,7 +1286,6 @@ public class Oplet extends PApplet {
   protected static Polygon curvatureMorph(Polygon start, float t, Polygon end) {
     Polygon P = new Polygon();
     P.copyFrom(end);
-    int fail = 0;
     List<pt> ps = P.points;
     ps.set(1, T(ps.get(0), pow(d(start.points.get(0), start.points.get(1))
         / d(end.points.get(0), end.points.get(1)), t), V(end.points.get(0), end.points.get(1))));
@@ -1494,8 +1316,7 @@ public class Oplet extends PApplet {
         // this is for dealing with coincident verticies i think
         // there's a better way to do this,
         // having to do with expanding the neighborhood
-        ps.set(i, L(ps.get(i - 1), 0.5f, ps.get(i - 2))); // lame but...
-        fail++;
+        ps.set(i, lerp(ps.get(i - 1), ps.get(i - 2), 0.5f)); // lame but...
       } else {
         // move the previous point in the new angle, by the interpolated edge length
         ps.set(i, T(ps.get(i - 1), S(resultLength, R(diff, resultAngle))));
@@ -1505,39 +1326,40 @@ public class Oplet extends PApplet {
     return new Polygon(ps);
   }
 
-  public static Polygon linearMorph(Polygon A, float t, Polygon B) {
-    int n = min(A.points.size(), B.points.size());
+  public static Polygon linearMorph(Polygon a, float t, Polygon b) {
+    int n = min(a.points.size(), b.points.size());
     pt[] points = new pt[n];
-    for (int i = 0; i < points.length; i++) {
-      points[i] = L(A.points.get(i), t, B.points.get(i));
+    for(int i = 0; i < points.length; i++) {
+      points[i] = lerp(a.points.get(i), b.points.get(i), t);
     }
     return new Polygon(points);
   }
   
-  public static List<pt> linearMorph(List<pt> A, float t, List<pt> B) {
-    int n = min(A.size(), B.size());
+  public static List<pt> linearMorph(List<pt> a, float t, List<pt> b) {
+    int n = min(a.size(), b.size());
     ArrayList<pt> pts = new ArrayList<pt>();
-    for (int i = 0; i < n; i++) {
-      pts.add(L(A.get(i), t, B.get(i)));
+    for(int i = 0; i < n; i++) {
+      pts.add(lerp(a.get(i), b.get(i), t));
     }
     return pts;
   }
   
-  
-  class CurvatureMorph {
-    float[] startLength, endLengths, startAngles, endAngles;
-    public CurvatureMorph(Polygon start, Polygon end) {
-      // TODO: precompute the lengths and angles
-    }
+  public static Ray leftTangentToCircle(pt P, pt C, float r) {
+    return tangentToCircle(P,C,r,-1);
   }
-  
-  public static Ray ray(pt A, pt B) {return new Ray(A,B); }
-  public static Ray ray(pt Q, vec T) {return new Ray(Q,T); }
-  public static Ray ray(pt Q, vec T, float d) {return new Ray(Q,T,d); }
-  public static Ray leftTangentToCircle(pt P, pt C, float r) {return tangentToCircle(P,C,r,-1); }
-  public static Ray rightTangentToCircle(pt P, pt C, float r) {return tangentToCircle(P,C,r,1); }
+  public static Ray rightTangentToCircle(pt P, pt C, float r) {
+    return tangentToCircle(P,C,r,1);
+  }
   public static Ray tangentToCircle(pt P, pt C, float r, float s) {
-    float n=d(P,C); float w=sqrt(sq(n)-sq(r)); float h=r*w/n; float d=h*w/r; vec T = S(d,U(V(P,C)),s*h,R(U(V(P,C)))); return ray(P,T,w);}
+    float
+      n = P.dist(C),
+      w = sqrt(sq(n)-sq(r)),
+      h = r*w/n,
+      d = h*w/r;
+    vec T = S(  d, U(V(P,C)),
+              s*h, R(U(V(P,C))));
+    return new Ray(P,T);
+  }
   
   public static Ray3 ray(pt3 start, vec3 dir) { return new Ray3(start, dir); }
   
@@ -1545,13 +1367,13 @@ public class Oplet extends PApplet {
    * Returns the parameter on rays A and B between which this distance is minimized
    * Similar to line-line intersection. 
    */
-  public static float[] rayPassingLocations(Ray3 A, Ray3 B) {
-    pt3 p = A.start, q = B.start, w = P(p.x-q.x, p.y-q.y, p.z-q.z);
-    vec3 u = A.dir, v = B.dir;
-    float a = dot(u,u), b = dot(u,v), c = dot(v,v), d = dot(u,w), e = dot(v, w);
+  public static float[] rayPassingLocations(Ray3 a, Ray3 b) {
+    pt3 p = a.start, q = b.start, w = P(p.x-q.x, p.y-q.y, p.z-q.z);
+    vec3 u = a.dir, v = b.dir;
+    float uu = dot(u,u), uv = dot(u,v), vv = dot(v,v), uw = dot(u,w), vw = dot(v, w);
     return new float[] {
-      (b*e - c*d)/(a*c - b*b),
-      (a*e - b*d)/(a*c - b*b)
+      (uv*vw - vv*uw)/(uu*vv - uv*uv),
+      (uu*vw - uv*uw)/(uu*vv - uv*uv)
     };
   }
   
@@ -1884,10 +1706,10 @@ public class Oplet extends PApplet {
       float sqt3 = sqt*3, cbt2 = cbt*2;
       pt cur = S(cbt2 - sqt3 + 1, start,  -cbt2 + sqt3, end,
                  cbt - sqt*2 + t, startDir, -cbt + sqt, endDir);
-      sum += prev.disTo(cur);
+      sum += prev.dist(cur);
       prev = cur;
     }
-    sum += prev.disTo(end);
+    sum += prev.dist(end);
     return sum;
   }
 
@@ -1995,7 +1817,7 @@ public class Oplet extends PApplet {
     float closestDist = Float.MAX_VALUE;
     int closestIndex = -1;
     for(int i = 0; i < pts.length; i++) {
-      float d = pts[i].sqDisTo(x,y);
+      float d = pts[i].sqdist(x,y);
       if(d < closestDist) {
         closestDist = d;
         closestIndex = i;
@@ -2018,7 +1840,7 @@ public class Oplet extends PApplet {
     float closestDist = maxDistSq;
     int closestIndex = -1;
     for(int i = 0; i < pts.size(); i++) {
-      float d = pts.get(i).sqDisTo(x,y);
+      float d = pts.get(i).sqdist(x,y);
       if(d < closestDist) {
         closestDist = d;
         closestIndex = i;
@@ -2041,7 +1863,7 @@ public class Oplet extends PApplet {
     float closestDist = maxDistSq;
     int closestIndex = -1;
     for(int i = 0; i < pts.size(); i++) {
-      float d = pts.get(i).sqDisTo(x,y,z);
+      float d = pts.get(i).sqdist(x,y,z);
       if(d < closestDist) {
         closestDist = d;
         closestIndex = i;
@@ -2108,7 +1930,7 @@ public class Oplet extends PApplet {
     for(int i = 0; i < arrays.length; i++) {
       pt[] pts = arrays[i];
       for(int j = 0; j < pts.length; j++) {
-        float d = pts[j].sqDisTo(x,y);
+        float d = pts[j].sqdist(x,y);
         if(d < closestDist) {
           closestDist = d;
           closestIndex = j;
@@ -2128,26 +1950,26 @@ public class Oplet extends PApplet {
     }
   }
   
-  public static float triangleArea(pt A, pt B, pt C) {
-    vec a = V(A,B), b = V(A,C);
-    return abs(a.x*b.y - b.x*a.y)*0.5f;
+  public static float triangleArea(pt a, pt b, pt c) {
+    vec ab = a.to(b), ac = a.to(c);
+    return abs(ab.x*ac.y - ac.x*ab.y)*0.5f;
   }
   
-  public static float triangleArea(pt3 A, pt3 B, pt3 C) {
-    vec3 a = V(A,B), b = V(A,C);
-    return abs(a.x*b.y - b.x*a.y)*0.5f;
+  public static float triangleArea(pt3 a, pt3 b, pt3 c) {
+    vec3 ab = a.to(b), ac = a.to(c);
+    return abs(ab.x*ac.y - ac.x*ab.y)*0.5f;
   }
   
-  public static float trapezoidArea(pt A, pt B) {
-    return (A.x+B.x)*(A.y-B.y)*0.5f;
+  public static float trapezoidArea(pt a, pt b) {
+    return (a.x+b.x)*(a.y-b.y)*0.5f;
   }
   
-  public static float doubleTrapezoidArea(pt A, pt B) {
-    return (A.x+B.x)*(A.y-B.y);
+  public static float doubleTrapezoidArea(pt a, pt b) {
+    return (a.x+b.x)*(a.y-b.y);
   }
   
   public static float signedArea(pt a, pt b, pt c, pt d) {
-    return signedArea(Arrays.asList(new pt[]{a,b,c,d}));
+    return signedArea(Arrays.asList(new pt[]{a, b, c, d}));
   }
   
   public static float signedArea(List<pt> pts) {
@@ -2480,23 +2302,24 @@ public class Oplet extends PApplet {
     line(a.x, a.y, a.z, b.x, b.y, b.z);
   }
   
-  public static <T> T firstCommonElement(List<T> A, List<T> B) {
-    Set<T> BH = new TreeSet<T>(B); // obvious
-    for(T a : A) {
-      if(BH.contains(a)) {
-        return a;
+  public static <T> T firstCommonElement(List<T> a, List<T> b) {
+    Set<T> bHash = new HashSet<T>(b);
+    for(T item : a) {
+      if(bHash.contains(item)) {
+        return item;
       }
     }
     return null;
   }
   
-  public static <T> Pair<Integer,Integer> firstCommonElementIndicies(List<T> A, List<T> B) {
-    Set<T> BH = new TreeSet<T>(B); // obvious
+  // FIXME: write a docstring for this
+  public static <T> Pair<Integer,Integer> firstCommonElementIndicies(List<T> a, List<T> b) {
+    Set<T> bHash = new HashSet<T>(b);
     int aIndex = 0;
     int bIndex = -1; 
-    for(T a : A) {
-      if(BH.contains(a)) {
-        bIndex = B.indexOf(a);
+    for(T item : a) {
+      if(bHash.contains(item)) {
+        bIndex = b.indexOf(item);
         break;
       }
       aIndex++;
@@ -2546,7 +2369,7 @@ public class Oplet extends PApplet {
   /** Get the rotation between two isometric triangles*/
   public static Rotation getRotation(pt3[] src, pt3[] dst) {
     if(src.length != 3 || dst.length != 3) throw new IllegalArgumentException("only triangles supported");
-    pt3 srcCenter = A(src), dstCenter = A(dst);
+    pt3 srcCenter = average(src), dstCenter = average(dst);
     vec3[] srcE = new vec3[3];
     vec3[] dstE = new vec3[3];
     for(int i = 0; i < 3; i++) {
@@ -2569,29 +2392,29 @@ public class Oplet extends PApplet {
    * this just uses a geometric hueristic,
    * and should be replaced by something correct
    */
-  public static float[] getRotationAround(vec3 src, vec3 dst, vec3 V, vec3 U) {
+  public static float[] getRotationAround(vec3 src, vec3 dst, vec3 v, vec3 u) {
     src = U(src); dst = U(dst); 
     // rotation, fitting U first
-    Rotation fru = getRotationAround(src, dst, U);
+    Rotation fru = getRotationAround(src, dst, u);
     vec3 ruSrc = fru.transform(src);
-    Rotation frv = getRotationAround(ruSrc, dst, V);
+    Rotation frv = getRotationAround(ruSrc, dst, v);
     Rotation fwd = frv.get();
     fwd.combine(fru);
     
     // rotation fitting V first
-    Rotation brv = getRotationAround(dst, src, V);
+    Rotation brv = getRotationAround(dst, src, v);
     vec3 rvDst = brv.transform(dst);
     brv.minus();
-    Rotation bru = getRotationAround(src, rvDst, U);
+    Rotation bru = getRotationAround(src, rvDst, u);
     ruSrc = bru.transform(src);
     Rotation bwd = brv.get();
     bwd.combine(bru);
 
     // debug
-    float f = U(fwd.transform(src)).dot(dst);
-    float b = U(bwd.transform(src)).dot(dst);
-    float max = dst.dot(dst);
-    float slen = src.mag(), dlen = dst.mag();
+//    float f = U(fwd.transform(src)).dot(dst);
+//    float b = U(bwd.transform(src)).dot(dst);
+//    float max = dst.dot(dst);
+//    float slen = src.norm(), dlen = dst.norm();
     // take whichever to closer to the target
     if(fwd.transform(src).dot(dst) > bwd.transform(src).dot(dst)) {
         return new float[] {frv.getAngle(), fru.getAngle()};
@@ -2602,25 +2425,25 @@ public class Oplet extends PApplet {
   
   public void drawRotation(Rotation ro, pt3 center, pt3 start) {
     ro.toAxisAngle();
-    drawRotation(V(ro.x, ro.y, ro.z), ro.angle, center, start);
+    drawRotation(V(ro.x, ro.y, ro.z), (float)ro.angle, center, start);
   }
   
-  public void drawRotation(vec3 axis, double angle, pt3 center, pt3 start) {
-    vec3 U = V(center,start);
-    center = T(center, U.parallel(axis));
+  public void drawRotation(vec3 axis, float angle, pt3 center, pt3 start) {
+    vec3 u = center.to(start);
+    center = T(center, u.parallel(axis));
     
-    U = V(center,start);
-    vec3 V = axis.cross(U);
-    float farDist = U.mag();
+    u = center.to(start);
+    vec3 v = axis.cross(u);
+    float farDist = u.norm();
     float nearDist = farDist*.75f;
-    U.normalize(); V.normalize();
-    int numSteps = (int)(32*Math.abs(angle)/PI);
+    u.normalize(); v.normalize();
+    int numSteps = (int)(32*abs(angle)/PI);
     if(numSteps < 5) numSteps = 5;
-    double step = angle/numSteps;
+    float step = angle/numSteps;
     beginShape(QUAD_STRIP);
     for(int i = 0; i < numSteps+1; i++) {
-      double th = i*step;
-      vec3 dir = S(Math.sin(th), V, Math.cos(th), U);
+      float th = i*step;
+      vec3 dir = S(sin(th), v, cos(th), u);
       vertex(T(center,nearDist,dir));
       vertex(T(center,farDist,dir));
     }
@@ -2936,8 +2759,8 @@ public class Oplet extends PApplet {
   }
 
   public static boolean collinear(pt a, pt b, pt c) {
-    vec AB = V(a,b), AC = V(a,c);
-    return AB.x*AC.y == AC.x*AB.y;
+    vec ab = V(a,b), AC = V(a,c);
+    return ab.x*AC.y == AC.x*ab.y;
   }
   
   public static boolean colocated(pt a, pt b) {
@@ -2975,16 +2798,16 @@ public class Oplet extends PApplet {
    * @return
    */
   public static float cotan(pt O, pt I, pt J) {
-    vec A = V(O,I);
-    vec B = V(O,J);
-    float v = A.dot(B)/(A.norm()*B.norm());
+    vec a = V(O,I);
+    vec b = V(O,J);
+    float v = a.dot(b)/(a.norm()*b.norm());
     return (float)(v/sqrt(1-v*v));
   }
   
   public static float cotan(pt3 O, pt3 I, pt3 J) {
-    vec3 A = V(O,I);
-    vec3 B = V(O,J);
-    float v = A.dot(B)/(A.norm()*B.norm());
+    vec3 a = V(O,I);
+    vec3 b = V(O,J);
+    float v = a.dot(b)/(a.norm()*b.norm());
     return (float)(v/sqrt(1-v*v));
   }
   
@@ -3100,59 +2923,51 @@ public class Oplet extends PApplet {
   }
   
 
-  public static pt spiralCenter(Edge A, Edge B) {
-    return spiralCenter(A.a,A.b,B.a,B.b); 
+  public static pt spiralCenter(Edge a, Edge b) {
+    return spiralCenter(a.a,a.b,b.a,b.b); 
   }
   
-  public static Edge bezier(Edge A, Edge B, Edge C, Edge D, float t) {
-    return  R( R( R(A,t,B) ,t, R(B,t,C) ) ,t, R( R(B,t,C) ,t, R(C,t,D) ) ); 
+  public static Edge bezier(Edge a, Edge b, Edge c, Edge d, float t) {
+    return  R( R( R(a,t,b) ,t, R(b,t,c) ) ,t, R( R(b,t,c) ,t, R(c,t,d) ) ); 
   }
-  public static Edge catmull(Edge A, Edge B, Edge C, Edge D, float t) {
-    return bezier(B,R(A,1f/6,C,B),R(D,1f/6,B,C),C,t); 
+  public static Edge catmull(Edge a, Edge b, Edge c, Edge d, float t) {
+    return bezier(b,R(a,1f/6,c,b),R(d,1f/6,b,c),c,t); 
   }
 
   // local cords of M in {U,V}
-  public static vec local(vec M, vec U, vec V) {
-    float d = U.x*V.y-U.y*V.x;
-    float x = (M.x*V.y-M.y*V.x)/d;
-    float y = (M.y*U.x-M.x*U.y)/d; return V(x,y);
+  public static vec local(vec m, vec u, vec v) {
+    float d = u.x*v.y-u.y*v.x;
+    float x = (m.x*v.y-m.y*v.x)/d;
+    float y = (m.y*u.x-m.x*u.y)/d; return V(x,y);
   }
   
   //local cords of M in {U,V}
-  public static pt local(pt M, pt O, vec U, vec V) {
-    float d = U.x*V.y-U.y*V.x;
-    float x = ((M.x-O.x)*V.y-(M.y-O.y)*V.x)/d;
-    float y = ((M.y-O.y)*U.x-(M.x-O.x)*U.y)/d;
+  public static pt local(pt m, pt o, vec u, vec v) {
+    float d = u.x*v.y-u.y*v.x;
+    float x = ((m.x-o.x)*v.y-(m.y-o.y)*v.x)/d;
+    float y = ((m.y-o.y)*u.x-(m.x-o.x)*u.y)/d;
     return P(x,y);
   }
   
-  public static Edge E(pt A, pt B) {
-    return new Edge(A,B); 
+  public static Edge E(pt a, pt b) {
+    return new Edge(a,b); 
   }
     
   // cotangent(angle(BA,BC)) 
-  public static float cotAlpha(pt3 A, pt3 B, pt3 C) {
-    vec3 a = V(B,A);
-    vec3 b = V(B,C);
-    float v = a.dot(b)/(a.norm()*b.norm());
+  public static float cotAlpha(pt3 a, pt3 b, pt3 c) {
+    vec3 ba = b.to(a);
+    vec3 bc = b.to(c);
+    float v = ba.dot(bc)/(ba.norm()*bc.norm());
     return (float)(v/sqrt(1-v*v));
   }
   
-  public static float cotAlpha(pt A, pt B, pt C) {
-    vec a = V(B,A);
-    vec b = V(B,C);
-    float v = a.dot(b)/(a.norm()*b.norm());
+  public static float cotAlpha(pt a, pt b, pt c) {
+    vec ba = b.to(a);
+    vec bc = b.to(c);
+    float v = ba.dot(bc)/(ba.norm()*bc.norm());
     return (float)(v/sqrt(1-v*v));
   }
   
-  static float cotAlphaSlower(pt3 A, pt3 B, pt3 C) {
-    vec3 a = V(B,A);
-    vec3 b = V(B,C);
-    float n = a.dot(b);
-    float m = a.mag()*b.mag();
-    return (float)(1/tan(acos(n/m)));
-  }
-
   public static Quaternion mul(Quaternion q1, Quaternion q2) {
     Quaternion res = new Quaternion();
     res.w = q1.w * q2.w - q1.x * q2.x - q1.y * q2.y - q1.z * q2.z;
@@ -3231,9 +3046,10 @@ public class Oplet extends PApplet {
   }
   
   public Ray3 getRay(float x, float y, pt3 eye, pt3 focus, vec3 up, float fov) {
-    vec3 X = V(eye,focus).cross(up).normalized();
-    vec3 Y = X.cross(V(eye,focus)).normalized();
-    vec3 Z = U(eye, focus);
+    // TODO: reuse code for building a reference frame
+    vec3 u = V(eye,focus).cross(up).normalized();
+    vec3 v = u.cross(V(eye,focus)).normalized();
+    vec3 w = U(eye, focus);
     
     float cx = x-this.width()/2, cy = y-this.height()/2;
     // normalize screen so that far left = -1, far right = 1
@@ -3241,7 +3057,7 @@ public class Oplet extends PApplet {
     // triangle formed from eye, along camera vector to center of screen, along screen to one side
     // angle at eye = fov/2, length of half screen = 1/2, zed = distance from eye to screen
     float zed = 0.5f/tan(fov/2); 
-    vec3 dir = S(zed, Z, cx*nrm, X, cy*nrm, Y);
+    vec3 dir = S(zed, w, cx*nrm, u, cy*nrm, v);
     dir.normalize();
     return new Ray3(eye, dir);
   }
@@ -3286,15 +3102,15 @@ public class Oplet extends PApplet {
       vec3
       along = V(a,b),
       up = V(1,1,1),
-      U = along.cross(up),
-      V = along.cross(U);
-      U.normalize(); U.scaleBy(r);
-      V.normalize(); V.scaleBy(r);
+      u = along.cross(up),
+      v = along.cross(u);
+      u.normalize(); u.scaleBy(r);
+      v.normalize(); v.scaleBy(r);
       beginShape(QUAD_STRIP);
       for(int thi = 0; thi < numFacets+1; thi++) {
         float th = thi*TWO_PI/numFacets;
-        vertex(T(a, cos(th), U, sin(th), V));
-        vertex(T(b, cos(th), U, sin(th), V));
+        vertex(T(a, cos(th), u, sin(th), v));
+        vertex(T(b, cos(th), u, sin(th), v));
       }
       endShape();
     }
@@ -3308,20 +3124,20 @@ public class Oplet extends PApplet {
     int numFacets = 4;
     vec3
     along = V(a,b),
-    U = along.cross(up),
-    V = along.cross(U);
-    U.normalize(); U.scaleBy(r1);
-    V.normalize(); V.scaleBy(r2);
+    u = along.cross(up),
+    v = along.cross(u);
+    u.normalize(); u.scaleBy(r1);
+    v.normalize(); v.scaleBy(r2);
     beginShape(QUADS);
     float step = TWO_PI/numFacets;
     for(int thi = 0; thi < numFacets+1; thi++) {
       fill(colors[thi%colors.length]);
       float th0 = (0+thi)*step + PI/4;
       float th1 = (1+thi)*step + PI/4;
-      vertex(T(a, cos(th0), U, sin(th0), V));
-      vertex(T(b, cos(th0), U, sin(th0), V));
-      vertex(T(b, cos(th1), U, sin(th1), V));
-      vertex(T(a, cos(th1), U, sin(th1), V));
+      vertex(T(a, cos(th0), u, sin(th0), v));
+      vertex(T(b, cos(th0), u, sin(th0), v));
+      vertex(T(b, cos(th1), u, sin(th1), v));
+      vertex(T(a, cos(th1), u, sin(th1), v));
     }
     endShape();
   }
@@ -3338,19 +3154,19 @@ public class Oplet extends PApplet {
     // TODO: make the more processing-y?
     GL gl = ((PGraphicsOpenGL)g).beginGL();
     gl.glClearDepth(1);
-    gl.glMatrixMode(gl.GL_PROJECTION);
+    gl.glMatrixMode(GL.GL_PROJECTION);
     gl.glPushMatrix();
     gl.glLoadIdentity();
     gl.glOrtho(-1,1,-1,1,-1,1);
-    gl.glMatrixMode(gl.GL_MODELVIEW);
+    gl.glMatrixMode(GL.GL_MODELVIEW);
     gl.glPushMatrix();
     gl.glLoadIdentity();
-    gl.glPushAttrib(gl.GL_ENABLE_BIT);
-    gl.glDisable(gl.GL_DEPTH_TEST);
-    gl.glDisable(gl.GL_LIGHTING);
-    gl.glDisable(gl.GL_TEXTURE_2D);
+    gl.glPushAttrib(GL.GL_ENABLE_BIT);
+    gl.glDisable(GL.GL_DEPTH_TEST);
+    gl.glDisable(GL.GL_LIGHTING);
+    gl.glDisable(GL.GL_TEXTURE_2D);
 
-    gl.glBegin(gl.GL_TRIANGLE_STRIP);
+    gl.glBegin(GL.GL_TRIANGLE_STRIP);
     gl.glColor3d(.75f,.7f,.9f); gl.glVertex2f(-1, 1);
     gl.glColor3d(.9,.9,1); gl.glVertex2f(-1,-1);
     gl.glColor3d(.75f,.7f,.9f); gl.glVertex2f( 1, 1);
@@ -3359,9 +3175,9 @@ public class Oplet extends PApplet {
 
     gl.glPopAttrib();
     gl.glPopMatrix(); // restore modelview
-    gl.glMatrixMode(gl.GL_PROJECTION);
+    gl.glMatrixMode(GL.GL_PROJECTION);
     gl.glPopMatrix();
-    gl.glMatrixMode(gl.GL_MODELVIEW);
+    gl.glMatrixMode(GL.GL_MODELVIEW);
     ((PGraphicsOpenGL)g).endGL();
   }
   
@@ -3371,46 +3187,46 @@ public class Oplet extends PApplet {
    * TODO: make this non-random, look at arrow()
    * make static when random is removed
    */
-  public vec3[] basis(vec3 U) {
-    U = U.normalized();
-    vec3 V = V(1,1,1);
-    V.normalize();
-    vec3 W = U.cross(V);
-    V = W.cross(U);
-    return new vec3[] {U,V,W};
+  public vec3[] basis(vec3 u) {
+    u = u.normalized();
+    vec3 v = V(1,1,1);
+    v.normalize();
+    vec3 W = u.cross(v);
+    v = W.cross(u);
+    return new vec3[] {u,v,W};
   }
   
   public void circle(pt3 center, float radius, vec3 up) {
     vec3[] UVW = basis(up);
-    vec3 V = UVW[1], W = UVW[2];
-    V.toLength(radius); W.toLength(radius);
+    vec3 v = UVW[1], W = UVW[2];
+    v.toLength(radius); W.toLength(radius);
     int steps = 16;
     float step = TWO_PI/steps;
     beginShape();
     for(int i = 0; i < steps; i++) {
       float th = step*i;
-      vertex(T(center, cos(th), V, sin(th), W));
+      vertex(T(center, cos(th), v, sin(th), W));
     }
     endShape(CLOSE);
   }
   
-  public void caplet(Circle A, Circle B) {
-    vec3 Y = V(0,-1,0);
+  public void caplet(Circle a, Circle b) {
+    vec3 y = V(0,-1,0);
     
-    float height = 0.0f;
-    pt3 a = P(A.center.x, height, A.center.y);
-    pt3 b = P(B.center.x, height, B.center.y);
-    circle(a, A.radius, Y);
-    circle(b, B.radius, Y);
-    vec3 ab = V(a,b);
+    float ground = 0.0f;
+    pt3 a1 = P(a.center.x, ground, a.center.y);
+    pt3 b1 = P(b.center.x, ground, b.center.y);
+    circle(a1, a.radius, y);
+    circle(b1, b.radius, y);
+    vec3 ab = V(a1,b1);
     
-    float angle = asin((B.radius-A.radius)/ab.norm());
+    float angle = asin((b.radius-a.radius)/ab.norm());
     ab.normalize();
     
-    vec3 off = R(ab, PI/2+angle, Y);
-    line(T(a, A.radius, off),T(b, B.radius, off));
-    off = R(ab, -PI/2-angle, Y);
-    line(T(a, A.radius, off),T(b, B.radius, off));
+    vec3 off = R(ab, PI/2+angle, y);
+    line(T(a1, a.radius, off),T(b1, b.radius, off));
+    off = R(ab, -PI/2-angle, y);
+    line(T(a1, a.radius, off),T(b1, b.radius, off));
   }
   
   public static Edge[] capletEdges(Circle a, Circle b) {

@@ -4,10 +4,9 @@ package shapecore.ink;
 import java.util.List;
 
 import shapecore.Oplet;
+import shapecore.Polyline;
 import shapecore.pt;
 import shapecore.ink.WingedStrokeGraph.Stroke;
-
-import static shapecore.Geometry.*;
 
 
 public class BuildGraphDemo extends Oplet {
@@ -41,8 +40,8 @@ public class BuildGraphDemo extends Oplet {
     
     for(Stroke s : g.strokes) {
       jitter(s.points.subList(1, s.points.size()-2), 40);
-      smoothPolyline(s.points, 0.5);
-      smoothPolyline(s.points, 0.5);
+      Polyline.smooth(s.points);
+      Polyline.smooth(s.points);
     }
   }
   

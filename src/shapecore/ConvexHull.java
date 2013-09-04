@@ -9,10 +9,7 @@ import shapecore.pt;
 import shapecore.vec;
 import shapecore.mesh.CornerTable;
 
-
-
 import static shapecore.Geometry.*;
-import static shapecore.Oplet.*;
 
 public class ConvexHull {
   

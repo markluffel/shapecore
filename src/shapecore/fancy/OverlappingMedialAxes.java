@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.TreeSet;
 
 import shapecore.Oplet;
+import shapecore.Polyline;
 import shapecore.pt;
 
 import static shapecore.Geometry.*;
@@ -240,8 +241,8 @@ public class OverlappingMedialAxes extends Oplet {
   }
   
   public void mouseReleased() {
-    smoothPolyline(drawing, 0.5);
-    smoothPolyline(drawing, 0.5);
+    Polyline.smooth(drawing);
+    Polyline.smooth(drawing);
     brep.addSegment(drawing);
     
     drawing = new ArrayList<pt>();

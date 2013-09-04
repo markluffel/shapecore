@@ -2,8 +2,12 @@ package shapecore;
 
 import static processing.core.PApplet.*;
 import static shapecore.Geometry.*;
+import static shapecore.Oplet.*;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 import shapecore.interfaces.Vector;
 
@@ -123,9 +127,9 @@ public class vec implements Vector<vec>, Serializable {
     return this;
   }
   
-  public vec add(double x, double y) {
-    this.x += x;
-    this.y += y;
+  public vec add(double x_, double y_) {
+    this.x += x_;
+    this.y += y_;
     return this;
   }
 
@@ -139,8 +143,8 @@ public class vec implements Vector<vec>, Serializable {
     return this;
   }
   
-  public static float dot(vec U, vec V) {
-    return U.x * V.x + U.y * V.y;
+  public static float dot(vec u, vec v) {
+    return u.x * v.x + u.y * v.y;
   }
 
   public float dot(vec that) {
@@ -178,33 +182,12 @@ public class vec implements Vector<vec>, Serializable {
     return (new vec(x, y));
   }
 
-  /*
-  public vec makeUnit() {
-    float n = (float) Math.sqrt(sq(x) + sq(y));
-    if (n < 0.000001)
-      n = 1;
-    return new vec(x / n, y / n);
+  public vec makeOffsetVec(vec v) {
+    return (new vec(x + v.x, y + v.y));
   }
 
-  public vec unit() {
-    float n = (float) Math.sqrt(sq(x) + sq(y));
-    if (n < 0.000001)
-      n = 1;
-    return new vec(x / n, y / n);
-  }
-  */
-
-  //public vec makeScaledBy(float s) { return new vec(x * s, y * s); }
-  //public vec makeTurnedLeft() { return new vec(-y, x); }
-  //public vec left() { return new vec(-y, x); }
-  //public vec right() { return new vec(y, -x); }
-
-  public vec makeOffsetVec(vec V) {
-    return (new vec(x + V.x, y + V.y));
-  }
-
-  public vec makeOffsetVec(float s, vec V) {
-    return (new vec(x + s * V.x, y + s * V.y));
+  public vec makeOffsetVec(float s, vec v) {
+    return (new vec(x + s * v.x, y + s * v.y));
   }
 
   public vec makeOffsetVec(float u, float v) {
@@ -292,5 +275,83 @@ public class vec implements Vector<vec>, Serializable {
     vec v = new vec(b.y-a.y, a.x-b.x);
     v.normalize();
     return v;
+  }
+  
+  public List<vec> diffs(List<vec> a, List<vec> b) {
+    List<vec> result = new ArrayList<vec>();
+    int len = min(a.size(), b.size());
+    for(int i = 0; i < len; i++) {
+      result.add(a.get(i).get().add(-1, b.get(i)));
+    }
+    return result;
+  }
+  
+  static float[] lengths(List<vec> vecs) {
+    float[] result = new float[vecs.size()];
+    for(int i = 0; i < result.length; i++) {
+      result[i] = vecs.get(i).norm();
+    }
+    return result;
+  }
+
+  static float[] angles(List<vec> vecs) {
+    float[] result = new float[vecs.size()];
+    for(int i = 0; i < result.length; i++) {
+      result[i] = vecs.get(i).angle();
+    }
+    return result;
+  }
+  
+  static List<vec> laplacian(List<vec> vecs) {
+    List<vec> result = new ArrayList<vec>();
+    result.add(new vec(0,0));
+    for(int i = 1; i < vecs.size()-1; i++) {
+      vec a = vecs.get(i-1), b = vecs.get(i), c = vecs.get(i+1);
+      result.add(a.get().add(c).scaleBy(0.25f).add(-0.5f, b));
+    }
+    result.add(new vec(0,0));
+    return result;
+  }
+  
+  public static void smooth(List<vec> vecs) {
+    // TODO: make this more memory efficient
+    List<vec> lap = laplacian(vecs);
+    for(int i = 0; i < vecs.size(); i++) {
+      vecs.get(i).add(0.5f, lap.get(i));
+    }
+  }
+
+  public static void bismooth(List<vec> vecs) {
+    List<vec> bilap = laplacian(laplacian(vecs));
+    for(int i = 0; i < vecs.size(); i++) {
+      vecs.get(i).add(-0.5f, bilap.get(i));
+    }
+  }
+  
+  public static void smoothRadial(List<vec> vecs, int iterations) {
+    float[] lens = vec.lengths(vecs);
+    float[] angles = vec.angles(vecs);
+    for( int i = 0; i < iterations; i++) Oplet.smooth(lens, 0.5f);
+    for(int i = 0; i < iterations; i++) smoothAngles(angles, 0.5f);
+    
+    for(int i = 0; i < vecs.size(); i++) {
+      vecs.set(i, fromRadial(lens[i], angles[i]));
+    }
+  }
+  
+  public static float sumOfSquares(Collection<vec> errs) {
+    float sum = 0;
+    for(vec v : errs) sum += v.sqnorm();
+    return sum;
+  }
+  
+  public static vec sum(Collection<vec> vs) {
+    vec sum = new vec();
+    for(vec v : vs) sum.add(v);
+    return sum;
+  }
+  
+  public static vec average(Collection<vec> vs) {
+    return sum(vs).scaleBy(1f/vs.size());
   }
 }

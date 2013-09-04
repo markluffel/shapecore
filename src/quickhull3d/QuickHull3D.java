@@ -51,15 +51,15 @@ import java.io.*;
  *
  *   System.out.println ("Vertices:");
  *   Point3d[] vertices = hull.getVertices();
- *   for (int i = 0; i < vertices.length; i++)
+ *   for(int i = 0; i < vertices.length; i++)
  *    { Point3d pnt = vertices[i];
  *      System.out.println (pnt.x + " " + pnt.y + " " + pnt.z);
  *    }
  *
  *   System.out.println ("Faces:");
  *   int[][] faceIndices = hull.getFaces();
- *   for (int i = 0; i < vertices.length; i++)
- *    { for (int k = 0; k < faceIndices[i].length; k++)
+ *   for(int i = 0; i < vertices.length; i++)
+ *    { for(int k = 0; k < faceIndices[i].length; k++)
  *       { System.out.print (faceIndices[i][k] + " ");
  *       }
  *      System.out.println ("");
@@ -111,8 +111,7 @@ import java.io.*;
  * IllegalArgumentException will be thrown.
  *
  * @author John E. Lloyd, Fall 2004 */
-public class QuickHull3D
-{
+public class QuickHull3D {
 	/**
 	 * Specifies that (on output) vertex indices for a face should be
 	 * listed in clockwise order.
@@ -244,7 +243,7 @@ public class QuickHull3D
 	 {
 	   vtx.face = face;
 
-	   if (face.outside == null)
+	   if(face.outside == null)
 	    { claimed.add (vtx);
 	    }
 	   else
@@ -255,8 +254,8 @@ public class QuickHull3D
 
 	private void removePointFromFace (Vertex vtx, Face face)
 	 {
-	   if (vtx == face.outside)
-	    { if (vtx.next != null && vtx.next.face == face)
+	   if(vtx == face.outside)
+	    { if(vtx.next != null && vtx.next.face == face)
 	       { face.outside = vtx.next;
 	       }
 	      else
@@ -268,10 +267,10 @@ public class QuickHull3D
 
 	private Vertex removeAllPointsFromFace (Face face)
 	 {
-	   if (face.outside != null)
+	   if(face.outside != null)
 	    { 
 	      Vertex end = face.outside;
-	      while (end.next != null && end.next.face == face)
+	      while(end.next != null && end.next.face == face)
 	       { end = end.next;
 	       }
 	      claimed.delete (face.outside, end);
@@ -326,9 +325,9 @@ public class QuickHull3D
 	private HalfEdge findHalfEdge (Vertex tail, Vertex head)
 	 { 
 	   // brute force ... OK, since setHull is not used much
-	   for (Iterator<Face> it=faces.iterator(); it.hasNext(); ) 
+	   for(Iterator<Face> it=faces.iterator(); it.hasNext(); ) 
 	    { HalfEdge he = it.next().findEdge (tail, head);
-	      if (he != null)
+	      if(he != null)
 	       { return he; 
 	       }
 	    }
@@ -341,17 +340,17 @@ public class QuickHull3D
  	   initBuffers (nump);
 	   setPoints (coords, nump);
 	   computeMaxAndMin ();
-	   for (int i=0; i<numf; i++)
+	   for(int i=0; i<numf; i++)
 	    { Face face = Face.create (pointBuffer, faceIndices[i]);
 	      HalfEdge he = face.he0;
 	      do
 	       { HalfEdge heOpp = findHalfEdge (he.head(), he.tail());
-		 if (heOpp != null)
+		 if(heOpp != null)
 		  { he.setOpposite (heOpp); 
 		  }
 		 he = he.next;
 	       }
-	      while (he != face.he0);
+	      while(he != face.he0);
 	      faces.add (face);
 	    }
  	 }
@@ -361,11 +360,11 @@ public class QuickHull3D
 	 {
 	   boolean wrote = false;
 	   InputStream es = proc.getErrorStream();
-	   while (es.available() > 0)
+	   while(es.available() > 0)
 	    { System.out.write (es.read());
 	      wrote = true;
 	    }
-	   if (wrote)
+	   if(wrote)
 	    { System.out.println("");
 	    }
 	 }
@@ -374,7 +373,7 @@ public class QuickHull3D
 				     boolean triangulate)
 	 {
 	   String commandStr = "./qhull i";
-	   if (triangulate)
+	   if(triangulate)
 	    { commandStr += " -Qt"; 
 	    }
 	   try
@@ -386,7 +385,7 @@ public class QuickHull3D
 		    new InputStreamReader (proc.getInputStream()));
 
 	      ps.println ("3 " + nump);
-	      for (int i=0; i<nump; i++)
+	      for(int i=0; i<nump; i++)
 	       { ps.println (
 		    coords[i*3+0] + " " +
 		    coords[i*3+1] + " " +  
@@ -401,22 +400,22 @@ public class QuickHull3D
 	      do
 	       { stok.nextToken();
 	       }
-	      while (stok.sval == null ||
+	      while(stok.sval == null ||
 		     !stok.sval.startsWith ("MERGEexact"));
-	      for (int i=0; i<4; i++)
+	      for(int i=0; i<4; i++)
 	       { stok.nextToken();
 	       }
-	      if (stok.ttype != StreamTokenizer.TT_NUMBER)
+	      if(stok.ttype != StreamTokenizer.TT_NUMBER)
 	       { System.out.println ("Expecting number of faces");
 		 System.exit(1); 
 	       }
 	      int numf = (int)stok.nval;
 	      stok.nextToken(); // clear EOL
 	      int[][] faceIndices = new int[numf][];
-	      for (int i=0; i<numf; i++)
+	      for(int i=0; i<numf; i++)
 	       { indexList.clear();
-		 while (stok.nextToken() != StreamTokenizer.TT_EOL)
-		  { if (stok.ttype != StreamTokenizer.TT_NUMBER)
+		 while(stok.nextToken() != StreamTokenizer.TT_EOL)
+		  { if(stok.ttype != StreamTokenizer.TT_NUMBER)
 		     { System.out.println ("Expecting face index");
 		       System.exit(1); 
 		     }
@@ -424,7 +423,7 @@ public class QuickHull3D
 		  }
 		 faceIndices[i] = new int[indexList.size()];
 		 int k = 0;
-		 for (Iterator<Integer> it=indexList.iterator(); it.hasNext(); ) 
+		 for(Iterator<Integer> it=indexList.iterator(); it.hasNext(); ) 
 		  { faceIndices[i][k++] = it.next().intValue();
 		  }
 	       }
@@ -436,13 +435,12 @@ public class QuickHull3D
 	    }
 	 }
 
-	private void printPoints (PrintStream ps)
-	 {
-	   for (int i=0; i<numPoints; i++)
-	    { Point3d pnt = pointBuffer[i].pnt;
-	      ps.println (pnt.x + ", " + pnt.y + ", " + pnt.z + ",");
-	    }
-	 }
+//  private void printPoints(PrintStream ps) {
+//    for(int i = 0; i < numPoints; i++) {
+//      Point3d pnt = pointBuffer[i].pnt;
+//      ps.println(pnt.x + ", " + pnt.y + ", " + pnt.z + ",");
+//    }
+//  }
 
 	/**
 	 * Constructs the convex hull of a set of points whose
@@ -475,10 +473,10 @@ public class QuickHull3D
 	 * coplanar.
 	 */
 	public void build(double[] coords, int nump) throws IllegalArgumentException {
-	   if (nump < 4) {
+	   if(nump < 4) {
 	     throw new IllegalArgumentException("Less than four input points specified");
 	   }
-	   if (coords.length/3 < nump) {
+	   if(coords.length/3 < nump) {
 	     throw new IllegalArgumentException("Coordinate array too small for specified number of points"); 
 	   }
 	   initBuffers(nump);
@@ -512,11 +510,11 @@ public class QuickHull3D
 	public void build (Point3d[] points, int nump)
 	   throws IllegalArgumentException
 	 {
-	   if (nump < 4)
+	   if(nump < 4)
 	    { throw new IllegalArgumentException (
 		 "Less than four input points specified");
 	    }
-	   if (points.length < nump)
+	   if(points.length < nump)
 	    { throw new IllegalArgumentException (
 		 "Point array too small for specified number of points"); 
 	    }
@@ -535,15 +533,15 @@ public class QuickHull3D
 	 {
 	   double minArea = 1000*charLength*DOUBLE_PREC;
 	   newFaces.clear();
-	   for (Iterator<Face> it=faces.iterator(); it.hasNext(); ) 
+	   for(Iterator<Face> it=faces.iterator(); it.hasNext(); ) 
 	    { Face face = it.next();
-	      if (face.mark == Face.VISIBLE)
+	      if(face.mark == Face.VISIBLE)
 	       { 
 		 face.triangulate (newFaces, minArea);
 		 // splitFace (face);
 	       }
 	    }
-	   for (Face face=newFaces.first(); face!=null; face=face.next)
+	   for(Face face=newFaces.first(); face!=null; face=face.next)
 	    { faces.add (face);
 	    }
 	 }
@@ -551,7 +549,7 @@ public class QuickHull3D
 // 	private void splitFace (Face face)
 // 	 {
 //  	   Face newFace = face.split();
-//  	   if (newFace != null)
+//  	   if(newFace != null)
 //  	    { newFaces.add (newFace);
 //  	      splitFace (newFace);
 //  	      splitFace (face);
@@ -560,13 +558,13 @@ public class QuickHull3D
 
 	protected void initBuffers (int nump)
 	 {
-	   if (pointBuffer.length < nump)
+	   if(pointBuffer.length < nump)
 	    { Vertex[] newBuffer = new Vertex[nump];
 	      vertexPointIndices = new int[nump];
-	      for (int i=0; i<pointBuffer.length; i++)
+	      for(int i=0; i<pointBuffer.length; i++)
 	       { newBuffer[i] = pointBuffer[i]; 
 	       }
-	      for (int i=pointBuffer.length; i<nump; i++)
+	      for(int i=pointBuffer.length; i<nump; i++)
 	       { newBuffer[i] = new Vertex(); 
 	       }
 	      pointBuffer = newBuffer;
@@ -579,7 +577,7 @@ public class QuickHull3D
 
 	protected void setPoints (double[] coords, int nump)
 	 { 
-	   for (int i=0; i<nump; i++)
+	   for(int i=0; i<nump; i++)
 	    { 
 	      Vertex vtx = pointBuffer[i];
 	      vtx.pnt.set (coords[i*3+0], coords[i*3+1], coords[i*3+2]);
@@ -589,7 +587,7 @@ public class QuickHull3D
 
 	protected void setPoints (Point3d[] pnts, int nump)
 	 { 
-	   for (int i=0; i<nump; i++)
+	   for(int i=0; i<nump; i++)
 	    { 
 	      Vertex vtx = pointBuffer[i];
 	      vtx.pnt.set (pnts[i]);
@@ -602,35 +600,35 @@ public class QuickHull3D
 	   Vector3d max = new Vector3d();
 	   Vector3d min = new Vector3d();
 
-	   for (int i=0; i<3; i++)
+	   for(int i=0; i<3; i++)
 	    { maxVtxs[i] = minVtxs[i] = pointBuffer[0]; 
 	    }
 	   max.set (pointBuffer[0].pnt);
 	   min.set (pointBuffer[0].pnt);
 
-	   for (int i=1; i<numPoints; i++)
+	   for(int i=1; i<numPoints; i++)
 	    { Point3d pnt = pointBuffer[i].pnt;
-	      if (pnt.x > max.x)
+	      if(pnt.x > max.x)
 	       { max.x = pnt.x;
 		 maxVtxs[0] = pointBuffer[i];
 	       }
-	      else if (pnt.x < min.x)
+	      else if(pnt.x < min.x)
 	       { min.x = pnt.x;
 		 minVtxs[0] = pointBuffer[i];
 	       }
-	      if (pnt.y > max.y)
+	      if(pnt.y > max.y)
 	       { max.y = pnt.y;
 		 maxVtxs[1] = pointBuffer[i];
 	       }
-	      else if (pnt.y < min.y)
+	      else if(pnt.y < min.y)
 	       { min.y = pnt.y;
 		 minVtxs[1] = pointBuffer[i];
 	       }
-	      if (pnt.z > max.z)
+	      if(pnt.z > max.z)
 	       { max.z = pnt.z;
 		 maxVtxs[2] = pointBuffer[i];
 	       }
-	      else if (pnt.z < min.z)
+	      else if(pnt.z < min.z)
 	       { min.z = pnt.z;
 		 maxVtxs[2] = pointBuffer[i];
 	       }
@@ -640,7 +638,7 @@ public class QuickHull3D
 	   // not about to quibble.
 	   charLength = Math.max(max.x-min.x, max.y-min.y);
 	   charLength = Math.max(max.z-min.z, charLength);
-	   if (explicitTolerance == AUTOMATIC_TOLERANCE)
+	   if(explicitTolerance == AUTOMATIC_TOLERANCE)
 	    { tolerance =
 		 3*DOUBLE_PREC*(Math.max(Math.abs(max.x),Math.abs(min.x))+
 				Math.max(Math.abs(max.y),Math.abs(min.y))+
@@ -660,15 +658,15 @@ public class QuickHull3D
 	   double max = 0;
 	   int imax = 0;
 
-	   for (int i=0; i<3; i++)
+	   for(int i=0; i<3; i++)
 	    { double diff = maxVtxs[i].pnt.get(i)-minVtxs[i].pnt.get(i);
-	      if (diff > max)
+	      if(diff > max)
 	       { max = diff;
 		 imax = i;
 	       }
  	    }
 
-	   if (max <= tolerance)
+	   if(max <= tolerance)
 	    { throw new IllegalArgumentException (
 "Input points appear to be coincident");
 	    }
@@ -688,11 +686,11 @@ public class QuickHull3D
 	   double maxSqr = 0;
 	   u01.sub (vtx[1].pnt, vtx[0].pnt);
 	   u01.normalize();
-	   for (int i=0; i<numPoints; i++)
+	   for(int i=0; i<numPoints; i++)
 	    { diff02.sub (pointBuffer[i].pnt, vtx[0].pnt);
 	      xprod.cross (u01, diff02);
 	      double lenSqr = xprod.normSquared();
-	      if (lenSqr > maxSqr &&
+	      if(lenSqr > maxSqr &&
 		  pointBuffer[i] != vtx[0] &&  // paranoid
 		  pointBuffer[i] != vtx[1])
 	       { maxSqr = lenSqr; 
@@ -700,7 +698,7 @@ public class QuickHull3D
 		 nrml.set (xprod);
 	       }
 	    }
-	   if (Math.sqrt(maxSqr) <= 100*tolerance)
+	   if(Math.sqrt(maxSqr) <= 100*tolerance)
 	    { throw new IllegalArgumentException (
 "Input points appear to be colinear");
 	    }
@@ -709,9 +707,9 @@ public class QuickHull3D
 
 	   double maxDist = 0;
 	   double d0 = vtx[2].pnt.dot (nrml);
-	   for (int i=0; i<numPoints; i++)
+	   for(int i=0; i<numPoints; i++)
 	    { double dist = Math.abs (pointBuffer[i].pnt.dot(nrml) - d0);
-	      if (dist > maxDist &&
+	      if(dist > maxDist &&
 		  pointBuffer[i] != vtx[0] &&  // paranoid
 		  pointBuffer[i] != vtx[1] &&
 		  pointBuffer[i] != vtx[2])
@@ -719,12 +717,12 @@ public class QuickHull3D
 		 vtx[3] = pointBuffer[i];
 	       }
 	    }
-	   if (Math.abs(maxDist) <= 100*tolerance)
+	   if(Math.abs(maxDist) <= 100*tolerance)
 	    { throw new IllegalArgumentException (
 "Input points appear to be coplanar"); 
 	    }
 
-	   if (debug)
+	   if(debug)
 	    { System.out.println ("initial vertices:");
 	      System.out.println (vtx[0].index + ": " + vtx[0].pnt);
 	      System.out.println (vtx[1].index + ": " + vtx[1].pnt);
@@ -734,13 +732,13 @@ public class QuickHull3D
 
 	   Face[] tris = new Face[4];
 
-	   if (vtx[3].pnt.dot (nrml) - d0 < 0)
+	   if(vtx[3].pnt.dot (nrml) - d0 < 0)
 	    { tris[0] = Face.createTriangle (vtx[0], vtx[1], vtx[2]);
 	      tris[1] = Face.createTriangle (vtx[3], vtx[1], vtx[0]);
 	      tris[2] = Face.createTriangle (vtx[3], vtx[2], vtx[1]);
 	      tris[3] = Face.createTriangle (vtx[3], vtx[0], vtx[2]);
 
-	      for (int i=0; i<3; i++)
+	      for(int i=0; i<3; i++)
 	       { int k = (i+1)%3;
 		 tris[i+1].getEdge(1).setOpposite (tris[k+1].getEdge(0));
 		 tris[i+1].getEdge(2).setOpposite (tris[0].getEdge(k));
@@ -752,7 +750,7 @@ public class QuickHull3D
 	      tris[2] = Face.createTriangle (vtx[3], vtx[1], vtx[2]);
 	      tris[3] = Face.createTriangle (vtx[3], vtx[2], vtx[0]);
 
-	      for (int i=0; i<3; i++)
+	      for(int i=0; i<3; i++)
 	       { int k = (i+1)%3;
 		 tris[i+1].getEdge(0).setOpposite (tris[k+1].getEdge(1));
 		 tris[i+1].getEdge(2).setOpposite (tris[0].getEdge((3-i)%3));
@@ -760,27 +758,27 @@ public class QuickHull3D
 	    }
 
 
- 	   for (int i=0; i<4; i++)
+ 	   for(int i=0; i<4; i++)
  	    { faces.add (tris[i]); 
  	    }
 
-	   for (int i=0; i<numPoints; i++)
+	   for(int i=0; i<numPoints; i++)
 	    { Vertex v = pointBuffer[i];
 
-	      if (v == vtx[0] || v == vtx[1] || v == vtx[2] || v == vtx[3])
+	      if(v == vtx[0] || v == vtx[1] || v == vtx[2] || v == vtx[3])
 	       { continue;
 	       }
 
 	      maxDist = tolerance;
 	      Face maxFace = null;
-	      for (int k=0; k<4; k++)
+	      for(int k=0; k<4; k++)
 	       { double dist = tris[k].distanceToPlane (v.pnt);
-		 if (dist > maxDist)
+		 if(dist > maxDist)
 		  { maxFace = tris[k];
 		    maxDist = dist;
 		  }
 	       }
-	      if (maxFace != null)
+	      if(maxFace != null)
 	       { addPointToFace (v, maxFace);
 	       }	      
 	    }
@@ -806,7 +804,7 @@ public class QuickHull3D
  	public Point3d[] getVertices()
  	 {
  	   Point3d[] vtxs = new Point3d[numVertices];
- 	   for (int i=0; i<numVertices; i++)
+ 	   for(int i=0; i<numVertices; i++)
 	    { vtxs[i] = pointBuffer[vertexPointIndices[i]].pnt;
 	    }
 	   return vtxs;
@@ -824,7 +822,7 @@ public class QuickHull3D
 	 */
  	public int getVertices(double[] coords)
  	 {
- 	   for (int i=0; i<numVertices; i++)
+ 	   for(int i=0; i<numVertices; i++)
 	    { Point3d pnt = pointBuffer[vertexPointIndices[i]].pnt;
 	      coords[i*3+0] = pnt.x;
 	      coords[i*3+1] = pnt.y;
@@ -842,7 +840,7 @@ public class QuickHull3D
 	public int[] getVertexPointIndices()
 	 { 
 	   int[] indices = new int[numVertices];
-	   for (int i=0; i<numVertices; i++)
+	   for(int i=0; i<numVertices; i++)
 	    { indices[i] = vertexPointIndices[i];
 	    }
 	   return indices;
@@ -900,7 +898,7 @@ public class QuickHull3D
 	 {
 	   int[][] allFaces = new int[faces.size()][];
 	   int k = 0;
-	   for (Iterator<Face> it=faces.iterator(); it.hasNext(); )
+	   for(Iterator<Face> it=faces.iterator(); it.hasNext(); )
 	    { Face face = it.next();
 	      allFaces[k] = new int[face.numVertices()];
 	      getFaceIndices (allFaces[k], face, indexFlags);
@@ -956,433 +954,376 @@ public class QuickHull3D
 	 * @see QuickHull3D#getVertices()
 	 * @see QuickHull3D#getFaces()
 	 */
-	public void print (PrintStream ps, int indexFlags)
-	 {
-	   if ((indexFlags & INDEXED_FROM_ZERO) == 0)
-	    { indexFlags |= INDEXED_FROM_ONE;
-	    }
-	   for (int i=0; i<numVertices; i++)
-	    { Point3d pnt = pointBuffer[vertexPointIndices[i]].pnt;
-	      ps.println ("v " + pnt.x + " " + pnt.y + " " + pnt.z);
-	    }
-	   for (Iterator<Face> fi=faces.iterator(); fi.hasNext(); )
-	    { Face face = fi.next();
-	      int[] indices = new int[face.numVertices()];
-	      getFaceIndices (indices, face, indexFlags);
+  public void print(PrintStream ps, int indexFlags) {
+    if((indexFlags & INDEXED_FROM_ZERO) == 0) {
+      indexFlags |= INDEXED_FROM_ONE;
+    }
+    for(int i = 0; i < numVertices; i++) {
+      Point3d pnt = pointBuffer[vertexPointIndices[i]].pnt;
+      ps.println("v " + pnt.x + " " + pnt.y + " " + pnt.z);
+    }
+    for(Iterator<Face> fi = faces.iterator(); fi.hasNext();) {
+      Face face = fi.next();
+      int[] indices = new int[face.numVertices()];
+      getFaceIndices(indices, face, indexFlags);
 
-	      ps.print ("f");
-	      for (int k=0; k<indices.length; k++)
-	       { ps.print (" " + indices[k]); 
-	       }
-	      ps.println ("");
-	    }
-	 }
+      ps.print("f");
+      for(int k = 0; k < indices.length; k++) {
+        ps.print(" " + indices[k]);
+      }
+      ps.println("");
+    }
+  }
 
-	private void getFaceIndices (int[] indices, Face face, int flags)
-	 { 
-	   boolean ccw = ((flags & CLOCKWISE) == 0);
-	   boolean indexedFromOne = ((flags & INDEXED_FROM_ONE) != 0);
-	   boolean pointRelative = ((flags & POINT_RELATIVE) != 0);
+  private void getFaceIndices(int[] indices, Face face, int flags) {
+    boolean ccw = ((flags & CLOCKWISE) == 0);
+    boolean indexedFromOne = ((flags & INDEXED_FROM_ONE) != 0);
+    boolean pointRelative = ((flags & POINT_RELATIVE) != 0);
 
-	   HalfEdge hedge = face.he0;
-	   int k = 0;
-	   do
-	    { int idx = hedge.head().index;
-	      if (pointRelative)
-	       { idx = vertexPointIndices[idx];
-	       }
-	      if (indexedFromOne)
-	       { idx++;
-	       }
-	      indices[k++] = idx;
-	      hedge = (ccw ? hedge.next : hedge.prev);
-	    }
-	   while (hedge != face.he0);	   
-	 }
+    HalfEdge hedge = face.he0;
+    int k = 0;
+    do {
+      int idx = hedge.head().index;
+      if(pointRelative) {
+        idx = vertexPointIndices[idx];
+      }
+      if(indexedFromOne) {
+        idx++;
+      }
+      indices[k++] = idx;
+      hedge = (ccw ? hedge.next : hedge.prev);
+    } while(hedge != face.he0);
+  }
 
-	protected void resolveUnclaimedPoints (FaceList newFaces)
-	 {
-	   Vertex vtxNext = unclaimed.first();
- 	   for (Vertex vtx=vtxNext; vtx!=null; vtx=vtxNext)
- 	    { vtxNext = vtx.next;
-	      
-	      double maxDist = tolerance;
-	      Face maxFace = null;
-	      for (Face newFace=newFaces.first(); newFace != null;
-		   newFace=newFace.next)
-	       { 
-		 if (newFace.mark == Face.VISIBLE)
-		  { double dist = newFace.distanceToPlane(vtx.pnt);
-		    if (dist > maxDist)
-		     { maxDist = dist;
-		       maxFace = newFace;
-		     }
-		    if (maxDist > 1000*tolerance)
-		     { break;
-		     }
-		  }
-	       }
-	      if (maxFace != null)
-	       { 
-		 addPointToFace (vtx, maxFace);
- 		 if (debug && vtx.index == findIndex)
- 		  { System.out.println (findIndex + " CLAIMED BY " +
- 		     maxFace.getVertexString()); 
- 		  }
-	       }
-	      else
-	       { if (debug && vtx.index == findIndex)
-		  { System.out.println (findIndex + " DISCARDED"); 
-		  } 
-	       }
-	    }
-	 }
+  protected void resolveUnclaimedPoints(FaceList _newFaces) {
+    Vertex vtxNext = unclaimed.first();
+    for(Vertex vtx = vtxNext; vtx != null; vtx = vtxNext) {
+      vtxNext = vtx.next;
 
-	protected void deleteFacePoints (Face face, Face absorbingFace)
-	 {
-	   Vertex faceVtxs = removeAllPointsFromFace (face);
-	   if (faceVtxs != null)
-	    { 
-	      if (absorbingFace == null)
-	       { unclaimed.addAll (faceVtxs);
-	       }
-	      else
-	       { Vertex vtxNext = faceVtxs;
-		 for (Vertex vtx=vtxNext; vtx!=null; vtx=vtxNext)
-		  { vtxNext = vtx.next;
-		    double dist = absorbingFace.distanceToPlane (vtx.pnt);
-		    if (dist > tolerance)
-		     { 
-		       addPointToFace (vtx, absorbingFace);
-		     }
-		    else
-		     { 
-		       unclaimed.add (vtx);
-		     }
-		  }
-	       }
-	    }
-	 }
+      double maxDist = tolerance;
+      Face maxFace = null;
+      for(Face newFace = _newFaces.first(); newFace != null; newFace = newFace.next) {
+        if(newFace.mark == Face.VISIBLE) {
+          double dist = newFace.distanceToPlane(vtx.pnt);
+          if(dist > maxDist) {
+            maxDist = dist;
+            maxFace = newFace;
+          }
+          if(maxDist > 1000 * tolerance) {
+            break;
+          }
+        }
+      }
+      if(maxFace != null) {
+        addPointToFace(vtx, maxFace);
+        if(debug && vtx.index == findIndex) {
+          System.out.println(findIndex + " CLAIMED BY "
+              + maxFace.getVertexString());
+        }
+      } else {
+        if(debug && vtx.index == findIndex) {
+          System.out.println(findIndex + " DISCARDED");
+        }
+      }
+    }
+  }
+
+  protected void deleteFacePoints(Face face, Face absorbingFace) {
+    Vertex faceVtxs = removeAllPointsFromFace(face);
+    if(faceVtxs != null) {
+      if(absorbingFace == null) {
+        unclaimed.addAll(faceVtxs);
+      } else {
+        Vertex vtxNext = faceVtxs;
+        for(Vertex vtx = vtxNext; vtx != null; vtx = vtxNext) {
+          vtxNext = vtx.next;
+          double dist = absorbingFace.distanceToPlane(vtx.pnt);
+          if(dist > tolerance) {
+            addPointToFace(vtx, absorbingFace);
+          } else {
+            unclaimed.add(vtx);
+          }
+        }
+      }
+    }
+  }
 
 	private static final int NONCONVEX_WRT_LARGER_FACE = 1;
 	private static final int NONCONVEX = 2;
 
-	protected double oppFaceDistance (HalfEdge he)
-	 {
-	   return he.face.distanceToPlane (he.opposite.face.getCentroid());
-	 }
+  protected double oppFaceDistance(HalfEdge he) {
+    return he.face.distanceToPlane(he.opposite.face.getCentroid());
+  }
 
-	private boolean doAdjacentMerge (Face face, int mergeType)
-	 {
-	   HalfEdge hedge = face.he0;
+  private boolean doAdjacentMerge(Face face, int mergeType) {
+    HalfEdge hedge = face.he0;
 
-	   boolean convex = true;
-	   do
-	    { Face oppFace = hedge.oppositeFace();
-	      boolean merge = false;
-	      double dist1, dist2;
+    boolean convex = true;
+    do {
+      Face oppFace = hedge.oppositeFace();
+      boolean merge = false;
 
-	      if (mergeType == NONCONVEX)
-	       { // then merge faces if they are definitively non-convex
-		 if (oppFaceDistance (hedge) > -tolerance ||
-		     oppFaceDistance (hedge.opposite) > -tolerance)
-		  { merge = true;
-		  }
-	       }
-	      else // mergeType == NONCONVEX_WRT_LARGER_FACE
-	       { // merge faces if they are parallel or non-convex
-		 // wrt to the larger face; otherwise, just mark
-		 // the face non-convex for the second pass.
-		 if (face.area > oppFace.area)
-		  { if ((dist1 = oppFaceDistance (hedge)) > -tolerance) 
-		     { merge = true;
-		     }
-		    else if (oppFaceDistance (hedge.opposite) > -tolerance)
-		     { convex = false;
-		     }
-		  }
-		 else
-		  { if (oppFaceDistance (hedge.opposite) > -tolerance)
-		     { merge = true;
-		     }
-		    else if (oppFaceDistance (hedge) > -tolerance) 
-		     { convex = false;
-		     }
-		  }
-	       }
+      // merge faces if they are definitively non-convex
+      if(mergeType == NONCONVEX) {
+        if(oppFaceDistance(hedge) > -tolerance
+        || oppFaceDistance(hedge.opposite) > -tolerance) {
+          merge = true;
+        }
+      } else {
+        // mergeType == NONCONVEX_WRT_LARGER_FACE
+        // merge faces if they are parallel or non-convex
+        // wrt to the larger face; otherwise, just mark
+        // the face non-convex for the second pass.
+        if(face.area > oppFace.area) {
+          if(oppFaceDistance(hedge) > -tolerance) {
+            merge = true;
+          } else if(oppFaceDistance(hedge.opposite) > -tolerance) {
+            convex = false;
+          }
+        } else {
+          if(oppFaceDistance(hedge.opposite) > -tolerance) {
+            merge = true;
+          } else if(oppFaceDistance(hedge) > -tolerance) {
+            convex = false;
+          }
+        }
+      }
 
-	      if (merge)
-	       { if (debug)
-		  { System.out.println (
-		    "  merging " + face.getVertexString() + "  and  " +
-		    oppFace.getVertexString());
-		  }
+      if(merge) {
+        if(debug) {
+          System.out.println("  merging " + face.getVertexString() + "  and  "
+              + oppFace.getVertexString());
+        }
 
-		 int numd = face.mergeAdjacentFace (hedge, discardedFaces);
-		 for (int i=0; i<numd; i++)
-		  { deleteFacePoints (discardedFaces[i], face);
-		  }
-		 if (debug)
-		  { System.out.println (
-		       "  result: " + face.getVertexString());
-		  }
-		 return true;
-	       }
-	      hedge = hedge.next;
-	    }
-	   while (hedge != face.he0);
-	   if (!convex)
-	    { face.mark = Face.NON_CONVEX; 
-	    }
-	   return false;
-	 }
+        int numd = face.mergeAdjacentFace(hedge, discardedFaces);
+        for(int i = 0; i < numd; i++) {
+          deleteFacePoints(discardedFaces[i], face);
+        }
+        if(debug) {
+          System.out.println("  result: " + face.getVertexString());
+        }
+        return true;
+      }
+      hedge = hedge.next;
+    } while(hedge != face.he0);
+    if(!convex) {
+      face.mark = Face.NON_CONVEX;
+    }
+    return false;
+  }
 
-	protected void calculateHorizon (
-	   Point3d eyePnt, HalfEdge edge0, Face face, ArrayList<HalfEdge> horizon)
-	 {
-//	   oldFaces.add (face);
-	   deleteFacePoints (face, null);
- 	   face.mark = Face.DELETED;
-	   if (debug)
-	    { System.out.println ("  visiting face " + face.getVertexString());
-	    }
-	   HalfEdge edge;
-	   if (edge0 == null)
-	    { edge0 = face.getEdge(0);
-	      edge = edge0;
-	    }
-	   else
-	    { edge = edge0.getNext();
-	    }
-	   do
-	    { Face oppFace = edge.oppositeFace();
-	      if (oppFace.mark == Face.VISIBLE)
-	       { if (oppFace.distanceToPlane (eyePnt) > tolerance)
-		  { calculateHorizon (eyePnt, edge.getOpposite(),
-				      oppFace, horizon);
-		  }
-		 else
-		  { horizon.add (edge);
-		    if (debug)
-		     { System.out.println ("  adding horizon edge " +
-					   edge.getVertexString());
-		     }
-		  }
-	       }
-	      edge = edge.getNext();
-	    }
-	   while (edge != edge0);
-	 }
+  protected void calculateHorizon(Point3d eyePnt, HalfEdge edge0, Face face, List<HalfEdge> _horizon) {
+    // oldFaces.add (face);
+    deleteFacePoints(face, null);
+    face.mark = Face.DELETED;
+    if(debug) {
+      System.out.println("  visiting face " + face.getVertexString());
+    }
+    HalfEdge edge;
+    if(edge0 == null) {
+      edge0 = face.getEdge(0);
+      edge = edge0;
+    } else {
+      edge = edge0.getNext();
+    }
+    do {
+      Face oppFace = edge.oppositeFace();
+      if(oppFace.mark == Face.VISIBLE) {
+        if(oppFace.distanceToPlane(eyePnt) > tolerance) {
+          calculateHorizon(eyePnt, edge.getOpposite(), oppFace, _horizon);
+        } else {
+          _horizon.add(edge);
+          if(debug) {
+            System.out.println("  adding horizon edge "
+                + edge.getVertexString());
+          }
+        }
+      }
+      edge = edge.getNext();
+    } while(edge != edge0);
+  }
 
-	private HalfEdge addAdjoiningFace (
-	   Vertex eyeVtx, HalfEdge he)
-	 { 
-	   Face face = Face.createTriangle (
-	      eyeVtx, he.tail(), he.head());
-	   faces.add (face);
-	   face.getEdge(-1).setOpposite(he.getOpposite());
-	   return face.getEdge(0);
-	 }
+  private HalfEdge addAdjoiningFace(Vertex eyeVtx, HalfEdge he) {
+    Face face = Face.createTriangle(eyeVtx, he.tail(), he.head());
+    faces.add(face);
+    face.getEdge(-1).setOpposite(he.getOpposite());
+    return face.getEdge(0);
+  }
 
-	protected void addNewFaces (
-	   FaceList newFaces, Vertex eyeVtx, ArrayList<HalfEdge> horizon)
-	 { 
-	   newFaces.clear();
+  protected void addNewFaces(FaceList _newFaces, Vertex eyeVtx, List<HalfEdge> _horizon) {
+    _newFaces.clear();
 
-	   HalfEdge hedgeSidePrev = null;
-	   HalfEdge hedgeSideBegin = null;
+    HalfEdge hedgeSidePrev = null;
+    HalfEdge hedgeSideBegin = null;
 
-	   for (Iterator<HalfEdge> it=horizon.iterator(); it.hasNext(); ) 
-	    { HalfEdge horizonHe = it.next();
-	      HalfEdge hedgeSide = addAdjoiningFace (eyeVtx, horizonHe);
-	      if (debug)
-	       { System.out.println (
-		    "new face: " + hedgeSide.face.getVertexString());
-	       }
-	      if (hedgeSidePrev != null)
-	       { hedgeSide.next.setOpposite (hedgeSidePrev);		 
-	       }
-	      else
-	       { hedgeSideBegin = hedgeSide; 
-	       }
-	      newFaces.add (hedgeSide.getFace());
-	      hedgeSidePrev = hedgeSide;
-	    }
-	   hedgeSideBegin.next.setOpposite (hedgeSidePrev);
-	 }
+    for(Iterator<HalfEdge> it = _horizon.iterator(); it.hasNext();) {
+      HalfEdge horizonHe = it.next();
+      HalfEdge hedgeSide = addAdjoiningFace(eyeVtx, horizonHe);
+      if(debug) {
+        System.out.println("new face: " + hedgeSide.face.getVertexString());
+      }
+      if(hedgeSidePrev != null) {
+        hedgeSide.next.setOpposite(hedgeSidePrev);
+      } else {
+        hedgeSideBegin = hedgeSide;
+      }
+      _newFaces.add(hedgeSide.getFace());
+      hedgeSidePrev = hedgeSide;
+    }
+    hedgeSideBegin.next.setOpposite(hedgeSidePrev);
+  }
 
-	protected Vertex nextPointToAdd()
-	 {
-	   if (!claimed.isEmpty())
-	    { Face eyeFace = claimed.first().face;
-	      Vertex eyeVtx = null;
-	      double maxDist = 0;
-	      for (Vertex vtx=eyeFace.outside;
-		   vtx != null && vtx.face==eyeFace;
-		   vtx = vtx.next)
-	       { double dist = eyeFace.distanceToPlane(vtx.pnt);
-		 if (dist > maxDist)
-		  { maxDist = dist;
-		    eyeVtx = vtx;
-		  }
-	       }
-	      return eyeVtx;
-	    }
-	   else
-	    { return null;
-	    }
-	 }
-	
-	protected void addPointToHull(Vertex eyeVtx)
-	 {
-	     horizon.clear();
-	     unclaimed.clear();
-	      
-	     if (debug)
-	      { System.out.println ("Adding point: " + eyeVtx.index);
-		System.out.println (
-		   " which is " + eyeVtx.face.distanceToPlane(eyeVtx.pnt) +
-		   " above face " + eyeVtx.face.getVertexString());
-	      }
-	     removePointFromFace (eyeVtx, eyeVtx.face);
-	     calculateHorizon (eyeVtx.pnt, null, eyeVtx.face, horizon);
-	     newFaces.clear();
-	     addNewFaces (newFaces, eyeVtx, horizon);
-	     
-	     // first merge pass ... merge faces which are non-convex
-	     // as determined by the larger face
-	     
-	     for (Face face = newFaces.first(); face!=null; face=face.next)
-	      { 
-		if (face.mark == Face.VISIBLE)
-		 { while (doAdjacentMerge(face, NONCONVEX_WRT_LARGER_FACE))
-		      ;
-		 }
-	      }		 
-	     // second merge pass ... merge faces which are non-convex
-	     // wrt either face	     
-	     for (Face face = newFaces.first(); face!=null; face=face.next)
-	      { 
- 		if (face.mark == Face.NON_CONVEX)
-		 { face.mark = Face.VISIBLE;
-		   while (doAdjacentMerge(face, NONCONVEX))
-		      ;
- 		 }
- 	      }	
-	     resolveUnclaimedPoints(newFaces);
-	 }
+  protected Vertex nextPointToAdd() {
+    if(!claimed.isEmpty()) {
+      Face eyeFace = claimed.first().face;
+      Vertex eyeVtx = null;
+      double maxDist = 0;
+      for(Vertex vtx = eyeFace.outside; vtx != null && vtx.face == eyeFace; vtx = vtx.next) {
+        double dist = eyeFace.distanceToPlane(vtx.pnt);
+        if(dist > maxDist) {
+          maxDist = dist;
+          eyeVtx = vtx;
+        }
+      }
+      return eyeVtx;
+    } else {
+      return null;
+    }
+  }
 
-	protected void buildHull ()
-	 {
-	   int cnt = 0;
-	   Vertex eyeVtx;
+  protected void addPointToHull(Vertex eyeVtx) {
+    horizon.clear();
+    unclaimed.clear();
 
-	   computeMaxAndMin ();
-	   createInitialSimplex ();
-	   while ((eyeVtx = nextPointToAdd()) != null)
-	    { addPointToHull (eyeVtx);
-	      cnt++;
-	      if (debug)
-	       { System.out.println ("iteration " + cnt + " done"); 
-	       }
-	    }
-	   reindexFacesAndVertices();
-	   if (debug)
-	    { System.out.println ("hull done");
-	    }
-	 }
+    if(debug) {
+      System.out.println("Adding point: " + eyeVtx.index);
+      System.out.println(" which is " + eyeVtx.face.distanceToPlane(eyeVtx.pnt)
+          + " above face " + eyeVtx.face.getVertexString());
+    }
+    removePointFromFace(eyeVtx, eyeVtx.face);
+    calculateHorizon(eyeVtx.pnt, null, eyeVtx.face, horizon);
+    newFaces.clear();
+    addNewFaces(newFaces, eyeVtx, horizon);
 
-	private void markFaceVertices (Face face, int mark)
-	 {
-	   HalfEdge he0 = face.getFirstEdge();
-	   HalfEdge he = he0;
-	   do
-	    { he.head().index = mark;
-	      he = he.next;
-	    }
-	   while (he != he0);
-	 }
+    // first merge pass ... merge faces which are non-convex
+    // as determined by the larger face
 
-	protected void reindexFacesAndVertices()
-	 { 
-	   for (int i=0; i<numPoints; i++)
-	    { pointBuffer[i].index = -1; 
-	    }
-	   // remove inactive faces and mark active vertices
-	   numFaces = 0;
-	   for (Iterator<Face> it=faces.iterator(); it.hasNext(); )
-	    { Face face = it.next();
-	      if (face.mark != Face.VISIBLE)
-	       { it.remove();
-	       }
-	      else
-	       { markFaceVertices (face, 0);
-		 numFaces++;
-	       }
-	    }
-	   // reindex vertices
-	   numVertices = 0;
-	   for (int i=0; i<numPoints; i++)
-	    { Vertex vtx = pointBuffer[i];
-	      if (vtx.index == 0)
-	       { vertexPointIndices[numVertices] = i;
-		 vtx.index = numVertices++;
-	       }
-	    }
-	 }
+    for(Face face = newFaces.first(); face != null; face = face.next) {
+      if(face.mark == Face.VISIBLE) {
+        while(doAdjacentMerge(face, NONCONVEX_WRT_LARGER_FACE));
+      }
+    }
+    // second merge pass ... merge faces which are non-convex
+    // wrt either face
+    for(Face face = newFaces.first(); face != null; face = face.next) {
+      if(face.mark == Face.NON_CONVEX) {
+        face.mark = Face.VISIBLE;
+        while(doAdjacentMerge(face, NONCONVEX));
+      }
+    }
+    resolveUnclaimedPoints(newFaces);
+  }
 
-	protected boolean checkFaceConvexity (
-	   Face face, double tol, PrintStream ps)
-	 {
-	   double dist;
-	   HalfEdge he = face.he0;
-	   do
-	    { face.checkConsistency();
-	      // make sure edge is convex
-	      dist = oppFaceDistance (he);
-	      if (dist > tol)
-	       { if (ps != null)
-		  { ps.println ("Edge " + he.getVertexString() +
-				" non-convex by " + dist);
-		  }
-		 return false;
-	       }
-	      dist = oppFaceDistance (he.opposite);
-	      if (dist > tol)
-	       { if (ps != null)
-		  { ps.println ("Opposite edge " +
-				he.opposite.getVertexString() +
-				" non-convex by " + dist);
-		  }
-		 return false;
-	       }
-	      if (he.next.oppositeFace() == he.oppositeFace())
-	       { if (ps != null)
-		  { ps.println ("Redundant vertex " + he.head().index +
-				" in face " + face.getVertexString());
-		  }
-		 return false;
-	       }
-	      he = he.next;
-	    }
-	   while (he != face.he0);	   
-	   return true;
-	 }
+  protected void buildHull() {
+    int cnt = 0;
+    Vertex eyeVtx;
 
-	protected boolean checkFaces(double tol, PrintStream ps)
-	 { 
-	   // check edge convexity
-	   boolean convex = true;
-	   for (Iterator<Face> it=faces.iterator(); it.hasNext(); ) 
-	    { Face face = it.next();
-	      if (face.mark == Face.VISIBLE)
-	       { if (!checkFaceConvexity (face, tol, ps))
-		  { convex = false;
-		  }
-	       }
-	    }
-	   return convex;
-	 }
+    computeMaxAndMin();
+    createInitialSimplex();
+    while((eyeVtx = nextPointToAdd()) != null) {
+      addPointToHull(eyeVtx);
+      cnt++;
+      if(debug) {
+        System.out.println("iteration " + cnt + " done");
+      }
+    }
+    reindexFacesAndVertices();
+    if(debug) {
+      System.out.println("hull done");
+    }
+  }
+
+  private void markFaceVertices(Face face, int mark) {
+    HalfEdge he0 = face.getFirstEdge();
+    HalfEdge he = he0;
+    do {
+      he.head().index = mark;
+      he = he.next;
+    } while(he != he0);
+  }
+
+  protected void reindexFacesAndVertices() {
+    for(int i = 0; i < numPoints; i++) {
+      pointBuffer[i].index = -1;
+    }
+    // remove inactive faces and mark active vertices
+    numFaces = 0;
+    for(Iterator<Face> it = faces.iterator(); it.hasNext();) {
+      Face face = it.next();
+      if(face.mark != Face.VISIBLE) {
+        it.remove();
+      } else {
+        markFaceVertices(face, 0);
+        numFaces++;
+      }
+    }
+    // reindex vertices
+    numVertices = 0;
+    for(int i = 0; i < numPoints; i++) {
+      Vertex vtx = pointBuffer[i];
+      if(vtx.index == 0) {
+        vertexPointIndices[numVertices] = i;
+        vtx.index = numVertices++;
+      }
+    }
+  }
+
+  protected boolean checkFaceConvexity(Face face, double tol, PrintStream ps) {
+    double dist;
+    HalfEdge he = face.he0;
+    do {
+      face.checkConsistency();
+      // make sure edge is convex
+      dist = oppFaceDistance(he);
+      if(dist > tol) {
+        if(ps != null) {
+          ps.println("Edge " + he.getVertexString() + " non-convex by " + dist);
+        }
+        return false;
+      }
+      dist = oppFaceDistance(he.opposite);
+      if(dist > tol) {
+        if(ps != null) {
+          ps.println("Opposite edge " + he.opposite.getVertexString()
+              + " non-convex by " + dist);
+        }
+        return false;
+      }
+      if(he.next.oppositeFace() == he.oppositeFace()) {
+        if(ps != null) {
+          ps.println("Redundant vertex " + he.head().index + " in face "
+              + face.getVertexString());
+        }
+        return false;
+      }
+      he = he.next;
+    } while(he != face.he0);
+    return true;
+  }
+
+  protected boolean checkFaces(double tol, PrintStream ps) {
+    // check edge convexity
+    boolean convex = true;
+    for(Iterator<Face> it = faces.iterator(); it.hasNext();) {
+      Face face = it.next();
+      if(face.mark == Face.VISIBLE) {
+        if(!checkFaceConvexity(face, tol, ps)) {
+          convex = false;
+        }
+      }
+    }
+    return convex;
+  }
 
 	/**
 	 * Checks the correctness of the hull using the distance tolerance
@@ -1421,38 +1362,31 @@ public class QuickHull3D
 	 * @return true if the hull is valid
 	 * @see QuickHull3D#check(PrintStream)
 	 */
-	public boolean check (PrintStream ps, double tol)
+  public boolean check(PrintStream ps, double tol) {
+    // check to make sure all edges are fully connected
+    // and that the edges are convex
+    double dist;
+    double pointTol = 10 * tol;
 
-	 {
-	   // check to make sure all edges are fully connected
-	   // and that the edges are convex
-	   double dist;
-	   double pointTol = 10*tol;
-
-	   if (!checkFaces(tolerance, ps))
-	    { return false; 
-	    }
-
-	   // check point inclusion
-
-	   for (int i=0; i<numPoints; i++)
-	    { Point3d pnt = pointBuffer[i].pnt;
-	      for (Iterator<Face> it=faces.iterator(); it.hasNext(); ) 
-	       { Face face = it.next();
-		 if (face.mark == Face.VISIBLE)
-		  { 
-		    dist = face.distanceToPlane (pnt);
-		    if (dist > pointTol)
-		     { if (ps != null)
-			{ ps.println (
-			     "Point " + i + " " + dist + " above face " +
-			     face.getVertexString());
-			}
-		       return false;
-		     }
-		  }
-	       }
-	    }
-	   return true;
-	 }
+    if(!checkFaces(tolerance, ps)) {
+      return false;
+    }
+    // check point inclusion
+    for(int i = 0; i < numPoints; i++) {
+      Point3d pnt = pointBuffer[i].pnt;
+      for(Iterator<Face> it = faces.iterator(); it.hasNext();) {
+        Face face = it.next();
+        if(face.mark == Face.VISIBLE) {
+          dist = face.distanceToPlane(pnt);
+          if(dist > pointTol) {
+            if(ps != null) {
+              ps.println("Point " + i + " " + dist + " above face " + face.getVertexString());
+            }
+            return false;
+          }
+        }
+      }
+    }
+    return true;
+  }
 }

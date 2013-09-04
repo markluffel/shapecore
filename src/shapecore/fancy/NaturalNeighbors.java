@@ -1,16 +1,15 @@
 package shapecore.fancy;
 
 
+import static shapecore.Geometry.*;
+import static shapecore.Oplet.*;
+
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import static shapecore.Geometry.*;
-import static shapecore.Oplet.*;
 
 import processing.core.PConstants;
 import shapecore.ConvexHull;
@@ -317,7 +316,7 @@ public class NaturalNeighbors {
   }
 
   // subclass hook?
-  protected void trace(pt invadee, pt L, pt R) {
+  protected void trace(pt invadee, pt L, pt r) {
   }
   
   public void drawVoronoi(Oplet p) {
@@ -397,9 +396,9 @@ public class NaturalNeighbors {
     int numFaces = table.numFaces();
     for(int t = 0; t < numFaces; t++) {
       if(table.inTriangle(pts, t, query)) {
-        float d1 = pts[table.V[t*3+0]].sqDisTo(query);
-        float d2 = pts[table.V[t*3+1]].sqDisTo(query);
-        float d3 = pts[table.V[t*3+2]].sqDisTo(query);
+        float d1 = pts[table.V[t*3+0]].sqdist(query);
+        float d2 = pts[table.V[t*3+1]].sqdist(query);
+        float d3 = pts[table.V[t*3+2]].sqdist(query);
         if(d1 < d2) {
           if(d2 < d3) {
             return t*3+0;
@@ -421,13 +420,13 @@ public class NaturalNeighbors {
 
   static pt intersection(pt invadee, pt invader, pt voronoi1, pt voronoi2) {
     return lineIntersection(
-        A(invader,invadee), R(invader,invadee),
+        average(invader,invadee), R(invader,invadee),
         voronoi1, V(voronoi1,voronoi2));
   }
   
   private pt intersection(pt invadee, pt invader, pt voronoi1, vec edgeNormal) {
     return lineIntersection(
-        A(invader,invadee), R(invader,invadee),
+        average(invader,invadee), R(invader,invadee),
         voronoi1, edgeNormal);
   }
 
@@ -437,7 +436,7 @@ public class NaturalNeighbors {
    */
   boolean tooFarToInvade(int corner, pt invadee, pt query) {
     pt voronoiRegionVertex = dual[corner/3];
-    return invadee.sqDisTo(voronoiRegionVertex) < query.sqDisTo(voronoiRegionVertex); 
+    return invadee.sqdist(voronoiRegionVertex) < query.sqdist(voronoiRegionVertex); 
   }
   
   public static class Neighborhood {

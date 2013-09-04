@@ -199,7 +199,7 @@ public class GreenCoordinates extends Oplet {
     case EDIT_CAGE:
       float minDist = maxCageEditDistance;
       for(pt p : editedCage) {
-        float d = p.disTo(mouse);
+        float d = p.dist(mouse);
         if(d < minDist) {
           dragging = p;
           minDist = d;

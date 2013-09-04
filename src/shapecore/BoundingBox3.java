@@ -1,6 +1,5 @@
 package shapecore;
 
-import static shapecore.Geometry.*;
 import static shapecore.Oplet.*;
 
 public class BoundingBox3 {

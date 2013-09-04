@@ -86,6 +86,18 @@ public class Polygon implements PointSet, EdgeSet {
     }
     return result;
   }
+
+  // TODO: convert to lerp, come up with human names
+  static pt s(pt a, float s, pt b) {
+    return (new pt(a.x + s * (b.x - a.x), a.y + s * (b.y - a.y)));
+  }
+  protected static pt b(pt a, pt b, pt c, float s) {
+    return (s(s(b, s / 4f, a), 0.5f, s(b, s / 4f, c)));
+  }
+  protected static pt f(pt a, pt b, pt c, pt d, float s) {
+    return (s(s(a, 1f + (1f - s) / 8f, b), 0.5f, s(d, 1f + (1f - s) / 8f, c)));
+  }
+
   
   // helpers on top of helpers
   public void translate(vec offset) { PointSets.translate(this, offset); }
@@ -112,10 +124,10 @@ public class Polygon implements PointSet, EdgeSet {
       final pt nextQ = next(qs, i);
       float d = (d(ps[i], nextP) + d(qs[i], nextQ)) / 2;
       
-      s += d * dot(V(thisCenter, A(ps[i], nextP)),
-                 R(V(thatCenter, A(qs[i], nextQ))));
-      c += d * dot(V(thisCenter, A(ps[i], nextP)),
-                   V(thatCenter, A(qs[i], nextQ)));
+      s += d * dot(V(thisCenter, average(ps[i], nextP)),
+                 R(V(thatCenter, average(qs[i], nextQ))));
+      c += d * dot(V(thisCenter, average(ps[i], nextP)),
+                   V(thatCenter, average(qs[i], nextQ)));
     }
     float a = atan2(s, c);
     rotate(-a, thatCenter);
@@ -302,9 +314,20 @@ public class Polygon implements PointSet, EdgeSet {
   }
   
   public pt project(pt q) { return EdgeSetMethods.project(this, q); }
-  public float dist(pt p) { return project(p).disTo(p); }
+  public float dist(pt p) { return project(p).dist(p); }
 
   public pt get(int i) {
     return points.get(i);
+  }
+  
+  public static float arclength(List<pt> pts) {
+    float arcLen = 0;
+    pt prev = pts.get(pts.size()-1);
+    for(int i = 0; i < pts.size(); i++) {
+      pt cur = pts.get(i);
+      arcLen += cur.dist(prev);
+      prev = cur;
+    }
+    return arcLen;
   }
 }

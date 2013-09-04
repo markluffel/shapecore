@@ -25,7 +25,7 @@ public class Frame implements Serializable {
   
   /** Make a frame aligned with the vector between two points, center at the interpolation of the points by t*/
   public static Frame make(pt a, pt b, float t) {
-    return Frame.make(Geometry.L(a, t, b), V(a, b).angle()); // TODO: rename lerp, reorder parameters    
+    return Frame.make(Geometry.lerp(a, b, t), a.to(b).angle());    
   }
   
   public Frame get() {
