@@ -321,6 +321,7 @@ public class Polygon implements PointSet, EdgeSet {
   }
   
   public static float arclength(List<pt> pts) {
+    if(pts.isEmpty()) return 0;
     float arcLen = 0;
     pt prev = pts.get(pts.size()-1);
     for(int i = 0; i < pts.size(); i++) {

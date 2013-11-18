@@ -6,6 +6,8 @@ import static shapecore.Oplet.*;
 import java.util.Arrays;
 import java.util.Collection;
 
+import Jama.Matrix;
+
 import shapecore.interfaces.Ring;
 
 public class Geometry {
@@ -477,5 +479,32 @@ public class Geometry {
 
   public static boolean inTriangle(pt q, pt a, pt b, pt c) {
     return isRightTurn(a,b,q) && isRightTurn(b,c,q) && isRightTurn(c,a,q);
+  }
+  
+  public static float norm(float[] a, float[] b) {
+    float sum = 0;
+    int len = min(a.length, b.length);
+    for(int i = 0; i < len; i++) {
+      sum += sq(a[i]-b[i]);
+    }
+    return sqrt(sum);
+  }
+  
+  public static void printMatrix(Matrix M) {
+    println("[");
+    for(int i = 0; i < M.getRowDimension(); i++) {
+      for(int j = 0; j < M.getColumnDimension(); j++) {
+        print(M.get(i,j)+" ");
+      }
+      println();
+    }
+    println("]");
+  }
+  
+  // TODO: move to a matrix functions class?
+  public static Matrix pseudoinverse(Matrix M) {
+    Matrix Mt = M.transpose();
+    Matrix S = M.times(Mt);
+    return S.inverse().times(Mt); // uses LU decomposition
   }
 }

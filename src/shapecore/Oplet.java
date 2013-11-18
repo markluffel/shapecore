@@ -688,13 +688,13 @@ public class Oplet extends PApplet {
     return d(c, d) / d(a, b);
   }
 
-  public static pt spiralCenter(float a, float z, pt start, pt end) {
-    float c = cos(a), s = sin(a);
-    float D = sq(c * z - 1) + sq(s * z);
-    float ex = c * z * start.x - end.x - s * z * start.y;
-    float ey = c * z * start.y - end.y + s * z * start.x;
-    float x = (ex * (c * z - 1) + ey * s * z) / D;
-    float y = (ey * (c * z - 1) - ex * s * z) / D;
+  public static pt spiralCenter(float angle, float scale, pt start, pt end) {
+    float c = cos(angle), s = sin(angle);
+    float D = sq(c * scale - 1) + sq(s * scale);
+    float ex = c * scale * start.x - end.x - s * scale * start.y;
+    float ey = c * scale * start.y - end.y + s * scale * start.x;
+    float x = (ex * (c * scale - 1) + ey * s * scale) / D;
+    float y = (ey * (c * scale - 1) - ex * s * scale) / D;
     if(Float.isNaN(x) || Float.isNaN(y)) {
       return null;
     } else {
@@ -876,7 +876,7 @@ public class Oplet extends PApplet {
     pts.add(pts.get(0));
     
     // TODO: expose a version that ask for edgelength, since that may be easier to specify
-    float segLen = arclengthOfLoop(pts)/(numPts-1); // minus one because we preserve both endpoints
+    float segLen = Polyline.arclength(pts)/(numPts-1); // minus one because we preserve both endpoints
     
     ArrayList<pt> result = new ArrayList<pt>(numPts);
     result.add(pts.get(0).clone());
@@ -958,15 +958,7 @@ public class Oplet extends PApplet {
   }
   
   public static float arclength(List<pt> pts) {
-    if(pts.isEmpty()) return 0;
-    float arcLen = 0;
-    pt prev = pts.get(0);
-    for(int i = 1; i < pts.size(); i++) {
-      pt cur = pts.get(i);
-      arcLen += cur.dist(prev);
-      prev = cur;
-    }
-    return arcLen;
+    return Polyline.arclength(pts);
   }
   
   public static List<pt> localToGlobal(List<vec> locals, Map<Integer,pt> pinned) {
@@ -1764,6 +1756,10 @@ public class Oplet extends PApplet {
         screenX(p.x,p.y,p.z),
         screenY(p.x,p.y,p.z)
     );
+  }
+  
+  public void draw(Circle c) {
+    circle(c.center, c.radius);
   }
   
   public void circle(pt center, double radius) {
@@ -3255,6 +3251,14 @@ public class Oplet extends PApplet {
 
   public static vec3 column(Matrix m, int i) {
     return V(m.get(0,i),m.get(1,i),m.get(2,i));
+  }
+  
+  public static float[] columnAsArray(Matrix m, int j) {
+    float[] vals = new float[m.getRowDimension()];
+    for(int i = 0; i < vals.length; i++) {
+      vals[i] = (float) m.get(i,j);
+    }
+    return vals;
   }
   
   public static PMatrix3D PMatrix3D(Matrix m) {

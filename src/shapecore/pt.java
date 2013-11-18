@@ -51,6 +51,10 @@ public class pt implements Ring<pt>, Serializable {
     x = A[0];
     y = A[1];
   }
+  
+  public float[] toArray() {
+    return new float[] {x,y};
+  }
 
   public static pt random(Oplet p) {
     return new pt(p.random(p.width), p.random(p.height));
@@ -182,7 +186,7 @@ public class pt implements Ring<pt>, Serializable {
     x += s * P.x;
     y += s * P.y;
     return this;
-  } // incorrect notation, but useful for computing weighted averages
+  }
 
   public pt rotateBy(float a) {
     float dx = x, dy = y, c = (float) Math.cos(a), s = (float) Math.sin(a);

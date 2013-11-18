@@ -17,6 +17,7 @@ public class Rigid extends Field implements PointAnimator, PointPairAnimator {
 
   pt srcCenter, dstCenter;
   float angle;
+  
   Rigid(pt srcCenter, pt dstCenter, float angle) {
     this.srcCenter = srcCenter;
     this.dstCenter = dstCenter;
@@ -28,7 +29,6 @@ public class Rigid extends Field implements PointAnimator, PointPairAnimator {
     return new Trajectory(p);
   }
   
-  // TODO: fixed point motion
   public pt apply(pt p, float t) {
     vec v = V(srcCenter, p);
     pt c = lerp(srcCenter, dstCenter, t);
@@ -105,5 +105,9 @@ public class Rigid extends Field implements PointAnimator, PointPairAnimator {
     public pt at(float t) {
       return apply(p, t);
     }    
+  }
+
+  public Spiral getSpiral() {
+    return new Spiral(srcCenter, dstCenter, angle, 1);
   }
 }

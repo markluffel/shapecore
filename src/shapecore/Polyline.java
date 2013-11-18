@@ -3,6 +3,7 @@ package shapecore;
 import static shapecore.Geometry.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import shapecore.impl.EdgeSetMethods;
@@ -72,45 +73,21 @@ public class Polyline implements PointSet, EdgeSet {
   }
   
   public static void smooth(List<? extends pt> pts, float t) {
-    // FIXME: this needs to be optimized in all kinds of ways
+    if(pts.size() < 3) return;
     t /= 2;
     int endex = pts.size()-1;
-    List<vec> change = new ArrayList<vec>();
-    change.add(new vec(0,0));
+    pt a = pts.get(0), b = pts.get(1), c = pts.get(2);
+    vec laplace = new vec(0,0); 
     for(int i = 1; i < endex; i++) {
-      pt
-      A = pts.get(i-1),
-      B = pts.get(i),
-      C = pts.get(i+1);
-      change.add(S(t, S(B.to(A), B.to(C))));
-    }
-    change.add(new vec(0,0));
-    
-    for(int i = 0; i < pts.size(); i++) {
-      pts.get(i).add(change.get(i));
+      vec ba = b.to(a), bc = b.to(c);
+      a.add(laplace);
+      laplace.set(ba.add(bc).scaleBy(t));
+      a = b; b = c; c = pts.get(i+1); // shuffle over
     }
   }
   
   public static void smooth(pt[] pts, float t) {
-    // this needs to be optimized in all kinds of ways
-    if(pts.length < 3) return;
-    t /= 2;
-    int endex = pts.length-1;
-    ArrayList<vec> change = new ArrayList<vec>();
-    change.add(new vec(0,0));
-    for(int i = 1; i < endex; i++) {
-      pt
-      A = pts[i-1],
-      B = pts[i],
-      C = pts[i+1];
-      vec BA = V(B,A), BC = V(B,C);
-      change.add(S(t, S(BA, BC)));
-    }
-    change.add(new vec(0,0));
-    
-    for(int i = 0; i < pts.length; i++) {
-      pts[i].add(change.get(i));
-    }
+    smooth(Arrays.asList(pts), t);
   }
   
   /**
@@ -184,5 +161,18 @@ public class Polyline implements PointSet, EdgeSet {
       prev = cur;
     }
     return arcLen;
+  }
+  
+  public static float[] arclengths(List<pt> pts) {
+    float[] result = new float[pts.size()];
+    float sum = 0;
+    pt prev = pts.get(0);
+    for(int i = 1; i < pts.size(); i++) {
+      pt cur = pts.get(i);
+      sum += prev.to(cur).norm();
+      result[i] = sum;
+      prev = cur;
+    }
+    return result;
   }
 }

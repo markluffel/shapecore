@@ -247,8 +247,10 @@ public class PointSets {
     try {
       List<pt> cloned;
       try {
+        // try to reuse the same container type
         cloned = items.getClass().newInstance();
       } catch (InstantiationException e) {
+        // but if we can't reconstruct one, just use an ArrayList
         cloned = new ArrayList<pt>();
       }
       for(pt p : items) {
