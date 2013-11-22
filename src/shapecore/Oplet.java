@@ -671,6 +671,10 @@ public class Oplet extends PApplet {
         center.y + z * Ry
     );
   }
+  
+  public static vec spiralVec(vec v, pt center, float scale, float angle, float t) {
+    return v.get().rotateBy(angle*t).scaleBy(pow(scale, t));
+  }
 
   public static pt spiralCenter(pt a, pt b, pt c, pt d) { 
     // computes center of spiral that
@@ -781,21 +785,23 @@ public class Oplet extends PApplet {
   }
 
   
-  public static pt centerE(pt[] p, boolean closed) {
-    int n = p.length;
-    pt g = P();
-    float D = 0;
+  public static pt centerE(List<pt> p, boolean closed) {
+    int n = p.size();
+    pt result = P();
+    float perimeter = 0;
     for (int i = 0; i < n - 1; i++) {
-      float d = p[i].dist(p[i + 1]);
-      D += d;
-      g.addPt(S(d, average(p[i], p[i + 1])));
+      pt a = p.get(i), b = p.get(i+1);
+      float edgeLength = a.dist(b);
+      perimeter += edgeLength;
+      result.addScaledPt(edgeLength, average(a,b));
     }
-    if (closed) {
-      float d = p[n - 1].dist(p[0]);
-      D += d;
-      g.addPt(S(d, average(p[n - 1], p[0])));
+    if(closed) {
+      pt a = p.get(n-1), b = p.get(0);
+      float d = a.dist(b);
+      perimeter += d;
+      result.addScaledPt(d, average(a,b));
     }
-    return S(1f / D, g);
+    return result.scaleBy(1/perimeter);
   }
 
   public static void spiral(pt[] p, pt g, float s, float a, float t) {

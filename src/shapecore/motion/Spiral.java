@@ -99,6 +99,10 @@ public class Spiral extends Field implements PointAnimator, PointPairAnimator {
     return spiralPt(p, center, scale, angle, t);
   }
   
+  public vec apply(vec v, float t) {
+    return spiralVec(v, center, scale, angle, t);
+  }
+  
   public pt apply(pt pStart, pt pEnd, float t) { // ignore the end
     return spiralPt(pStart, center, scale, angle, t);
   }
@@ -142,7 +146,7 @@ public class Spiral extends Field implements PointAnimator, PointPairAnimator {
 
   
   public static enum Centering {
-    POINT_CLOUD, CONVEX_CENTROID
+    POINT_CLOUD, POLYGON_EDGES, CONVEX_CENTROID
   }
   
   public static Spiral.Trajectory registering(pt[] P, pt[] Q) {
@@ -168,10 +172,13 @@ public class Spiral extends Field implements PointAnimator, PointPairAnimator {
       pCenter = centerV(P);
       qCenter = centerV(Q);
       break;
+    case POLYGON_EDGES:
+      pCenter = centerE(P, true);
+      qCenter = centerE(Q, true);
     case CONVEX_CENTROID:
       pCenter = convexCentroid(P);
       qCenter = convexCentroid(Q);
-      break; 
+      break;
     }
     
     float s = 0, c = 0;

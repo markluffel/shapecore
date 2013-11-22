@@ -189,15 +189,14 @@ public class pt implements Ring<pt>, Serializable {
   }
 
   public pt rotateBy(float a) {
-    float dx = x, dy = y, c = (float) Math.cos(a), s = (float) Math.sin(a);
+    float dx = x, dy = y, c = cos(a), s = sin(a);
     x = c * dx - s * dy;
     y = s * dx + c * dy;
     return this;
   } // around origin
 
   public pt rotateBy(float a, pt P) {
-    float dx = x - P.x, dy = y - P.y, c = (float) Math.cos(a), s = (float) Math
-        .sin(a);
+    float dx = x - P.x, dy = y - P.y, c = cos(a), s = sin(a);
     x = P.x + c * dx - s * dy;
     y = P.y + s * dx + c * dy;
     return this;

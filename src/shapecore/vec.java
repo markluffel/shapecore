@@ -178,8 +178,9 @@ public class vec implements Vector<vec>, Serializable {
 
   public vec rotateBy(float a) {
     float xx = x, yy = y;
-    x = (float)(xx * Math.cos(a) - yy * Math.sin(a));
-    y = (float)(xx * Math.sin(a) + yy * Math.cos(a));
+    float ca = cos(a), sa = sin(a);
+    x = (float)(xx * ca - yy * sa);
+    y = (float)(xx * sa + yy * ca);
     return this;
   }
 

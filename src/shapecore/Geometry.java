@@ -290,9 +290,9 @@ public class Geometry {
     return v;
   }
   
+  @Deprecated
   public static vec R(vec u, float a) {
-    float c = cos(a), s = sin(a);
-    return V(c * u.x - s * u.y, s * u.x + c * u.y);
+    return u.get().rotateBy(a);
   } // U rotated by a
 
   public static vec R(vec u, float t, vec v) {
