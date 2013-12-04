@@ -60,22 +60,23 @@ public class pt implements Ring<pt>, Serializable {
     return new pt(p.random(p.width), p.random(p.height));
   }
 
-  // MODIFY
-  public void setTo(float px, float py) {
-    x = px;
-    y = py;
-  }
-
+  @Deprecated
   public void setTo(double px, double py) {
     x = (float) px;
     y = (float) py;
   }
 
+  @Deprecated
   public void setTo(pt P) {
     x = P.x;
     y = P.y;
   }
 
+  public void set(double px, double py) {
+    x = (float) px;
+    y = (float) py;
+  }
+  
   public void set(pt p) {
     x = p.x;
     y = p.y;
@@ -321,8 +322,9 @@ public class pt implements Ring<pt>, Serializable {
   }
 
   public void transform(Affinity aff) {
-    this.setTo(aff.O.x + x * aff.I.x + y * aff.J.x, aff.O.y + x * aff.I.y + y
-        * aff.J.y);
+    this.set(
+      aff.O.x + x * aff.I.x + y * aff.J.x,
+      aff.O.y + x * aff.I.y + y * aff.J.y);
   }
 
   public void localP(pt O, vec I, vec J) {

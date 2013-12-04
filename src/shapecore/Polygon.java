@@ -112,8 +112,8 @@ public class Polygon implements PointSet, EdgeSet {
     pt[] ps = this.getPointsArray(); // FIXME: replace with lists
     pt[] qs = that.getPointsArray();
     
-    pt thisCenter = centerE(ps, false);
-    pt thatCenter = centerE(qs, false);
+    pt thisCenter = centerE(this.points, false);
+    pt thatCenter = centerE(that.points, false);
     
     translate(V(thisCenter, thatCenter));
     
@@ -263,8 +263,8 @@ public class Polygon implements PointSet, EdgeSet {
     return result;
   }
 
-  public boolean contains(pt mouse) {
-    return interiorTest().contains(mouse.x, mouse.y);
+  public boolean contains(pt query) {
+    return interiorTest().contains(query.x, query.y);
   }
   
   public boolean overlaps(Polygon that) {
@@ -283,9 +283,11 @@ public class Polygon implements PointSet, EdgeSet {
   public List<Edge> getEdges() {
     return edges(points);
   }
+  
   public static List<Edge> edges(pt[] pts) {
     return edges(Arrays.asList(pts));
   }
+  
   public static List<Edge> edges(List<pt> pts) {
     List<Edge> result = new ArrayList<Edge>();
     for(int pi = pts.size()-1, i = 0; i < pts.size(); pi = i, i++) {
@@ -300,6 +302,10 @@ public class Polygon implements PointSet, EdgeSet {
       result.add(e.dir().angle());
     }
     return result;
+  }
+  
+  public static boolean contains(List<pt> pts, pt query) {
+    return new InteriorTest(toPackedArray(pts)).contains(query.x, query.y);
   }
   
   @Deprecated // TODO: optimize this, write tests for it 

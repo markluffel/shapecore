@@ -137,5 +137,10 @@ public class BoundingBox {
   public void setNull() {
     minX = maxX = minY = maxY = 0;
   }
+
+  public Affinity to(BoundingBox that) {
+    // TODO: make this more efficient
+    return Affinity.fit(this.asPolygon(), that.asPolygon());
+  }
   
 }

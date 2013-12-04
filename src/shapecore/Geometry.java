@@ -504,7 +504,7 @@ public class Geometry {
   // TODO: move to a matrix functions class?
   public static Matrix pseudoinverse(Matrix M) {
     Matrix Mt = M.transpose();
-    Matrix S = M.times(Mt);
+    Matrix S = Mt.times(M);
     return S.inverse().times(Mt); // uses LU decomposition
   }
 }
