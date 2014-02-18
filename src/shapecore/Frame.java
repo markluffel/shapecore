@@ -8,6 +8,7 @@ import java.io.Serializable;
 // TODO: make a frame with scaling
 public class Frame implements Serializable {
   static final long serialVersionUID = -33l;
+  
   public pt pos = new pt();
   public float angle;
   

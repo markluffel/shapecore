@@ -613,7 +613,7 @@ public class StrokeGraph {
     }
   }
 
-  public static StrokeGraph build(ArrayList<ArrayList<pt>> strokes) {
+  public static StrokeGraph build(List<List<pt>> strokes) {
     StrokeGraphBuilder builder = new StrokeGraphBuilder();
     return builder.build(strokes);
   }

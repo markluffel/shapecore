@@ -1,5 +1,6 @@
 package shapecore;
 
+import static processing.core.PApplet.*;
 import processing.core.PMatrix3D;
 import Jama.Matrix;
 
@@ -7,14 +8,20 @@ public class MatrixUtils {
   
   public static vec3 column(PMatrix3D m, int i) {
     switch(i) {
-    case 0: return Geometry.V(m.m00, m.m10, m.m20);
-    case 1: return Geometry.V(m.m01, m.m11, m.m21);
-    case 2: return Geometry.V(m.m02, m.m12, m.m22);
-    case 3: return Geometry.V(m.m03, m.m13, m.m23);
+    case 0: return new vec3(m.m00, m.m10, m.m20);
+    case 1: return new vec3(m.m01, m.m11, m.m21);
+    case 2: return new vec3(m.m02, m.m12, m.m22);
+    case 3: return new vec3(m.m03, m.m13, m.m23);
     default: throw new IllegalArgumentException();
     }    
   }
   
+  public static Matrix rotation2D(float angle) {
+    Matrix R = new Matrix(2,2);
+    R.set(0,0, Math.cos(angle)); R.set(0,1, -Math.sin(angle));
+    R.set(1,0, Math.sin(angle)); R.set(1,1,  Math.cos(angle));
+    return R;
+  }
   // TODO: check if the PMatrix3D is doing exactly the same thing
   public static PMatrix3D getRotationP(vec3 axis, float angle) {
     // TODO: expand this out to make it more efficient
@@ -115,5 +122,24 @@ public class MatrixUtils {
   /** Make non-homogeneous column vector (3x1) */
   public static Matrix toMatrix(vec3 v) {
     return new Matrix(new double[][] { {v.x}, {v.y}, {v.z}});
+  }
+  
+
+  public static void printMatrix(Matrix M) {
+    println("[");
+    for(int i = 0; i < M.getRowDimension(); i++) {
+      for(int j = 0; j < M.getColumnDimension(); j++) {
+        print(M.get(i,j)+" ");
+      }
+      println();
+    }
+    println("]");
+  }
+  
+  public static Matrix pseudoinverse(Matrix M) {
+    Matrix Mt = M.transpose();
+    Matrix S = Mt.times(M);
+    // uses LU decomposition if square, QR if non-square
+    return S.inverse().times(Mt);
   }
 }

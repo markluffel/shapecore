@@ -4,6 +4,7 @@ import static shapecore.Geometry.*;
 import static shapecore.Oplet.*;
 
 import java.io.Serializable;
+import java.util.Comparator;
 import java.util.List;
 
 import shapecore.interfaces.Ring;
@@ -196,12 +197,12 @@ public class pt implements Ring<pt>, Serializable {
     return this;
   } // around origin
 
-  public pt rotateBy(float a, pt P) {
-    float dx = x - P.x, dy = y - P.y, c = cos(a), s = sin(a);
-    x = P.x + c * dx - s * dy;
-    y = P.y + s * dx + c * dy;
+  public pt rotateBy(float angle, pt center) {
+    float dx = x - center.x, dy = y - center.y, c = cos(angle), s = sin(angle);
+    x = center.x + c * dx - s * dy;
+    y = center.y + s * dx + c * dy;
     return this;
-  } // around point startCurve
+  }
 
   public pt rotateBy(float s, float t, pt P) {
     float dx = x - P.x, dy = y - P.y;
@@ -240,8 +241,8 @@ public class pt implements Ring<pt>, Serializable {
     return r;
   }
 
-  public float dist(pt P) {
-    return (float) Math.sqrt(sq(P.x - x) + sq(P.y - y));
+  public float dist(pt p) {
+    return (float) Math.sqrt(sq(p.x - x) + sq(p.y - y));
   }
 
   public float dist(float px, float py) {
@@ -321,10 +322,11 @@ public class pt implements Ring<pt>, Serializable {
     this.setTo(O.x + x * I.x + y * J.x, O.y + x * I.y + y * J.y);
   }
 
-  public void transform(Affinity aff) {
+  public pt transform(Affinity aff) {
     this.set(
       aff.O.x + x * aff.I.x + y * aff.J.x,
       aff.O.y + x * aff.I.y + y * aff.J.y);
+    return this;
   }
 
   public void localP(pt O, vec I, vec J) {
@@ -346,4 +348,11 @@ public class pt implements Ring<pt>, Serializable {
   }
   
   public static pt average(List<pt> pts) { return Geometry.average(new pt(), pts); }
+  
+  public static XComparator xComparator = new XComparator();
+  public static class XComparator implements Comparator<pt> {
+    public int compare(pt a, pt b) {
+      return Float.compare(a.x, b.x);
+    }
+  }
 }

@@ -9,7 +9,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import Jama.Matrix;
+import Jama.SingularValueDecomposition;
+
 import shapecore.interfaces.PointSet;
+import shapecore.motion.Rigid;
 
 
 
@@ -111,8 +115,8 @@ public class PointSets {
   }
   
   public static void registerVolumeTo(List<pt> src, List<pt> dst) {
-    pt thisCentroid = centroid(src);
-    pt thatCentroid = centroid(dst);
+    pt thisCentroid = centroidOfPolygon(src);
+    pt thatCentroid = centroidOfPolygon(dst);
     // this could be made more efficient by unrolling the area computing loops above into the below
     float s = 0, c = 0;
     int min = min(src.size(), dst.size());
@@ -260,5 +264,46 @@ public class PointSets {
     } catch (IllegalAccessException e) {
       throw new IllegalStateException(e);
     }
+  }
+
+  public static void transform(pt[] pts, Rigid xform, float t) {
+    for(pt p : pts) {
+      p.set(xform.apply(p, t));
+    }
+  }
+
+  public static OrientedBoundingBox calcBoundsSvdVertices(List<pt> points) {
+    pt c = centroidOfPolygon(points);
+    Matrix m = new Matrix(2, points.size());
+    for(int i = 0; i < points.size(); i++) {
+      pt p = points.get(i);
+      m.set(0, i, p.x-c.x);
+      m.set(1, i, p.y-c.y);
+    }
+    
+    SingularValueDecomposition svd = m.svd();
+    Matrix U_ = svd.getU();
+    Matrix V_ = svd.getV();
+    //println("v U: "+U_.getRowDimension()+" "+U_.getColumnDimension());
+    //println("v S: "+svd.getSingularValues().length);
+    //println("v V: "+V_.getRowDimension()+" "+V_.getColumnDimension());
+    return new OrientedBoundingBox(V(U_.get(0,0),U_.get(1,0)), points);
+  }
+  
+  public static OrientedBoundingBox calcBoundsSvdEdges(List<pt> points) {
+    Matrix m = new Matrix(2, points.size());
+    for(int li = points.size()-1, ri = 0; ri < points.size(); li = ri, ri++) {
+      pt l = points.get(li), r = points.get(ri);
+      m.set(0, ri, l.x-r.x);
+      m.set(1, ri, l.y-r.y);
+    }
+    //pt c = centroid(pts);
+    SingularValueDecomposition svd = m.svd();
+    Matrix U_ = svd.getU();
+    Matrix V_ = svd.getV();
+    //println("e U: "+U_.getRowDimension()+" "+U_.getColumnDimension());
+    //println("e S: "+svd.getSingularValues().length);
+    //println("e V: "+V_.getRowDimension()+" "+V_.getColumnDimension());
+    return new OrientedBoundingBox(V(U_.get(0,0),U_.get(1,0)), points);
   }
 }

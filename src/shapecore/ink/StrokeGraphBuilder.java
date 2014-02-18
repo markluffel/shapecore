@@ -20,7 +20,7 @@ public class StrokeGraphBuilder {
   int numIntersections = 0;
   public float endExtension = 3;
   
-  public StrokeGraph build(ArrayList<ArrayList<pt>> strokes) {
+  public StrokeGraph build(List<List<pt>> strokes) {
     graph = new StrokeGraph();
     numIntersections = 0;
     
@@ -39,7 +39,7 @@ public class StrokeGraphBuilder {
     
     // first index is one of the involved strokes
     // second index is not meaningful
-    ArrayList<ArrayList<Intersection>> intersections = new ArrayList<ArrayList<Intersection>>();
+    List<List<Intersection>> intersections = new ArrayList<List<Intersection>>();
     BoundingBox[] bounds = new BoundingBox[strokes.size()];
     for(int i = 0; i < strokes.size(); i++) {
       intersections.add(new ArrayList<Intersection>());
@@ -80,7 +80,7 @@ public class StrokeGraphBuilder {
     
     // splitting loop
     for(int i = 0; i < strokes.size(); i++) {
-      ArrayList<Intersection> intrs = intersections.get(i);
+      List<Intersection> intrs = intersections.get(i);
       final int index = i;
       Collections.sort(intrs, new Comparator<Intersection>() {
         public int compare(Intersection a, Intersection b) {
@@ -104,7 +104,7 @@ public class StrokeGraphBuilder {
         }
       });
       int firstHalfEdgeAlongStroke = graph.halfedges.size();
-      ArrayList<pt> stroke = strokes.get(i);
+      List<pt> stroke = strokes.get(i);
       int fromIndex = 0;
       Intersection prevIntersection = null;
       for(int j = 0; j < intrs.size(); j++) {

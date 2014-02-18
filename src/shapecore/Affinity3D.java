@@ -17,13 +17,14 @@ public class Affinity3D {
     O = new pt3(0,0,0);
     I = new vec3(0,0,1);
     J = new vec3(0,1,0);
-    J = new vec3(1,0,0);
+    K = new vec3(1,0,0);
   }
   
-  public Affinity3D(pt3 O, vec3 I, vec3 J) {
+  public Affinity3D(pt3 O, vec3 I, vec3 J, vec3 K) {
     this.O = O;
     this.I = I;
     this.J = J;
+    this.K = K;
   }
   
   public static Affinity3D fit(pt3[] src, pt3[] dst) {
@@ -70,7 +71,7 @@ public class Affinity3D {
     aff.O.setTo(0,0,0);
     aff.I = new vec3(L.get(0, 0), L.get(1, 0), L.get(2, 0));
     aff.J = new vec3(L.get(0, 1), L.get(1, 1), L.get(2, 1));
-    aff.J = new vec3(L.get(0, 2), L.get(1, 2), L.get(2, 2));
+    aff.K = new vec3(L.get(0, 2), L.get(1, 2), L.get(2, 2));
     
     srcCenter = srcCenter.get();
     srcCenter.transform(aff);
@@ -86,5 +87,4 @@ public class Affinity3D {
     */
     return null;
   }
-
 }

@@ -1375,8 +1375,6 @@ public class Oplet extends PApplet {
     };
   }
   
-  
-
   public static float[][] toPackedArray(List<pt> points) {
     float[][] result = new float[points.size()][2];
     for(int i = 0; i < result.length; i++) {
@@ -1416,6 +1414,7 @@ public class Oplet extends PApplet {
     }
   }
   
+  @Deprecated // move this to Geometry
   public static line3 planeIntersection(pt3 onPlane1, vec3 normal1, pt3 onPlane2, vec3 normal2) {
     normal1 = normal1.normalized();
     normal2 = normal2.normalized();
@@ -1426,12 +1425,14 @@ public class Oplet extends PApplet {
     return new line3(start, dir);
   }
   
+  @Deprecated // move this to Geometry
   public static pt3 linePlaneIntersection(pt3 start, vec3 dir, pt3 planeCenter, vec3 normal) {
     normal = normal.normalized();
     float t = V(planeCenter,start).dot(normal) / dir.dot(normal);
     return T(start, -t, dir);
   }
   
+  @Deprecated // move this to Geometry
   public static pt3 rayPlaneIntersection(Ray3 ray, Plane plane) {
     vec3 normal = plane.normal.normalized();
     float t = V(plane.center,ray.start).dot(normal) / ray.dir.dot(normal);
@@ -1573,7 +1574,7 @@ public class Oplet extends PApplet {
     rect(bb.minX, bb.minY, bb.width(), bb.height());
   }
   
-  public static float sgn(float x) {
+  public static float sgn(double x) {
     if(x < 0) return -1;
     if(x > 0) return 1;
     return 0;
@@ -2009,14 +2010,14 @@ public class Oplet extends PApplet {
   }
   
   public static pt centroid(pt[] pts) {
-    return centroid(Arrays.asList(pts));
+    return centroidOfPolygon(Arrays.asList(pts));
   }
 
   public static pt3 centroid(pt3[] pts) {
     return centroid3(Arrays.asList(pts));
   }
   
-  public static pt centroid(List<pt> pts) {
+  public static pt centroidOfPolygon(List<pt> pts) {
     if(pts.size() < 3) return centerV(pts); // for a line or point 
     pt result = new pt(0,0);
     float area = 0;
@@ -2029,6 +2030,22 @@ public class Oplet extends PApplet {
     }
     result.scaleBy(1/(3*area));
     return result;
+  }
+  
+  public static pt centroidOfPolyline(List<pt> pts) {
+    pt c = new pt(0,0);
+    float lenSum = 0;
+    for(int i = 1; i < pts.size(); i++) {
+      pt p = pts.get(i-1), q = pts.get(i);
+      float len = dist(p,q);
+      c.x += (p.x+q.x)*len;
+      c.y += (p.y+q.y)*len;
+      lenSum += len;
+    }
+    lenSum *= 2;
+    c.x /= lenSum;
+    c.y /= lenSum;
+    return c;
   }
   
   // HUH???
@@ -2055,7 +2072,7 @@ public class Oplet extends PApplet {
   }
   
   public static float moment(List<pt> boundary) {
-    return moment(centroid(boundary),boundary);
+    return moment(centroidOfPolygon(boundary),boundary);
   }
   
   // moment of inertia
@@ -2940,7 +2957,8 @@ public class Oplet extends PApplet {
   public static vec local(vec m, vec u, vec v) {
     float d = u.x*v.y-u.y*v.x;
     float x = (m.x*v.y-m.y*v.x)/d;
-    float y = (m.y*u.x-m.x*u.y)/d; return V(x,y);
+    float y = (m.y*u.x-m.x*u.y)/d;
+    return new vec(x,y);
   }
   
   //local cords of M in {U,V}
@@ -2948,7 +2966,7 @@ public class Oplet extends PApplet {
     float d = u.x*v.y-u.y*v.x;
     float x = ((m.x-o.x)*v.y-(m.y-o.y)*v.x)/d;
     float y = ((m.y-o.y)*u.x-(m.x-o.x)*u.y)/d;
-    return P(x,y);
+    return new pt(x,y);
   }
   
   public static Edge E(pt a, pt b) {

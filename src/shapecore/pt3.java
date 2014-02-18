@@ -217,6 +217,12 @@ public final class pt3 implements Ring<pt3> {
         aff.O.z + x*aff.I.z + y*aff.J.z + z*aff.K.z);
   }
 
+  public void transform(Rigid3D rig) {
+    this.setTo(
+        rig.O.x + x*rig.I.x + y*rig.J.x + z*rig.K.x,
+        rig.O.y + x*rig.I.y + y*rig.J.y + z*rig.K.y,
+        rig.O.z + x*rig.I.z + y*rig.J.z + z*rig.K.z);
+  }
   
   // terrible things that you shouldn't do....
 

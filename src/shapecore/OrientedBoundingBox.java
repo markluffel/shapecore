@@ -91,11 +91,11 @@ public class OrientedBoundingBox implements Serializable {
   public pt lowerLeft()  { return T(center, -1, U, -1, V); }
   public pt upperLeft()  { return T(center, -1, U, +1, V); } 
 
-  public float width() {
+  public float majorLength() {
     return U.norm()*2;
   }
 
-  public float height() {
+  public float minorLength() {
     return V.norm()*2;
   }
 
@@ -132,7 +132,7 @@ public class OrientedBoundingBox implements Serializable {
     }
   }
   
-  public float area() { return width()*height(); }
+  public float area() { return majorLength()*minorLength(); }
 
   public OrientedBoundingBox get() {
     OrientedBoundingBox obb = new OrientedBoundingBox();

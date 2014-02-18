@@ -10,4 +10,8 @@ public class Circle  {
     this.center = center;
     this.radius = radius;
   }
+
+  public boolean contains(pt q) {
+    return center.sqdist(q) < radius*radius;
+  }
 }

@@ -224,7 +224,7 @@ public class Polygon implements PointSet, EdgeSet {
   }
   
   public pt centroid() {
-    return Oplet.centroid(points);
+    return Oplet.centroidOfPolygon(points);
   }
   
 

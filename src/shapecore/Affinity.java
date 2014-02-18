@@ -6,6 +6,7 @@ package shapecore;
 import static shapecore.Fitting.*;
 import static shapecore.Geometry.*;
 import static shapecore.Oplet.*;
+import static shapecore.MatrixUtils.*;
 
 import java.util.Arrays;
 import java.util.List;
@@ -71,9 +72,20 @@ public class Affinity {
     return makeAffinity(L, srcCenter, dstCenter);
   }
 
+  public static Affinity makeSimilarity(
+      float xScale, float yScale, float angle,
+      pt srcCenter, pt dstCenter) {
+    Matrix L = new Matrix(2,2);
+    L.set(0,0, xScale);
+    L.set(1,1, yScale);
+    return makeAffinity(
+      L.times(rotation2D(angle)),
+      srcCenter, dstCenter
+    );
+  }
   private static Affinity makeAffinity(Matrix L, pt srcCenter, pt dstCenter) {
     Affinity aff = new Affinity();
-    aff.O.setTo(0,0);
+    aff.O.set(0,0);
     aff.I = new vec(L.get(0, 0), L.get(1, 0));
     aff.J = new vec(L.get(0, 1), L.get(1, 1));
     
@@ -102,5 +114,9 @@ public class Affinity {
       a.local(I),
       a.local(J)
     );
+  }
+  
+  public pt transform(pt p) {
+    return p.transform(this);
   }
 }

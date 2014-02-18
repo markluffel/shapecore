@@ -42,7 +42,9 @@ public class BoundingBox {
     this();
     
     for(pt[] pts : ptsArray) {
-      add(Arrays.asList(pts));
+      for(pt p : pts) {
+        add(p.x, p.y);
+      }
     }
   }
   
@@ -51,11 +53,7 @@ public class BoundingBox {
     
     for(float[][] pts : ptsArray) {
       for(float[] p : pts) {
-        float x = p[0], y = p[1];
-        if(x > maxX) { maxX = x; }
-        if(x < minX) { minX = x; }
-        if(y > maxY) { maxY = y; }
-        if(y < minY) { minY = y; }
+        add(p[0], p[1]);
       }
     }
   }
@@ -124,13 +122,20 @@ public class BoundingBox {
     return new pt((maxX+minX)/2, (maxY+minY)/2);
   }
 
+  public void add(pt p) {
+    add(p.x, p.y);
+  }
+  
+  public void add(float x, float y) {
+    if(x > maxX) { maxX = x; }
+    if(x < minX) { minX = x; }
+    if(y > maxY) { maxY = y; }
+    if(y < minY) { minY = y; }
+  }
+
   public void add(List<pt> points) {
     for(pt p : points) {
-      float x = p.x, y = p.y;
-      if(x > maxX) { maxX = x; }
-      if(x < minX) { minX = x; }
-      if(y > maxY) { maxY = y; }
-      if(y < minY) { minY = y; }
+      add(p.x, p.y);
     }
   }
   
@@ -142,5 +147,12 @@ public class BoundingBox {
     // TODO: make this more efficient
     return Affinity.fit(this.asPolygon(), that.asPolygon());
   }
-  
+
+  public Affinity fitInside(BoundingBox that) {
+    float scale = Math.min(
+      that.width()/this.width(),
+      that.height()/this.height()
+    );
+    return Affinity.makeSimilarity(scale, scale, 0, this.center(), that.center());
+  }
 }

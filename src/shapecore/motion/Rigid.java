@@ -30,15 +30,15 @@ public class Rigid extends Field implements PointAnimator, PointPairAnimator {
   }
   
   public pt apply(pt p, float t) {
-    vec v = V(srcCenter, p);
+    vec v = srcCenter.to(p);
     pt c = lerp(srcCenter, dstCenter, t);
     float a = lerp(0, angle, t);
-    return T(c, R(v, a));
+    return c.add(v.rotateBy(a));
   }
   
   public vec apply(vec v, float t) {
     float a = lerp(0, angle, t);
-    return R(v, a);
+    return v.get().rotateBy(a);
   }
   
   public pt apply(pt pStart, pt pEnd, float time) {

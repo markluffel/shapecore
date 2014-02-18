@@ -49,8 +49,44 @@ public class Polyline implements PointSet, EdgeSet {
     return result;
   }
   
+  public static List<Corner> getCorners(List<pt> pts, int span) {
+    List<Corner> result = new ArrayList<Corner>();
+    int len = pts.size()-span;
+    for(int i = span; i < len; i++) {
+      result.add(new Corner(pts.get(i-span), pts.get(i), pts.get(i+span)));
+    }
+    return result;
+  }
+  
   public pt project(pt q) {
     return EdgeSetMethods.project(this, q);
+  }
+  
+  public static Edge getEdge(PointSet ps, int i) {
+    List<pt> pts = ps.getPoints();
+    return new Edge(pts.get(i), pts.get(i+1));
+  }
+  
+  public static float normalizedArclength(PointSet ps, pt q) {
+    float minSqDist = Float.MAX_VALUE;
+    pt best = q;
+    int bestI = -1;
+    int i = 0;
+    List<pt> pts = ps.getPoints();
+    for(Edge e : getEdges(pts)) {
+      pt p = e.projection(q);
+      float sqdist = p.sqdist(q);
+      if(sqdist < minSqDist) {
+        minSqDist = sqdist;
+        best = p;
+        bestI = i;
+      }
+      i++;
+    }
+    float[] lens = arclengths(pts);
+    Edge e = getEdge(ps, bestI);
+    float arclen = lens[bestI] + e.a.dist(best); // arclength plus portion on this edge
+    return arclen / lens[lens.length-1]; // normalize
   }
   
   public static List<vec> laplacian(List<pt> vecs) {

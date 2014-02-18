@@ -64,6 +64,6 @@ public class LloydRelaxation {
   }
   
   public pt centroid(List<pt> region) {
-    return Oplet.centroid(region);
+    return Oplet.centroidOfPolygon(region);
   }
 }

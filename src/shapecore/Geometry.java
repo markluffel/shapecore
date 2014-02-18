@@ -1,14 +1,14 @@
 package shapecore;
 
 import static processing.core.PApplet.*;
+import static processing.core.PConstants.*;
 import static shapecore.Oplet.*;
 
 import java.util.Arrays;
 import java.util.Collection;
 
-import Jama.Matrix;
-
 import shapecore.interfaces.Ring;
+import Jama.Matrix;
 
 public class Geometry {
 
@@ -312,8 +312,8 @@ public class Geometry {
     return S(c, v, d*(1-c), axis, s, axis.cross(v));
   }
   
-  public static pt3 R(pt3 v, float a, vec3 axis) {
-    vec3 vv = new vec3(v.x,v.y,v.z);
+  public static pt3 R(pt3 p, float a, vec3 axis) {
+    vec3 vv = new vec3(p.x,p.y,p.z);
     vec3 vr = R(vv, a, axis);
     return new pt3(vr.x,vr.y,vr.z);
   }
@@ -350,38 +350,29 @@ public class Geometry {
   }
   
   public static pt projectOnto(pt here, Edge edge) {
-    return projectOnto(here, edge.a, edge.b);
+    return closestPointOnEdge(here, edge.a, edge.b);
   }
 
-
   public static pt3 projectOnto(pt3 here, Edge3 edge) {
-    return projectOnto(here, edge.start, edge.end);
+    return closestPointOnEdge(here, edge.start, edge.end);
   }
   
   public static pt closestPointOnEdge(pt here, pt start, pt end) {
-    vec edge = V(start,end);
-    vec toHere = V(start,here);
+    vec edge = start.to(end);
+    vec toHere = start.to(here);
     float t = dot(toHere, edge) / dot(edge, edge);
     t = constrain(t, 0, 1);
-    return T(start, t, edge);
+    return start.get().add(t, edge);
   }
   
-  public static pt3 projectOnto(pt3 here, pt3 start, pt3 end) {
-    vec3 edge = V(start,end);
-    vec3 toHere = V(start,here);
+  public static pt3 closestPointOnEdge(pt3 here, pt3 start, pt3 end) {
+    vec3 edge = start.to(end);
+    vec3 toHere = start.to(here);
     float t = dot(toHere, edge) / dot(edge, edge);
     t = constrain(t, 0, 1);
-    return T(start, t, edge);
+    return start.get().add(t, edge);
   }
-  
-  public static pt projectOnto(pt here, pt start, pt end) {
-    vec edge = V(start,end);
-    vec toHere = V(start,here);
-    float t = dot(toHere, edge) / dot(edge, edge);
-    t = constrain(t, 0, 1);
-    return T(start, t, edge);
-  }
-  
+    
   public static float closestArcLengthOnLine(pt here, pt start, vec dir) {
     vec toHere = V(start,here);
     return dot(toHere, dir) / dot(dir, dir);
@@ -458,23 +449,31 @@ public class Geometry {
   }
   
   public static float distToEdge(pt here, pt start, pt end) {
-    return d(here, closestPointOnEdge(here, start, end));
+    return sqrt(sqdistToEdge(here, start, end));
   }
   
   public static float sqdistToEdge(pt here, pt start, pt end) {
-    return d2(here, closestPointOnEdge(here, start, end));
+    return here.sqdist(closestPointOnEdge(here, start, end));
+  }
+  
+  public static float distToEdge(pt3 here, pt3 start, pt3 end) {
+    return sqrt(sqdistToEdge(here, start, end));
+  }
+  
+  public static float sqdistToEdge(pt3 here, pt3 start, pt3 end) {
+    return here.sqdist(closestPointOnEdge(here, start, end));
   }
   
   public static boolean isRightTurn(pt a, pt b, pt C) {
-    return dot(R(a, b), V(b, C)) > 0;
+    return dot(R(a, b), b.to(C)) > 0;
   } // right turn (as seen on screen)
 
   public static boolean isRightOf(pt a, pt Q, vec T) {
-    return dot(R(T), V(Q, a)) > 0;
+    return dot(R(T), Q.to(a)) > 0;
   } // A is on right of ray(end,dir) (as seen on screen)
   
   public static boolean isInFrontOf(pt a, pt Q, vec T) {
-    return dot(T, V(Q, a)) > 0;
+    return dot(T, Q.to(a)) > 0;
   } // A is in frontof ray(end,dir)
 
   public static boolean inTriangle(pt q, pt a, pt b, pt c) {
@@ -488,23 +487,5 @@ public class Geometry {
       sum += sq(a[i]-b[i]);
     }
     return sqrt(sum);
-  }
-  
-  public static void printMatrix(Matrix M) {
-    println("[");
-    for(int i = 0; i < M.getRowDimension(); i++) {
-      for(int j = 0; j < M.getColumnDimension(); j++) {
-        print(M.get(i,j)+" ");
-      }
-      println();
-    }
-    println("]");
-  }
-  
-  // TODO: move to a matrix functions class?
-  public static Matrix pseudoinverse(Matrix M) {
-    Matrix Mt = M.transpose();
-    Matrix S = Mt.times(M);
-    return S.inverse().times(Mt); // uses LU decomposition
   }
 }
