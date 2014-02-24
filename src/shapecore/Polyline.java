@@ -30,9 +30,9 @@ public class Polyline implements PointSet, EdgeSet {
     return points.get(i);
   }
   
-  public List<Edge> getEdges() { return getEdges(getPoints()); }
+  public List<Edge> getEdges() { return edges(getPoints()); }
 
-  public static List<Edge> getEdges(List<pt> pts) {
+  public static List<Edge> edges(List<pt> pts) {
     List<Edge> result = new ArrayList<Edge>();
     for(int i = 1; i < pts.size(); i++) {
       result.add(new Edge(pts.get(i-1), pts.get(i)));
@@ -73,7 +73,7 @@ public class Polyline implements PointSet, EdgeSet {
     int bestI = -1;
     int i = 0;
     List<pt> pts = ps.getPoints();
-    for(Edge e : getEdges(pts)) {
+    for(Edge e : edges(pts)) {
       pt p = e.projection(q);
       float sqdist = p.sqdist(q);
       if(sqdist < minSqDist) {

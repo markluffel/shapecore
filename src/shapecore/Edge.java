@@ -3,6 +3,11 @@ package shapecore;
 import static shapecore.Geometry.*;
 import static shapecore.Oplet.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import shapecore.tuple.IntPair;
+
 public class Edge {
   public pt a, b;
   
@@ -66,5 +71,23 @@ public class Edge {
 
   public pt projection(pt q) {
     return closestPointOnEdge(q, a, b);
+  }
+
+  public List<IntPair> rasterize() {
+    List<IntPair> result = new ArrayList<IntPair>();
+    
+    float dx = b.x-a.x, dy = b.y-a.y;  
+    float length = max(abs(dx),abs(dy));
+    if(length == 0) return result; // avoid divide by zero
+    // put increments into range: [-1, 1]
+    float xinc = dx/length, yinc = dy/length;
+    
+    float x = a.x, y = a.y;
+    for(int t = 0; t <= length; t++) {
+      result.add(new IntPair(round(x),round(y)));
+      x += xinc;
+      y += yinc;
+    }
+    return result;
   }
 }
