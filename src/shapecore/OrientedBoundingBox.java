@@ -23,7 +23,7 @@ public class OrientedBoundingBox implements Serializable {
   }
   
   public OrientedBoundingBox(vec u, List<pt> pts) {
-    U = U(u);
+    U = u.get().normalize();
     V = R(U);
     
     float minX = Float.MAX_VALUE;
@@ -49,14 +49,14 @@ public class OrientedBoundingBox implements Serializable {
   }
   
   public boolean contains(float x, float y) {
-    return contains(P(x,y));
+    return contains(new pt(x,y));
   }
   
   public boolean contains(pt p) {
-    vec cp = V(center,p);
-    float x = U.dot(cp);
-    float y = V.dot(cp);
-    return x < U.norm2() && y < V.norm2();
+    vec cp = center.to(p);
+    float x = abs(U.dot(cp));
+    float y = abs(V.dot(cp));
+    return x < U.sqnorm() && y < V.sqnorm();
   }
   
   public OrientedBoundingBox pad(float padding) {

@@ -14,6 +14,10 @@ import shapecore.interfaces.PointSet;
 public class Polyline implements PointSet, EdgeSet {
   List<pt> points = new ArrayList<pt>();
 
+  public Polyline(List<pt> pts) {
+    points = pts;
+  }
+  
   public List<pt> getPoints() {
     return points;
   }
@@ -28,6 +32,10 @@ public class Polyline implements PointSet, EdgeSet {
   
   public pt get(int i) {
     return points.get(i);
+  }
+  
+  public Polyline get() {
+    return new Polyline(PointSets.clonePoints(points));
   }
   
   public List<Edge> getEdges() { return edges(getPoints()); }

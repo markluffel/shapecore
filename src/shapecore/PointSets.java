@@ -51,6 +51,7 @@ public class PointSets {
     registerVolumeTo(src.getPoints(), dst.getPoints());
   }
   
+  @Deprecated // rename this
   public static void center(PointSet ps) {
     translate(ps, V(centerV(ps.getPoints()),new pt()));
   }
@@ -248,22 +249,11 @@ public class PointSets {
   }
   
   public static List<pt> clonePoints(List<pt> items) {
-    try {
-      List<pt> cloned;
-      try {
-        // try to reuse the same container type
-        cloned = items.getClass().newInstance();
-      } catch (InstantiationException e) {
-        // but if we can't reconstruct one, just use an ArrayList
-        cloned = new ArrayList<pt>();
-      }
-      for(pt p : items) {
-        cloned.add(p.clone());
-      }
-    return cloned;
-    } catch (IllegalAccessException e) {
-      throw new IllegalStateException(e);
+    List<pt> result = new ArrayList<pt>();
+    for(pt p : items) {
+      result.add(p.get());
     }
+    return result;
   }
 
   public static void transform(pt[] pts, Rigid xform, float t) {

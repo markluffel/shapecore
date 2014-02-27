@@ -1,40 +1,35 @@
 package shapecore;
 
+import static processing.core.PApplet.*;
 import static shapecore.Geometry.*;
-import static shapecore.Oplet.*;
 
 public class Ray {  
-  pt start;
-  vec dir;
+  public pt start;
+  public vec dir;
   
-  Ray(pt start, vec dir) {
+  public Ray(pt start, vec dir) {
     this.start = start;
     this.dir = dir;
   }
 
-  Ray(pt a, pt b) {
-    start = a;
-    dir = a.to(b);
+  public Ray(pt from, pt to) {
+    start = from;
+    dir = from.to(to);
   }
 
-  void set(pt P, vec V) {
-    start.setTo(P);
-    dir.setTo(U(V));
+  public void set(pt start, vec dir) {
+    this.start.set(start);
+    this.dir.set(dir).normalize();
   }
 
-  void setTo(Ray B) {
-    start.setTo(B.start);
-    dir.setTo(B.dir);
-    dir.normalize();
+  public void set(Ray r) {
+    start.set(r.start);
+    dir.set(r.dir).normalize();
   }
 
-  // void showArrow() {arrow(start,r,dir); }
-  // void showLine() {show(start,d,dir);}
   pt at(float s) {
     return new pt(start, s, dir);
   }
-
-  // void turn(float a) {dir.rotateBy(a);} void turn() {dir.rotateBy(PI/180.);}
 
   float disToLine(pt a, vec along) {
     float dot = dot(along, dir);
@@ -54,7 +49,7 @@ public class Ray {
   }
   
   /** distance to edge along ray if hits */
-  float disToEdge(pt a, pt b) {
+  public float distToEdge(pt a, pt b) {
     vec n = a.to(b).turnLeft().normalize();
     float dot = dot(n, dir);
     if(abs(dot) > 0.000001) {
@@ -65,6 +60,6 @@ public class Ray {
   } 
 
   pt intersectionWithEdge(pt a, pt b) {
-    return at(disToEdge(a, b));
+    return at(distToEdge(a, b));
   }
 }

@@ -380,13 +380,13 @@ public class Geometry {
   
   public static pt closestPointOnLine(pt here, pt start, vec dir) {
     float t = closestArcLengthOnLine(here, start, dir);
-    return T(start, t, dir);
+    return start.get().add(t, dir);
   }
   
   public static pt lineIntersection(pt start1, vec dir1, pt start2, vec dir2) {
     float t = (-(start1.y*dir2.x) + start2.y*dir2.x + start1.x*dir2.y - start2.x*dir2.y)
     / (dir1.y*dir2.x - dir1.x*dir2.y);
-    return T(start1, t, dir1);
+    return start1.get().add(t, dir1);
   }
   
   public static pt lineIntersection(pt start1, pt end1, pt start2, pt end2) {
@@ -394,25 +394,38 @@ public class Geometry {
   }
   
   public static pt lineEdgeIntersection(pt start1, vec dir1, pt start2, pt end2) {
-    vec dir2 = V(start2,end2);
+    vec dir2 = start2.to(end2);
     float t = (-(start2.y*dir1.x) + start1.y*dir1.x + start2.x*dir1.y - start1.x*dir1.y)
     / (dir2.y*dir1.x - dir2.x*dir1.y);
     if(t > 0 && t < 1) {
-      return T(start2, t, dir2);
+      return start2.get().add(t, dir2);
+    } else {
+      return null;
+    }
+  }
+  
+  public static pt edgeRayIntersection(pt start1, pt end1, pt rayStart, vec rayDir) {
+    vec dir1 = start1.to(end1);
+    float t1 = (-(start1.y*rayDir.x) + rayStart.y*rayDir.x + start1.x*rayDir.y - rayStart.x*rayDir.y)
+    / (dir1.y*rayDir.x - dir1.x*rayDir.y);
+    float t2 = (-(rayStart.y*dir1.x) + start1.y*dir1.x + rayStart.x*dir1.y - start1.x*dir1.y)
+    / (rayDir.y*dir1.x - rayDir.x*dir1.y);
+    if(t1 >= 0 && t1 <= 1 && t2 >= 0) {
+      return start1.get().add(t1, dir1);
     } else {
       return null;
     }
   }
   
   public static pt edgeIntersection(pt start1, pt end1, pt start2, pt end2) {
-    vec dir1 = V(start1,end1);
-    vec dir2 = V(start2,end2);
+    vec dir1 = start1.to(end1);
+    vec dir2 = start2.to(end2);
     float t1 = (-(start1.y*dir2.x) + start2.y*dir2.x + start1.x*dir2.y - start2.x*dir2.y)
     / (dir1.y*dir2.x - dir1.x*dir2.y);
     float t2 = (-(start2.y*dir1.x) + start1.y*dir1.x + start2.x*dir1.y - start1.x*dir1.y)
     / (dir2.y*dir1.x - dir2.x*dir1.y);
     if(t1 >= 0 && t1 <= 1 && t2 >= 0 && t2 <= 1) {
-      return T(start1, t1, dir1);
+      return start1.get().add(t1, dir1);
     } else {
       return null;
     }
@@ -468,8 +481,8 @@ public class Geometry {
     return dot(R(a, b), b.to(C)) > 0;
   } // right turn (as seen on screen)
 
-  public static boolean isRightOf(pt a, pt Q, vec T) {
-    return dot(R(T), Q.to(a)) > 0;
+  public static boolean isRightOf(pt a, pt rayStart, vec rayDir) {
+    return dot(R(rayDir), rayStart.to(a)) > 0;
   } // A is on right of ray(end,dir) (as seen on screen)
   
   public static boolean isInFrontOf(pt a, pt Q, vec T) {

@@ -1574,7 +1574,7 @@ public class Oplet extends PApplet {
     rect(bb.minX, bb.minY, bb.width(), bb.height());
   }
   
-  public static float sgn(double x) {
+  public static int sgn(double x) {
     if(x < 0) return -1;
     if(x > 0) return 1;
     return 0;

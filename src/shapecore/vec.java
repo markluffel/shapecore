@@ -61,9 +61,10 @@ public class vec implements Vector<vec>, Serializable {
     set(V);
   }
   
-  public void set(vec V) {
+  public vec set(vec V) {
     x = V.x;
     y = V.y;
+    return this;
   }
 
   public vec scaleBy(float f) {
@@ -214,6 +215,7 @@ public class vec implements Vector<vec>, Serializable {
     return sqrt(sq(x) + sq(y));
   }
   
+  @Deprecated // sqnorm
   public float norm2() {
     return sq(x) + sq(y);
   }
