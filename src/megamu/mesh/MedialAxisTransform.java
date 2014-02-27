@@ -2,9 +2,13 @@ package megamu.mesh;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import quickhull3d.QuickHull3D;
+import shapecore.Circle;
+import shapecore.Polyline;
 
 public class MedialAxisTransform {
 
@@ -130,12 +134,12 @@ public class MedialAxisTransform {
             edges = tmpedges;
           }
 
-          edges[edgeCount][0] = (float) dualPoints[i][0];
-          edges[edgeCount][1] = (float) dualPoints[i][1];
-          edges[edgeCount][2] = (float) radii[i];
-          edges[edgeCount][3] = (float) dualPoints[j][0];
-          edges[edgeCount][4] = (float) dualPoints[j][1];
-          edges[edgeCount][5] = (float) radii[j];
+          edges[edgeCount][0] = dualPoints[i][0];
+          edges[edgeCount][1] = dualPoints[i][1];
+          edges[edgeCount][2] = radii[i];
+          edges[edgeCount][3] = dualPoints[j][0];
+          edges[edgeCount][4] = dualPoints[j][1];
+          edges[edgeCount][5] = radii[j];
           edgeCount++;
 
         }
@@ -199,12 +203,12 @@ public class MedialAxisTransform {
     return false;
   }
   
-  public ArrayList<ArrayList<float[]>> getBranches() {
+  public List<BallChain> getBranches() {
     if(brancher == null) brancher = new Brancher();
     return brancher.branches;
   }
   
-  public ArrayList<Junction> getJunctions() {
+  public List<Junction> getJunctions() {
     if(brancher == null) brancher = new Brancher();
     return brancher.junctions;
   }
@@ -220,12 +224,32 @@ public class MedialAxisTransform {
       this.outgoing = outgoing;
     }
   }
+  
+  public static class BallChain implements Iterable<Circle> {
+    List<Circle> balls = new ArrayList<Circle>();
 
+    public void add(Circle ball) {
+      balls.add(ball);
+    }
+
+    public int size() {
+      return balls.size();
+    }
+
+    public Circle get(int i) {
+      return balls.get(i);
+    }
+
+    public Iterator<Circle> iterator() {
+      return balls.iterator();
+    }
+  }
+  
   private class Brancher {
     Set<Integer> junctionIndicies;
     Set<Integer> traversedJunctions;
-    ArrayList<Junction> junctions;
-    ArrayList<ArrayList<float[]>> branches;
+    List<Junction> junctions;
+    List<BallChain> branches;
     
     Brancher() {
       // TODO: should be able to remove this precompute step
@@ -246,7 +270,7 @@ public class MedialAxisTransform {
           junctions.add(new Junction(dualPoints[i][0], dualPoints[i][1], radii[i], outgoing));
         }
       }
-      branches = new ArrayList<ArrayList<float[]>>();
+      branches = new ArrayList<BallChain>();
       traversedJunctions = new HashSet<Integer>();
       
       // we need to try each of the junctionIndicies
@@ -269,7 +293,7 @@ public class MedialAxisTransform {
         if(j == 0) continue; // artifact?
         
         // make a new branch outgoing from this direction
-        ArrayList<float[]> branch = new ArrayList<float[]>();
+        BallChain branch = new BallChain();
         branch.add(ball(junctionIndex));
         
         // continue until you arrive at one of the other junctionIndicies
@@ -298,8 +322,8 @@ public class MedialAxisTransform {
       }
     }
     
-    private float[] ball(int i) {
-      return new float[] {dualPoints[i][0], dualPoints[i][1], radii[i]};
+    private Circle ball(int i) {
+      return new Circle(dualPoints[i][0], dualPoints[i][1], radii[i]);
     }
   }
 }
