@@ -66,6 +66,7 @@ import sun.applet.AppletViewer;
 import Jama.Matrix;
 
 public class Oplet extends PApplet {
+  
   // for access to static methods with less typing
   protected Geometry Geo = new Geometry();
   protected MatrixUtils Mat = new MatrixUtils();

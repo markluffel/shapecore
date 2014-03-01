@@ -148,34 +148,15 @@ public class PointSets {
    * @return
    */
   public static OrientedBoundingBox calcBoundsConvexMin(List<pt> points) {
-    pt[] hull;
-    int numPoints = points.size();
-    // special cases
-    if(numPoints == 0) {
-      return null; // really, what can we do here?
-    }
-    if(numPoints == 1) {
-      return new OrientedBoundingBox(new vec(0,1), points);
-    }
-    if(numPoints == 2) {
-      pt a = points.get(0), b = points.get(1);
-      return new OrientedBoundingBox(V(a,b), points);
-    }
+    if(points.size() < 3) return specialCase(points); 
     
-    if(numPoints == 3) { //  || Polygon.isConvex(points) // TODO: add this clause after the code is tested/optimized
-      hull = points.toArray(new pt[0]);
-    } else {
-      // common case
-      hull = convexHull(points);
-    }
-    
-    List<pt> hullList = Arrays.asList(hull);
+    List<pt> hull = convexHull(points);
     float minArea = Float.MAX_VALUE;
-    vec bestDir = V(0,1);
+    vec bestDir = new vec(0,1);
     for(Edge edge : Polygon.edges(hull)) {
       vec dir = U(edge.dir());
       if(dir.isNull()) continue;
-      float area = area(hullList, dir);
+      float area = area(hull, dir);
       if(area < minArea) {
         minArea = area;
         bestDir = dir;
@@ -184,8 +165,48 @@ public class PointSets {
     return new OrientedBoundingBox(mostVertical(bestDir), points); // could pass hull here
   }
   
-  static pt[] convexHull(List<pt> points) {
-    return new GrahamScan(points.toArray(new pt[0])).getPoints();
+  // pick box with the biggest major axis to minor axis ratio
+  public static OrientedBoundingBox calcBoundsConvexAligned(List<pt> points) {
+    if(points.size() < 3) return specialCase(points);
+    
+    List<pt> hull = convexHull(points);
+    float bestAspect = 0;
+    vec bestDir = new vec(0,1);
+    for(Edge edge : Polygon.edges(hull)) {
+      vec dir = U(edge.dir());
+      if(dir.isNull()) continue;
+      float aspect = aspect(hull, dir);
+      if(aspect > bestAspect) {
+        bestAspect = aspect;
+        bestDir = dir;
+      }
+    }
+    return new OrientedBoundingBox(mostVertical(bestDir), points); // could pass hull here
+
+  }
+  
+  public static OrientedBoundingBox specialCase(List<pt> points) {
+    switch(points.size()) {
+    case 0:
+      return null; // really, what can we do here?
+    case 1:
+      return new OrientedBoundingBox(new vec(0,1), points);
+    case 2:
+      pt a = points.get(0), b = points.get(1);
+      return new OrientedBoundingBox(V(a,b), points);
+    default:
+      throw new IllegalStateException();
+    }
+  }
+  
+  
+  static List<pt> convexHull(List<pt> points) {
+    if(points.size() == 3) { //  || Polygon.isConvex(points) // TODO: add this clause after the code is tested/optimized
+      return points;
+    } else {
+      pt[] pts = points.toArray(new pt[0]);
+      return Arrays.asList(new GrahamScan(pts).getPoints());
+    }
   }
   
   static vec mostVertical(vec v) {
@@ -205,13 +226,8 @@ public class PointSets {
     return best;
   }
   
-  /**
-   * Calculate the area of an oriented bounding box with one axis in the direction dir 
-   * @param pts
-   * @param dir
-   * @return
-   */
-  static float area(List<pt> pts, vec dir) {
+  
+  static float[] sideLengths(List<pt> pts, vec dir) {
     vec side = R(dir);
     float minDir = Float.MAX_VALUE, maxDir = -Float.MAX_VALUE;
     float minSide = Float.MAX_VALUE, maxSide = -Float.MAX_VALUE;
@@ -224,7 +240,22 @@ public class PointSets {
         if(ds < minSide) minSide = ds;
         if(ds > maxSide) maxSide = ds;
     }
-    return (maxSide-minSide)*(maxDir-minDir);
+    return new float[]{maxSide-minSide, maxDir-minDir};
+  }
+  /**
+   * Calculate the area of an oriented bounding box with one axis in the direction dir 
+   * @param pts
+   * @param dir
+   * @return
+   */
+  static float area(List<pt> pts, vec dir) {
+    float[] sides = sideLengths(pts, dir);
+    return sides[0]*sides[1];
+  }
+  
+  static float aspect(List<pt> pts, vec dir) {
+    float[] sides = sideLengths(pts, dir);
+    return max(sides)/min(sides);
   }
   
 

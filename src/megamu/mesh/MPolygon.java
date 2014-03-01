@@ -18,7 +18,8 @@ public class MPolygon {
 
 	public void add(float x, float y){
 		coords[count][0] = x;
-		coords[count++][1] = y;
+		coords[count][1] = y;
+		count++;
 	}
 
 	public void draw(PApplet p){
@@ -27,7 +28,7 @@ public class MPolygon {
 
 	public void draw(PGraphics g){
 		g.beginShape();
-		for(int i=0; i<count; i++){
+		for(int i = 0; i < count; i++){
 			g.vertex(coords[i][0], coords[i][1]);
 		}
 		g.endShape(PApplet.CLOSE);

@@ -7,9 +7,9 @@ public class Voronoi {
 	float[][] edges;
 	MPolygon[] regions;
 
-	public Voronoi( float[][] points ){
-
-		if( points.length < 1 ){
+	public Voronoi(float[][] points) {
+	  
+		if(points.length < 1) {
 			edges = new float[0][4];
 			regions = new MPolygon[0];
 			return;
@@ -110,63 +110,56 @@ public class Voronoi {
 
 		// trim edges down
 		float[][] tmpedges = new float[edgeCount][4];
-		//for(int i=0; i<tmpedges.length; i++)
-		//	tmpedges[i] = edges[i];
 		System.arraycopy(edges, 0, tmpedges, 0, tmpedges.length);
 		edges = tmpedges;
 
 		// calculate the region for each point
 		regions = new MPolygon[points.length];
-		for(int i=0; i<points.length; i++){
-			IntArray faceOrder = new IntArray(pointBuckets[i].length);
+		for(int i = 0; i < points.length; i++) {
+			IntArray faceOrder = new IntArray();
 
 			// add coords of the region in the order they touch, starting with the convenient first
 			int p = pointBuckets[i].get(0);
-			while(p>=0){
-
-				faceOrder.add( p );
-
+			while(p >= 0) {
+				faceOrder.add(p);
 				// find the next coordinate that is in this set that we haven't used yet
 				int newP = -1;
-				for( int k=0; k<faceNet.get(p).linkCount; k++ ){
-					int neighbor = faceNet.get(p).links[k];
+				for(int neighbor : faceNet.get(p).getLinks()) {
 					if( !faceOrder.contains(neighbor) && pointBuckets[i].contains(neighbor) ){
 						newP = neighbor;
 						break;
 					}
 				}
 				p = newP;
-
 			}
 
 			// turn the coordinates into a polygon
-			regions[i] = new MPolygon(pointBuckets[i].length);
-			for( int f=0; f<faceOrder.length; f++ ){
+			regions[i] = new MPolygon(faceOrder.size());
+			for(int f = 0; f < faceOrder.size(); f++) {
 				int face = faceOrder.get(f);
 				regions[i].add( (float) dualPoints[face][0], (float) dualPoints[face][1] );
 			}
-
 		}
-
 	}
 
-	public MPolygon[] getRegions(){
+	public MPolygon[] getRegions() {
 		return regions;
 	}
 
-	public float[][] getEdges(){
+	public float[][] getEdges() {
 		return edges;
 	}
 
-	protected boolean isEdgeShared(int face1[], int face2[]){
-		for(int i = 0; i < face1.length; i++){
+	protected static boolean isEdgeShared(int face1[], int face2[]) {
+		for(int i = 0; i < face1.length; i++) {
 			int cur = face1[i];
 			int next = face1[(i + 1) % face1.length];
-			for(int j = 0; j < face2.length; j++){
+			for(int j = 0; j < face2.length; j++) {
 				int from = face2[j];
 				int to = face2[(j + 1) % face2.length];
-				if(cur == from && next == to || cur == to && next == from)
+				if(cur == from && next == to || cur == to && next == from) {
 					return true;
+				}
 			}
 		}
 		return false;

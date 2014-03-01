@@ -1,40 +1,51 @@
 package megamu.mesh;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+
+import processing.core.PApplet;
 
 import quickhull3d.QuickHull3D;
 import shapecore.Circle;
-import shapecore.Polyline;
+import shapecore.pt;
+import shapecore.interfaces.PointSet;
 
 public class MedialAxisTransform {
 
-  float[][] edges;
-  // temp
+  // connectivity (undirected graph)
   public LinkedArray faceNet;
-  public IntArray[] pointBuckets;
+  // geometry
   public float[][] dualPoints;
   public float[] radii;
-  
+
+  // cached data
+  float[][] _edges;
+  List<Circle> _spheres;
+
+  // higher level knowledge
   Brancher brancher;
   int artifact;
 
   public MedialAxisTransform(float[][] points) {
 
-    if( points.length < 1 ){
-      edges = new float[0][];
+    // TODO: catch other special cases? two points?
+    if(points.length < 1) {
       return;
     }
 
     // build points array for qhull
     double[] qPoints = new double[ points.length*3 + 9 ];
-    for(int i=0; i<points.length; i++){
+    for(int i = 0; i < points.length; i++){
       qPoints[i*3] = points[i][0];
       qPoints[i*3+1] = points[i][1];
-      qPoints[i*3+2] = -(points[i][0]*points[i][0] + points[i][1]*points[i][1]); // standard half-squared eucledian distance
+      // z component = squared distance from 0,0
+      // thus convex hull will contain faces of delaunay triangulation 
+      qPoints[i*3+2] = -(points[i][0]*points[i][0] + points[i][1]*points[i][1]);
     }
     // 1
     qPoints[ qPoints.length-9 ] = -8000D;
@@ -49,46 +60,50 @@ public class MedialAxisTransform {
     qPoints[ qPoints.length-2 ] = -8000D;
     qPoints[ qPoints.length-1 ] = -128000000D;
 
-    // prepare quickhull
+    // run quickhull
     QuickHull3D quickHull = new QuickHull3D(qPoints);
     int[][] faces = quickHull.getFaces(QuickHull3D.POINT_RELATIVE + QuickHull3D.CLOCKWISE);
     artifact = 0;
     
+    // we'll discard any points outside the shape
     InteriorTest poly = new InteriorTest(points);
-
+    
     // compute dual points
     dualPoints = new float[faces.length][2];
     radii = new float[faces.length];
     for(int i = 0; i < faces.length; i++){
 
       // test if it's the artifact
-      if( faces[i][0] >= points.length && faces[i][1] >= points.length && faces[i][2] >= points.length )
+      if(faces[i][0] >= points.length && faces[i][1] >= points.length && faces[i][2] >= points.length) {
         artifact = i;
+      }
+      
+      // vertices of triangle
+      double
+      x0 = qPoints[faces[i][0]*3+0],
+      y0 = qPoints[faces[i][0]*3+1],
+      x1 = qPoints[faces[i][1]*3+0],
+      y1 = qPoints[faces[i][1]*3+1],
+      x2 = qPoints[faces[i][2]*3+0],
+      y2 = qPoints[faces[i][2]*3+1];
 
-      double x0 = qPoints[faces[i][0]*3+0];
-      double y0 = qPoints[faces[i][0]*3+1];
-      double x1 = qPoints[faces[i][1]*3+0];
-      double y1 = qPoints[faces[i][1]*3+1];
-      double x2 = qPoints[faces[i][2]*3+0];
-      double y2 = qPoints[faces[i][2]*3+1];
+      // circumcenter calculation
+      double
+      v1x = 2 * (x1-x0),
+      v1y = 2 * (y1-y0),
+      v1z = x0*x0 - x1*x1 + y0*y0 - y1*y1,
 
-      double v1x = 2 * (x1-x0);
-      double v1y = 2 * (y1-y0);
-      double v1z = x0*x0 - x1*x1 + y0*y0 - y1*y1;
+      v2x = 2 * (x2-x0),
+      v2y = 2 * (y2-y0),
+      v2z = x0*x0 - x2*x2 + y0*y0 - y2*y2,
 
-      double v2x = 2 * (x2-x0);
-      double v2y = 2 * (y2-y0);
-      double v2z = x0*x0 - x2*x2 + y0*y0 - y2*y2;
+      denom = v1x * v2y - v1y * v2x;
 
-      double tmpx = v1y * v2z - v1z * v2y;
-      double tmpy = v1z * v2x - v1x * v2z;
-      double tmpz = v1x * v2y - v1y * v2x;
-
-      dualPoints[i][0] = (float)(tmpx/tmpz);
-      dualPoints[i][1] = (float)(tmpy/tmpz);
+      dualPoints[i][0] = (float)((v1y * v2z - v1z * v2y) / denom);
+      dualPoints[i][1] = (float)((v1z * v2x - v1x * v2z) / denom);
       
       if(faces[i][0] >= points.length || faces[i][1] >= points.length || faces[i][2] >= points.length ||
-          !poly.contains((float)dualPoints[i][0], (float)dualPoints[i][1])) {
+          !poly.contains(dualPoints[i][0], dualPoints[i][1])) {
         // this triangle is outside the polygon, flag it to ignore
         radii[i] = -1;
       } else {
@@ -98,110 +113,89 @@ public class MedialAxisTransform {
         a = Math.sqrt(x01*x01 + y01*y01),
         b = Math.sqrt(x12*x12 + y12*y12),
         c = Math.sqrt(x20*x20 + y20*y20);
-        radii[i] = (float)((a*b*c)/Math.sqrt((a+b+c)*(b+c-a)*(c+a-b)*(a+b-c))); // circumradius-o-clock
+        // circumradius
+        radii[i] = (float)((a*b*c)/Math.sqrt((a+b+c)*(b+c-a)*(c+a-b)*(a+b-c)));
       }
     }
-
-    // create edge/point/face network
-    edges = new float[1][6];
-    int edgeCount = 0;
+    
     faceNet = new LinkedArray(faces.length);
-    pointBuckets = new IntArray[points.length];
-    for(int i = 0; i < points.length; i++) {
-      pointBuckets[i] = new IntArray();
-    }
 
     // discover edges
     for(int i = 0; i < faces.length; i++){
-
-      // bin faces to the points they belong with
-      for(int f=0; f<faces[i].length; f++) {
-        if(faces[i][f] < points.length) {
-          pointBuckets[ faces[i][f] ].add(i);
-        }
-      }
-
-      // this looks like the slow part, quadratic?
+      
+      // discard these
+      if(i == artifact || radii[i] <= 0) continue;
+      
+      // this looks like the slow part, quadratic time?
       for(int j = 0; j < i; j++) {
-        // && radii[i] > 0 && radii[j] > 0
-        if( i != artifact && j != artifact && isEdgeShared(faces[i], faces[j])  && radii[i] > 0 && radii[j] > 0) {
-
+        if(j != artifact && radii[j] > 0 && Voronoi.isEdgeShared(faces[i], faces[j])) {
           faceNet.link(i, j);
-
-          if( edges.length <= edgeCount ){
-            float[][] tmpedges = new float[edges.length*2][6];
-            System.arraycopy(edges, 0, tmpedges, 0, edges.length);
-            edges = tmpedges;
-          }
-
-          edges[edgeCount][0] = dualPoints[i][0];
-          edges[edgeCount][1] = dualPoints[i][1];
-          edges[edgeCount][2] = radii[i];
-          edges[edgeCount][3] = dualPoints[j][0];
-          edges[edgeCount][4] = dualPoints[j][1];
-          edges[edgeCount][5] = radii[j];
-          edgeCount++;
-
         }
       }
     }
 
-    // trim edges down
-    float[][] tmpedges = new float[edgeCount][4];
-    System.arraycopy(edges, 0, tmpedges, 0, tmpedges.length);
-    edges = tmpedges;
-  }    
+  }
 
   public float[][] getEdges() {
-    return edges;
+    if(_edges == null) {
+      int edgeCount = faceNet.numEdges();
+      _edges = new float[edgeCount][6];
+      int k = 0;
+      // build all edges from connectivity data in faceNet
+      // and geometry in dualPoints and radii
+      for(int i = 0; i < faceNet.size(); i++) {
+        for(int j : faceNet.get(i).getLinks()) {
+          if(i < j) { // ignore one of the directed edges
+            _edges[k][0] = dualPoints[i][0];
+            _edges[k][1] = dualPoints[i][1];
+            _edges[k][2] = radii[i];
+            _edges[k][3] = dualPoints[j][0];
+            _edges[k][4] = dualPoints[j][1];
+            _edges[k][5] = radii[j];
+            k++;
+          }
+        }
+      }
+    }
+
+    return _edges;
   }
   
-  float[][] spheres;
-  public float[][] getSpheres() {
-    if(spheres == null) {
-      ArrayList<float[]> _spheres = new ArrayList<float[]>();
-      for(float[] edge : edges) {
-        float stepSize = 0.1f;
+  public List<Circle> getInterpolatedCircles() {
+    if(_spheres == null) {
+      _spheres = new ArrayList<Circle>();
+      for(float[] edge : getEdges()) {
+        // pick how far apart the interpolated circles should be
+        float r1 = edge[2], r2 = edge[5];
+        float d = PApplet.dist(edge[0],edge[1], edge[3],edge[4]);
+        float stepSize = 0.25f*Math.min(r1,r2)/d;
+        // interpolate between samples
+        // may result in no sphere if the originals are close, with a large radius 
         for(float t = stepSize; t < 1; t += stepSize) {
-          _spheres.add(lerpSphere(edge,t));          
+          _spheres.add(lerpCircle(edge,t));          
         }
       }
       for(int i = 0; i < radii.length; i++) {
-        if( i != artifact && radii[i] > 0) {
-          _spheres.add(new float[]{dualPoints[i][0],dualPoints[i][1],radii[i]});
+        if(i != artifact && radii[i] > 0) {
+          _spheres.add(ball(i));
         }
       }
-      spheres = new float[0][];
-      spheres = _spheres.toArray(spheres);
     }
-    return spheres;
+    return _spheres;
   }
   
-  private float[] lerpSphere(float[] edge, float t) {
-    return new float[] {
-        lerp(edge[0],edge[3],t),
-        lerp(edge[1],edge[4],t),
-        lerp(edge[2],edge[5],t)
-    };
+  private Circle lerpCircle(float[] edge, float t) {
+    return new Circle(
+        lerp(edge[0],edge[3],t), // x
+        lerp(edge[1],edge[4],t), // 
+        lerp(edge[2],edge[5],t) // radius
+    );
   }
   
   private float lerp(float a, float b, float t) {
     return a*(1-t) + b*t;
   }
 
-  protected boolean isEdgeShared(int face1[], int face2[]){
-    for(int i = 0; i < face1.length; i++){
-      int cur = face1[i];
-      int next = face1[(i + 1) % face1.length];
-      for(int j = 0; j < face2.length; j++){
-        int from = face2[j];
-        int to = face2[(j + 1) % face2.length];
-        if(cur == from && next == to || cur == to && next == from)
-          return true;
-      }
-    }
-    return false;
-  }
   
   public List<BallChain> getBranches() {
     if(brancher == null) brancher = new Brancher();
@@ -213,20 +207,35 @@ public class MedialAxisTransform {
     return brancher.junctions;
   }
   
+  /**
+   * Where multiple branches of the medial axis meet.
+   */
   public static class Junction {
     public float x,y,radius;
+    
     /** array of x,y,r values of connected branches */
     public float[][] outgoing;
+    List<BallChain> branches = new ArrayList<BallChain>();
+    
     Junction(float x, float y, float radius, float[][] outgoing) {
       this.x = x;
       this.y = y;
       this.radius = radius;
       this.outgoing = outgoing;
     }
+
+    public void addBranch(BallChain branch) {
+      branches.add(branch);
+    }
+
+    public List<BallChain> getBranches() {
+      return branches;
+    }
   }
   
-  public static class BallChain implements Iterable<Circle> {
+  public static class BallChain implements Iterable<Circle>,PointSet {
     List<Circle> balls = new ArrayList<Circle>();
+    List<Junction> junctions = new ArrayList<Junction>();
 
     public void add(Circle ball) {
       balls.add(ball);
@@ -243,87 +252,121 @@ public class MedialAxisTransform {
     public Iterator<Circle> iterator() {
       return balls.iterator();
     }
+
+    public List<pt> getPoints() {
+      List<pt> result = new ArrayList<pt>();
+      for(Circle c : balls) {
+        result.add(c.center);
+      }
+      return result;
+    }
+
+    public List<Junction> getJunctions() {
+      return junctions;
+    }
+    
+    public void addJunction(Junction j) {
+      junctions.add(j);
+      j.addBranch(this);
+    }
   }
   
+  /**
+   * Construct the connectivity of the medial axis.
+   * Find all the junctions (where multiple branches meet) and branches (sequence of edges without intervening junctions).
+   *
+   */
   private class Brancher {
-    Set<Integer> junctionIndicies;
+    // mapping from medial axis vertices to any junction object at that vertex
+    Map<Integer,Junction> junctionIndicies;
     Set<Integer> traversedJunctions;
     List<Junction> junctions;
     List<BallChain> branches;
     
     Brancher() {
-      // TODO: should be able to remove this precompute step
-      junctionIndicies = new HashSet<Integer>();
+      // first find all junctions and construct objects for them 
+      junctionIndicies = new HashMap<Integer,Junction>();
       junctions = new ArrayList<Junction>();
       for(int i = 0; i < faceNet.size(); i++) {
         LinkedIndex index = faceNet.get(i);
-        int arity = index.getLinks().length;
+        int arity = index.getLinks().size();
         if(arity != 2 && radii[i] > 0) {
-          junctionIndicies.add(i);
-          int[] links = index.getLinks();
-          float[][] outgoing = new float[links.length][3];
+          List<Integer> links = index.getLinks();
+          float[][] outgoing = new float[links.size()][3];
           for(int j = 0; j < outgoing.length; j++) {
-            outgoing[j][0] = dualPoints[links[j]][0];
-            outgoing[j][1] = dualPoints[links[j]][1];
-            outgoing[j][2] = radii[links[j]];
+            outgoing[j][0] = dualPoints[links.get(j)][0];
+            outgoing[j][1] = dualPoints[links.get(j)][1];
+            outgoing[j][2] = radii[links.get(j)];
           }
-          junctions.add(new Junction(dualPoints[i][0], dualPoints[i][1], radii[i], outgoing));
+          Junction j = new Junction(dualPoints[i][0], dualPoints[i][1], radii[i], outgoing);
+          junctions.add(j);
+          junctionIndicies.put(i, j);
         }
       }
+      // now find all branches and link to their junctions
       branches = new ArrayList<BallChain>();
       traversedJunctions = new HashSet<Integer>();
       
       // we need to try each of the junctionIndicies
       // later ones will probably be traversed already
-      for(Integer i : junctionIndicies) {
-        traverse(i, -1);
+      for(Integer i : junctionIndicies.keySet()) {
+        traverse(i, -1); // don't ignore any direction
       }
     }
     
+    /**
+     * Find and add all the branches at this junction.
+     */
     void traverse(int junctionIndex, int ignoreDirection) {
       if(traversedJunctions.contains(junctionIndex)) return;
       traversedJunctions.add(junctionIndex);
       
-      int[] links = faceNet.get(junctionIndex).getLinks();
-      for(int i = 0; i < links.length; i++) {
-        int j = links[i];
+      // for all the edges at this junction
+      List<Integer> links = faceNet.get(junctionIndex).getLinks();
+      for(int i = 0; i < links.size(); i++) {
+        int j = links.get(i);
         int pj = junctionIndex;
-        if(j == ignoreDirection) continue; // we arrived from one of the branches, which we should avoid retraversing
-        if(j == junctionIndex) continue; // self loop :(
-        if(j == 0) continue; // artifact?
+        // we arrived from one of the branches, which we should avoid retraversing
+        if(j == ignoreDirection) continue;
+        if(j == junctionIndex) continue; // self loop, I don't know if this is possible
+        if(j == 0) continue; // artifact of the large containing triangle
         
-        // make a new branch outgoing from this direction
+        // make a new branch outgoing from this junction for the given link
         BallChain branch = new BallChain();
         branch.add(ball(junctionIndex));
+        branch.addJunction(junctionIndicies.get(junctionIndex));
         
         // continue until you arrive at one of the other junctionIndicies
-        while(!junctionIndicies.contains(j)) {
+        while(!junctionIndicies.containsKey(j)) {
           branch.add(ball(j));
-          int[] moreLinks = faceNet.get(j).getLinks();
-          if(moreLinks.length == 2) {
+          List<Integer> moreLinks = faceNet.get(j).getLinks();
+          if(moreLinks.size() == 2) {
             // pick the correct edge, in the same direction
-            if(moreLinks[0] == pj) {
+            if(moreLinks.get(0) == pj) {
               pj = j;
-              j = moreLinks[1];
-            } else if(moreLinks[1] == pj) {
+              j = moreLinks.get(1);
+            } else if(moreLinks.get(1) == pj) {
               pj = j;
-              j = moreLinks[0];
+              j = moreLinks.get(0);
             } else {
               break;
             }
           } else {
-            break; // too many
+            break; // arrived at a junction, stop creating this branch
           }
         }
+        
+        // add the junction point that we found (perhaps without any iterations above)
         branch.add(ball(j));
+        branch.addJunction(junctionIndicies.get(j));
         branches.add(branch);
         
         traverse(j, pj); // traverse the new branch
       }
     }
-    
-    private Circle ball(int i) {
-      return new Circle(dualPoints[i][0], dualPoints[i][1], radii[i]);
-    }
+  }
+  
+  Circle ball(int i) {
+    return new Circle(dualPoints[i][0], dualPoints[i][1], radii[i]);
   }
 }

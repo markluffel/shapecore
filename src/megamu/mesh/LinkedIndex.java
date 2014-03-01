@@ -1,36 +1,34 @@
 package megamu.mesh;
 
-import processing.core.PApplet;
+import java.util.ArrayList;
+import java.util.List;
 
 public class LinkedIndex {
 
-	LinkedArray array;
-	int index;
-	int[] links;
-	int linkCount;
+	List<Integer> links;
 
-	public LinkedIndex(LinkedArray a, int i){
-		array = a;
-		index = i;
-		links = new int[1];
-		linkCount = 0;
+	public LinkedIndex() {
+		links = new ArrayList<Integer>();
 	}
 
-	public void linkTo(int i){
-		if( links.length == linkCount )
-			links = PApplet.expand(links);
-		links[linkCount++] = i;
+	public void linkTo(int i) {
+		links.add(i);
 	}
 
-	public boolean linked(int i){
-		for(int j=0; j<linkCount; j++)
-			if(links[j]==i)
+	public boolean linked(int i) {
+		for(int j : links) {
+			if(j == i) {
 				return true;
+			}
+		}
 		return false;
 	}
 
-	public int[] getLinks(){
-		return links;
+	public List<Integer> getLinks() {
+	  return links;
 	}
 
+  public int size() {
+    return links.size();
+  }
 }

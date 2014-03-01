@@ -88,7 +88,7 @@ public class GrahamScan {
     run();
     pt[] pts = new pt[M];
     for(int i = 0; i < M; i++) {
-      pts[i] = P(items[i].x, items[i].y);
+      pts[i] = new pt(items[i].x, items[i].y);
     }
     return pts;
   }

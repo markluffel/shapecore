@@ -33,7 +33,6 @@ public class Delaunay {
 		faces = postprocess(faces, points.length);
 		
 		// turn faces into links
-		int numPoints = points.length; 
 		mesh = new LinkedArray(points.length+3);
 		links = new int[1][2];
 		linkCount = 0;
@@ -118,20 +117,16 @@ public class Delaunay {
 	  return validFacesArray;
 	}
 
-  public float[][] getEdges(){
+  public float[][] getEdges() {
 		return edges;
 	}
 
-	public int[][] getLinks(){
+	public int[][] getLinks() {
 		return links;
 	}
 	
 	public int[][] getFaces() {
 	  return faces;
-	}
-
-	public int[] getLinked( int i ){
-		return mesh.get(i).links;
 	}
 
 	public int edgeCount(){
