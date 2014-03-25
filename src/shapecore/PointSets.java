@@ -53,7 +53,7 @@ public class PointSets {
   
   @Deprecated // rename this
   public static void center(PointSet ps) {
-    translate(ps, V(centerV(ps.getPoints()),new pt()));
+    translate(ps, centerV(ps.getPoints()).to(new pt()));
   }
   
   // -----------------------------------------------------------------------

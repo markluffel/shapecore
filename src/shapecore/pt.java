@@ -62,25 +62,29 @@ public class pt implements Ring<pt>, Serializable {
   }
 
   @Deprecated
-  public void setTo(double px, double py) {
+  public pt setTo(double px, double py) {
     x = (float) px;
     y = (float) py;
+    return this;
   }
 
   @Deprecated
-  public void setTo(pt P) {
+  public pt setTo(pt P) {
     x = P.x;
     y = P.y;
+    return this;
   }
 
-  public void set(double px, double py) {
+  public pt set(double px, double py) {
     x = (float) px;
     y = (float) py;
+    return this;
   }
   
-  public void set(pt p) {
+  public pt set(pt p) {
     x = p.x;
     y = p.y;
+    return this;
   }
 
   public pt scale(float t) {
@@ -187,6 +191,12 @@ public class pt implements Ring<pt>, Serializable {
   public pt addScaledPt(float s, pt P) {
     x += s * P.x;
     y += s * P.y;
+    return this;
+  }
+  
+  public pt addLerp(pt a, pt b, float t) {
+    x += a.x + t*(b.x-a.x);
+    y += a.y + t*(b.y-a.y);
     return this;
   }
 
@@ -318,8 +328,9 @@ public class pt implements Ring<pt>, Serializable {
     }
   }
 
-  public void transform(pt O, vec I, vec J) {
+  public pt transform(pt O, vec I, vec J) {
     this.setTo(O.x + x * I.x + y * J.x, O.y + x * I.y + y * J.y);
+    return this;
   }
 
   public pt transform(Affinity aff) {
@@ -329,10 +340,11 @@ public class pt implements Ring<pt>, Serializable {
     return this;
   }
 
-  public void localP(pt O, vec I, vec J) {
+  public pt localP(pt O, vec I, vec J) {
     pt L = local(this, O, I, J);
     x = L.x;
     y = L.y;
+    return this;
   }
 
   public pt zero() {

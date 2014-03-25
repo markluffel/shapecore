@@ -102,7 +102,7 @@ public class EdgeSetMethods {
   public static List<Float> angleDiffs(EdgeSet e) {
     List<Float> result = new ArrayList<Float>();
     for(Pair<Edge,Edge> pair : pairs(e.getEdges())) {
-      result.add(angle_diff(
+      result.add(angleDiff(
         pair.fst.dir().angle(),
         pair.snd.dir().angle()
       ));

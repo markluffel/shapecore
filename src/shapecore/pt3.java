@@ -128,6 +128,13 @@ public final class pt3 implements Ring<pt3> {
     return this;
   }
   
+  public pt3 addLerp(pt3 a, pt3 b, float t) {
+    x += a.x + t*(b.x-a.x);
+    y += a.y + t*(b.y-a.y);
+    z += a.z + t*(b.z-a.z);
+    return this;
+  }
+  
   public pt3 translateBy(vec3 v) {
     x += v.x;
     y += v.y;

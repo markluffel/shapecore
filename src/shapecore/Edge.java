@@ -16,11 +16,11 @@ public class Edge {
     this.b = b;
   }
   
-  public vec dir() { return V(a,b); }
+  public vec dir() { return a.to(b); }
   public vec right() { return dir().turnRight(); }
   public vec left() { return dir().turnLeft(); }
   public float lengthSq() { return dot(dir(),dir()); }
-  public float length() { return d(a,b); }
+  public float length() { return dist(a,b); }
   public pt midpoint() { return average(a,b); }
   
   public pt put(pt C) {

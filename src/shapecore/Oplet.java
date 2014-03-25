@@ -609,7 +609,7 @@ public class Oplet extends PApplet {
       va = values[i-1],
       vb = values[i],
       vc = values[i+1];
-      float BA = angle_diff(vb, va), BC = angle_diff(vb, vc);
+      float BA = angleDiff(vb, va), BC = angleDiff(vb, vc);
       //float BA = A-B, BC = C-B;
       change[i] = t * (BA + BC);
     }
@@ -948,6 +948,16 @@ public class Oplet extends PApplet {
   public static List<pt> resample(List<pt> polyline, int numSamples) {
     List<pt> resampled = new ArrayList<pt>();
     SamplablePolyline p = new SamplablePolyline(polyline);
+    float step = 1/(float)(numSamples-1);
+    for(int i = 0; i < numSamples; i++) {
+      resampled.add(p.sample(i*step));
+    }
+    return resampled;
+  }
+  
+  public static List<pt3> resample3(List<pt3> polyline, int numSamples) {
+    List<pt3> resampled = new ArrayList<pt3>();
+    SamplablePolyline3 p = new SamplablePolyline3(polyline);
     float step = 1/(float)(numSamples-1);
     for(int i = 0; i < numSamples; i++) {
       resampled.add(p.sample(i*step));
@@ -3300,6 +3310,10 @@ public class Oplet extends PApplet {
     return keyEvent != null && keyEvent.isShiftDown();
   }
 
+  public boolean isAltDown() {
+    return keyEvent != null && keyEvent.isAltDown();
+  }
+  
   public boolean isCmdDown() {
     return keyEvent != null && keyEvent.isMetaDown();
   }
@@ -3308,7 +3322,7 @@ public class Oplet extends PApplet {
     return values[(e.ordinal()+1)%values.length];
   }
   
-  public static float circular_lerp(float a, float b, float t) {
+  public static float circularLerp(float a, float b, float t) {
     if(abs(b-a) > PI) {
       if(b-a > 0) {
         return PApplet.lerp(a+TWO_PI,b,t)%TWO_PI;
@@ -3331,7 +3345,7 @@ public class Oplet extends PApplet {
    * 
    * b == (a+angle_diff(a,b))%TWO_PI
    */
-  public static float angle_diff(float a, float b) {
+  public static float angleDiff(float a, float b) {
     if(abs(b-a) > PI) {
       if(b-a > 0) {
         return b-a-TWO_PI;
@@ -3343,8 +3357,8 @@ public class Oplet extends PApplet {
     }
   }
 
-  public static float angle_lerp(float a, float b, float t) {
-    float vec = angle_diff(a,b);
+  public static float angleLerp(float a, float b, float t) {
+    float vec = angleDiff(a,b);
     return a+vec*t;
   }
 
@@ -3423,5 +3437,36 @@ public class Oplet extends PApplet {
   
   public <T> T last(List<T> items) {
     return items.get(items.size()-1);
+  }
+  
+  public void selectInput(String prompt, SelectFileHandler callback) {
+    try {
+      noLoop();
+      String filename = selectInput(prompt);
+      if(filename != null) {
+        callback.invoke(filename);
+      }
+    } catch(Exception e) {
+      e.printStackTrace();
+    } finally {
+      loop();
+    }
+  }
+  
+  public void selectOutput(String prompt, SelectFileHandler callback) {
+    try {
+      noLoop();
+      String filename = selectOutput(prompt);
+      if(filename != null) {
+        callback.invoke(filename);
+      }
+    } catch(Exception e) {
+      e.printStackTrace();
+    } finally {
+      loop();
+    }
+  }
+  public interface SelectFileHandler {
+    void invoke(String filename);
   }
 }

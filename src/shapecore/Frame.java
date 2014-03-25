@@ -35,7 +35,7 @@ public class Frame implements Serializable {
 
   public void lerp(Frame goal, float amount) {
     pos.translateTowardsByRatio(amount, goal.pos);
-    angle = Oplet.circular_lerp(angle, goal.angle, amount);
+    angle = Oplet.circularLerp(angle, goal.angle, amount);
     //scale = Oplet.geometricLerp(this.scale, goal.scale, amount);
   }
   public void lerp(pt _pos, float amount) {
@@ -49,26 +49,24 @@ public class Frame implements Serializable {
     return T(pos, R(v, angle+angleDelta));
   }
   public vec toGlobalVector(vec v) {
-    return R(v, angle);
+    return v.get().rotateBy(angle);
   }
   
   /** Returns the given frame in this Frame's local coordinate system. */ 
   public Frame toLocal(Frame that) {
-    return Frame.make(P(toLocal(that.pos)), Oplet.angle_diff(this.angle, that.angle));
+    return Frame.make(P(toLocal(that.pos)), Oplet.angleDiff(this.angle, that.angle));
   }
   
   /** Returns the given point in this Frame's local coordinate system. */
   public vec toLocal(pt p) {
-    vec v = V(p,pos);
-    v.rotateBy(-angle);
-    return v;
+    return p.to(pos).rotateBy(-angle);
   }
 
   public void rotate(float angleDelta) {
     rotate(pos, angleDelta);
   }
   public void rotate(pt center, float angleDelta) {
-    pos.setTo(T(center,R(V(center,pos),angleDelta)));
+    pos.set(center).add(center.to(pos).rotateBy(angleDelta));
     angle += angleDelta;
   }
 

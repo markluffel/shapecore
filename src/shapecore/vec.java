@@ -139,6 +139,12 @@ public class vec implements Vector<vec>, Serializable {
     this.y += y_;
     return this;
   }
+  
+  public vec sub(vec v) {
+    x -= v.x;
+    y -= v.y;
+    return this;
+  }
 
   public vec turnLeft() {
     float w = x; x = -y; y = w;

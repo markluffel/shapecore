@@ -145,14 +145,14 @@ public class SamplablePolyline {
     if(Ay < 0) {
       // first range
       float theta = PI+Ay;
-      vec base = V(points[0],points[1]);
+      vec base = points[0].to(points[1]);
       base.turnRight();
       return radial(points[0], Ax, base.angle()-theta);
       
     } else if(Ay < PI+1 && Ay > 1) {
       // third range
       float theta = Ay-1;
-      vec base = V(points[points.length-1],points[points.length-2]);
+      vec base = points[points.length-1].to(points[points.length-2]);
       base.turnRight();
       return radial(points[points.length-1], Ax, base.angle()-theta);
       

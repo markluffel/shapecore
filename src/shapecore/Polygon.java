@@ -312,7 +312,7 @@ public class Polygon implements PointSet, EdgeSet {
   public static boolean isConvex(List<pt> pts) {
     int sgn = 0;
     for(Pair<Float,Float> pair : pairs(angles(pts))) {
-      float diff = angle_diff(pair.fst, pair.snd);
+      float diff = angleDiff(pair.fst, pair.snd);
       if(sgn == 0) sgn = (int) sgn(diff);
       if(sgn != sgn(diff)) return false;
     }
