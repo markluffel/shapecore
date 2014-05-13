@@ -3,8 +3,8 @@ package shapecore;
 import static shapecore.Geometry.*;
 
 import java.applet.AppletContext;
+import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.FileDialog;
 import java.awt.Frame;
 import java.awt.Insets;
 import java.awt.Menu;
@@ -22,9 +22,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
 import java.security.AccessControlException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,8 +36,6 @@ import java.util.Set;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import javax.media.opengl.GL;
-import javax.media.opengl.glu.GLU;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
@@ -66,10 +61,12 @@ import sun.applet.AppletViewer;
 import Jama.Matrix;
 
 public class Oplet extends PApplet {
+  private static final long serialVersionUID = 1L;
   
   // for access to static methods with less typing
   protected Geometry Geo = new Geometry();
   protected MatrixUtils Mat = new MatrixUtils();
+  public static final String RETINA = "processing.core.PGraphicsRetina2D";
 
   public void init() {
     super.init();
@@ -1273,7 +1270,7 @@ public class Oplet extends PApplet {
   }
   
   public static float pwlerp(float a, float b, float t, float n) {
-    return (float)pwlerp(a,b,t,n);
+    return pwlerp(a,b,t,n);
   }
   
   public static double pwlerp(double a, double b, double t, double n) {
@@ -1302,17 +1299,11 @@ public class Oplet extends PApplet {
     
     for (int i = 2; i < n; i++) {
       /// get the angles and edge lengths of the inputs 
-      float aLen = d(end.points.get(i - 1), end.points.get(i));
-      float bLen = d(start.points.get(i - 1), start.points.get(i));
+      float aLen = end.points.get(i - 1).dist(end.points.get(i));
+      float bLen = start.points.get(i - 1).dist(start.points.get(i));
       
-      float angleA = angle(
-          V(end.points.get(i - 2), end.points.get(i - 1)),
-          V(end.points.get(i - 1), end.points.get(i))
-      );
-      float angleB = angle(
-          V(start.points.get(i - 2), start.points.get(i - 1)),
-          V(start.points.get(i - 1), start.points.get(i))
-      );
+      float angleA = angle(end.points.get(i - 2), end.points.get(i - 1), end.points.get(i));
+      float angleB = angle(start.points.get(i - 2), start.points.get(i - 1), start.points.get(i));
       
       // blend the angle and edge length
       float resultLength = elerp(aLen, bLen, t);
@@ -1320,15 +1311,16 @@ public class Oplet extends PApplet {
       
       // get the direction of the previous edge,
       // our interpolated angle is relative to this
-      vec diff = U(V(ps.get(i - 2), ps.get(i - 1)));
-      if(diff == null) {
+      vec displacement = ps.get(i - 2).to(ps.get(i - 1)).normalize();
+      if(displacement == null) {
         // this is for dealing with coincident verticies i think
         // there's a better way to do this,
         // having to do with expanding the neighborhood
         ps.set(i, lerp(ps.get(i - 1), ps.get(i - 2), 0.5f)); // lame but...
       } else {
         // move the previous point in the new angle, by the interpolated edge length
-        ps.set(i, T(ps.get(i - 1), S(resultLength, R(diff, resultAngle))));
+        pt p = ps.get(i).set(ps.get(i - 1));
+        p.add(displacement.rotateBy(resultAngle).scaleBy(resultLength));
       }
     }
     
@@ -1998,11 +1990,6 @@ public class Oplet extends PApplet {
     return abs(signedArea(pts));
   }
   
-  public static class AreaInfo {
-    pt centroid;
-    float area;
-  }
-  
   public static AreaInfo areaInfo(List<pt> pts) {
     pt centroid = new pt(0,0);
     float area = 0;
@@ -2312,7 +2299,7 @@ public class Oplet extends PApplet {
     float mlsq = maxLength*maxLength;
     vec v = new vec(0,0); 
     do {
-      v.setTo(random(-maxLength, maxLength), random(-maxLength, maxLength));
+      v.set(random(-maxLength, maxLength), random(-maxLength, maxLength));
     } while(v.sqnorm() > mlsq);
     return v;
   }
@@ -2323,43 +2310,10 @@ public class Oplet extends PApplet {
     return v;
   }
   
-  public float smallestGreaterThanZero(float a, float b) {
-    if(a > 0 && a < b) return a;
-    else if(b > 0 && b < a) return b;
-    else return max(a, b);
-  }
   public void line(vec3 a, vec3 b) {
     line(a.x, a.y, a.z, b.x, b.y, b.z);
   }
   
-  public static <T> T firstCommonElement(List<T> a, List<T> b) {
-    Set<T> bHash = new HashSet<T>(b);
-    for(T item : a) {
-      if(bHash.contains(item)) {
-        return item;
-      }
-    }
-    return null;
-  }
-  
-  // FIXME: write a docstring for this
-  public static <T> Pair<Integer,Integer> firstCommonElementIndicies(List<T> a, List<T> b) {
-    Set<T> bHash = new HashSet<T>(b);
-    int aIndex = 0;
-    int bIndex = -1; 
-    for(T item : a) {
-      if(bHash.contains(item)) {
-        bIndex = b.indexOf(item);
-        break;
-      }
-      aIndex++;
-    }
-    
-    if(bIndex == -1) return null;
-    
-    return Pair.make(aIndex,bIndex);
-  }
-
   public static vec3 reflect(vec3 incoming, vec3 normal) {
     float s = -2*normal.dot(incoming);
     return new vec3(incoming.x + s*normal.x, incoming.y + s*normal.y, incoming.z + s*normal.z);
@@ -2514,7 +2468,7 @@ public class Oplet extends PApplet {
     }
     endShape();
   }
-  
+  /*
   public String _selectOutput(final String prompt) {
     return _selectFileImpl(prompt, FileDialog.SAVE);
   }
@@ -2534,6 +2488,7 @@ public class Oplet extends PApplet {
     selectedFile = (filename == null) ? null : new File(directory, filename);
     return (selectedFile == null) ? null : selectedFile.getAbsolutePath();
   }
+  */
   
   public String prompt(String prompt) {
     return prompt(prompt, "");
@@ -2546,7 +2501,7 @@ public class Oplet extends PApplet {
       SwingUtilities.invokeAndWait(new Runnable() {
         public void run() {
           promptResult = (String) JOptionPane.showInputDialog(
-            parentFrame,
+            selectFrame(),
             prompt,
             "",
             JOptionPane.PLAIN_MESSAGE,
@@ -2572,7 +2527,7 @@ public class Oplet extends PApplet {
       SwingUtilities.invokeAndWait(new Runnable() {
         public void run() {
           JOptionPane.showMessageDialog(
-            parentFrame,
+            selectFrame(),
             message
           );
         }
@@ -2587,6 +2542,30 @@ public class Oplet extends PApplet {
       return null;
     }
   }
+  
+  // hey Processing, make this method protected! not private
+  protected Frame selectFrame;
+  protected Frame selectFrame() {
+    if (frame != null) {
+      selectFrame = frame;
+
+    } else if (selectFrame == null) {
+      Component comp = getParent();
+      while (comp != null) {
+        if (comp instanceof Frame) {
+          selectFrame = (Frame) comp;
+          break;
+        }
+        comp = comp.getParent();
+      }
+      // Who you callin' a hack?
+      if (selectFrame == null) {
+        selectFrame = new Frame();
+      }
+    }
+    return selectFrame;
+  }
+
   
   void checkInited() {
     if(g == null) throw new IllegalStateException("applet must be initialized before calling this method");
@@ -2638,35 +2617,28 @@ public class Oplet extends PApplet {
   public ActionListener delayToPre(final ActionListener listener) {
     checkInited();
     Delayer delayer = new Delayer(listener);
-    registerPre(delayer);
+    registerMethod("pre", delayer);
     return delayer;
   }
   
   public ActionListener delayToDraw(final ActionListener listener) {
     checkInited();
     Delayer delayer = new Delayer(listener);
-    registerDraw(delayer);
+    registerMethod("draw", delayer);
     return delayer;
   }
   
   public ActionListener delayToPost(final ActionListener listener) {
     checkInited();
     Delayer delayer = new Delayer(listener);
-    registerPost(delayer);
-    return delayer;
-  }
-  
-  public ChangeListener delayToPost(final ChangeListener listener) {
-    checkInited();
-    Delayer delayer = new Delayer(listener);
-    registerPost(delayer);
+    registerMethod("post", delayer);
     return delayer;
   }
   
   public ActionListener delayToDispose(final ActionListener listener) {
     checkInited();
     Delayer delayer = new Delayer(listener);
-    registerPost(delayer);
+    registerMethod("dispose", delayer);
     return delayer;
   }
   
@@ -3047,6 +3019,8 @@ public class Oplet extends PApplet {
   }
   
   public pt3 pick(int x, int y) {
+    throw new UnsupportedOperationException(); // FIXME: use the processing matrix stack
+    /*
     GL gl = ((PGraphicsOpenGL)g).beginGL();
     GLU glu = ((PGraphicsOpenGL)g).glu;
     int viewport[] = new int[4]; 
@@ -3062,6 +3036,7 @@ public class Oplet extends PApplet {
     glu.gluUnProject((double)x,height-(double)y,(double)fb.get(0), model,0,proj,0,viewport,0,mousePosArr,0); 
     ((PGraphicsOpenGL)g).endGL(); 
     return P(mousePosArr[0],mousePosArr[1],mousePosArr[2]);
+    */
   }
   
   public Ray3 getRay(float x, float y, ArcBall arcball) {
@@ -3182,7 +3157,9 @@ public class Oplet extends PApplet {
   }
   
   public void drawGradient() {
-    // TODO: make the more processing-y?
+    // FIXME: use PGL
+    throw new UnsupportedOperationException();
+    /*
     GL gl = ((PGraphicsOpenGL)g).beginGL();
     gl.glClearDepth(1);
     gl.glMatrixMode(GL.GL_PROJECTION);
@@ -3210,6 +3187,7 @@ public class Oplet extends PApplet {
     gl.glPopMatrix();
     gl.glMatrixMode(GL.GL_MODELVIEW);
     ((PGraphicsOpenGL)g).endGL();
+    */
   }
   
 
@@ -3439,32 +3417,26 @@ public class Oplet extends PApplet {
     return items.get(items.size()-1);
   }
   
-  public void selectInput(String prompt, SelectFileHandler callback) {
-    try {
-      noLoop();
-      String filename = selectInput(prompt);
-      if(filename != null) {
-        callback.invoke(filename);
+  public void selectInput(String prompt, final SelectFileHandler callback) {
+    selectInput(prompt, "invoke", null, new Object() {
+      @SuppressWarnings("unused")
+      public void invoke(File f) {
+        if(f != null) {
+          callback.invoke(f.toString());
+        }
       }
-    } catch(Exception e) {
-      e.printStackTrace();
-    } finally {
-      loop();
-    }
+    });
   }
   
-  public void selectOutput(String prompt, SelectFileHandler callback) {
-    try {
-      noLoop();
-      String filename = selectOutput(prompt);
-      if(filename != null) {
-        callback.invoke(filename);
+  public void selectOutput(String prompt, final SelectFileHandler callback) {
+    selectOutput(prompt, "invoke", null, new Object() {
+      @SuppressWarnings("unused")
+      public void invoke(File f) {
+        if(f != null) {
+          callback.invoke(f.toString());
+        }
       }
-    } catch(Exception e) {
-      e.printStackTrace();
-    } finally {
-      loop();
-    }
+    });
   }
   public interface SelectFileHandler {
     void invoke(String filename);

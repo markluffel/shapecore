@@ -331,7 +331,7 @@ public class Geometry {
   }
   
   public static float angle(pt a, pt b, pt c) {
-    return angle(V(a,b),V(b,c));
+    return angle(a.to(b), b.to(c));
   }
 
   public static float turnAngle(pt a, pt b, pt C) {

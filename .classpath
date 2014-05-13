@@ -4,8 +4,8 @@
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/processing1.5"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/jama"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/opengl1"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/opengl2"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/processing2"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -44,8 +44,7 @@ public class vec implements Vector<vec>, Serializable {
     y = Q.y - P.y;
   }
 
-  @Deprecated
-  public void setTo(float px, float py) {
+  public void set(float px, float py) {
     x = px;
     y = py;
   }
